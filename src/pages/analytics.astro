@@ -14,6 +14,332 @@ const json = (value) => JSON.stringify(value);
   <meta name="description" content="Trade Avata Analytics — account performance, risk intelligence and AI-powered trading analysis." />
   <title>Analytics | Trade Avata</title>
   <link rel="icon" type="image/png" href={`${base}brand/trade-avata-mark.png`} />
+
+  <style is:inline>
+    /* =========================================================
+       TRADE AVATA ANALYTICS — RESPONSIVE LAYOUT HARDENING
+       Covers desktop, laptop, tablet and phone widths.
+       ========================================================= */
+
+    html, body {
+      max-width: 100%;
+      overflow-x: hidden;
+    }
+
+    #analyticsApp,
+    .ta-shell,
+    .ta-main,
+    .ta-content,
+    .ta-view,
+    #dashboardCanvas {
+      min-width: 0;
+      max-width: 100%;
+    }
+
+    .ta-main {
+      overflow-x: clip;
+    }
+
+    .ta-content {
+      width: 100%;
+    }
+
+    .page-heading,
+    .filter-bar,
+    .kpi-strip,
+    .panel,
+    .grid-main,
+    .grid-2 {
+      min-width: 0;
+      max-width: 100%;
+    }
+
+    /* Large desktop */
+    @media (min-width: 1101px) {
+      #dashboardCanvas {
+        display: grid !important;
+        grid-template-columns: repeat(12, minmax(0, 1fr)) !important;
+        gap: 14px !important;
+        width: 100% !important;
+        align-items: start !important;
+      }
+
+      #dashboardCanvas > .kpi-strip,
+      #dashboardCanvas > [data-widget="kpis"] {
+        grid-column: 1 / -1 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+      }
+
+      #dashboardCanvas > .grid-main,
+      #dashboardCanvas > .grid-2 {
+        display: contents !important;
+      }
+
+      #dashboardCanvas > [data-widget="equity"] {
+        grid-column: span 8 !important;
+      }
+
+      #dashboardCanvas > [data-widget="overview"] {
+        grid-column: span 4 !important;
+      }
+
+      #dashboardCanvas > [data-widget="comparison"] {
+        grid-column: span 7 !important;
+      }
+
+      #dashboardCanvas > [data-widget="distribution"] {
+        grid-column: span 5 !important;
+      }
+
+      #dashboardCanvas > [data-widget="monthly"],
+      #dashboardCanvas > [data-widget="symbols"],
+      #dashboardCanvas > [data-widget="sessions"],
+      #dashboardCanvas > [data-widget="insights"] {
+        grid-column: span 6 !important;
+      }
+
+      #dashboardCanvas > [data-widget="recent"] {
+        grid-column: 1 / -1 !important;
+      }
+
+      #dashboardCanvas > [data-widget] {
+        min-width: 0 !important;
+        width: auto !important;
+        max-width: none !important;
+      }
+    }
+
+    /* Laptop / small desktop / landscape tablet
+       The old CSS made every direct widget span one of two columns,
+       which caused the KPI strip to stop halfway across the page. */
+    @media (min-width: 851px) and (max-width: 1100px) {
+      .ta-content {
+        padding-left: 22px !important;
+        padding-right: 22px !important;
+      }
+
+      #dashboardCanvas {
+        display: grid !important;
+        grid-template-columns: minmax(0, 1fr) !important;
+        gap: 14px !important;
+        width: 100% !important;
+      }
+
+      #dashboardCanvas > .kpi-strip,
+      #dashboardCanvas > [data-widget="kpis"],
+      #dashboardCanvas > .grid-main,
+      #dashboardCanvas > .grid-2,
+      #dashboardCanvas > [data-widget] {
+        grid-column: 1 / -1 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+      }
+
+      #dashboardCanvas > .grid-main,
+      #dashboardCanvas > .grid-2 {
+        display: grid !important;
+        grid-template-columns: minmax(0, 1fr) !important;
+        gap: 14px !important;
+        margin: 0 !important;
+      }
+
+      #dashboardCanvas > .grid-main:empty,
+      #dashboardCanvas > .grid-2:empty {
+        display: none !important;
+      }
+
+      .kpi-strip {
+        display: flex !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        overflow-x: auto !important;
+        overflow-y: hidden !important;
+        padding-bottom: 7px !important;
+        scroll-snap-type: x proximity;
+      }
+
+      .kpi-strip .kpi-card {
+        flex: 0 0 clamp(170px, 23vw, 220px) !important;
+        min-width: 170px !important;
+        scroll-snap-align: start;
+      }
+
+      .filter-bar {
+        width: 100% !important;
+        overflow-x: auto !important;
+        overflow-y: hidden !important;
+        padding-bottom: 10px !important;
+      }
+
+      .panel,
+      .widget {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+      }
+
+      .chart-scroll,
+      .comparison-table-wrap,
+      .table-scroll {
+        max-width: 100% !important;
+        overflow-x: auto !important;
+      }
+    }
+
+    /* Tablet and phone */
+    @media (max-width: 850px) {
+      body.analytics-sidebar-collapsed .ta-main,
+      .ta-main {
+        margin-left: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+      }
+
+      .ta-content {
+        width: 100% !important;
+        padding: 16px 12px 82px !important;
+        overflow-x: hidden !important;
+      }
+
+      .page-heading {
+        display: block !important;
+        width: 100% !important;
+      }
+
+      .heading-actions {
+        width: 100% !important;
+        margin-top: 12px !important;
+        flex-wrap: wrap !important;
+      }
+
+      .filter-bar {
+        display: flex !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        overflow-x: auto !important;
+        overflow-y: hidden !important;
+        padding-bottom: 10px !important;
+      }
+
+      #dashboardCanvas {
+        display: block !important;
+        width: 100% !important;
+        max-width: 100% !important;
+      }
+
+      #dashboardCanvas > .kpi-strip,
+      #dashboardCanvas > [data-widget="kpis"] {
+        display: flex !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        overflow-x: auto !important;
+        overflow-y: hidden !important;
+        margin-bottom: 14px !important;
+        padding-bottom: 7px !important;
+        scroll-snap-type: x proximity;
+      }
+
+      .kpi-strip .kpi-card {
+        flex: 0 0 min(78vw, 220px) !important;
+        min-width: min(78vw, 220px) !important;
+        scroll-snap-align: start;
+      }
+
+      #dashboardCanvas > .grid-main,
+      #dashboardCanvas > .grid-2 {
+        display: grid !important;
+        grid-template-columns: minmax(0, 1fr) !important;
+        gap: 14px !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 0 14px !important;
+      }
+
+      #dashboardCanvas > .grid-main:empty,
+      #dashboardCanvas > .grid-2:empty {
+        display: none !important;
+      }
+
+      #dashboardCanvas > [data-widget],
+      #dashboardCanvas > .grid-main > [data-widget],
+      #dashboardCanvas > .grid-2 > [data-widget],
+      .panel,
+      .widget {
+        display: block;
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        grid-column: 1 / -1 !important;
+        margin-bottom: 14px !important;
+      }
+
+      .chart-scroll,
+      .comparison-table-wrap,
+      .table-scroll,
+      .calendar-panel {
+        width: 100% !important;
+        max-width: 100% !important;
+        overflow-x: auto !important;
+        overflow-y: hidden !important;
+      }
+
+      .distribution {
+        flex-wrap: wrap !important;
+      }
+
+      .share-controls,
+      .download-actions,
+      .heading-actions {
+        max-width: 100% !important;
+      }
+    }
+
+    /* Narrow phones */
+    @media (max-width: 620px) {
+      .ta-content {
+        padding-left: 10px !important;
+        padding-right: 10px !important;
+      }
+
+      .page-heading h1 {
+        font-size: 22px !important;
+      }
+
+      .filter-chip,
+      .filter-more {
+        flex: 0 0 auto !important;
+      }
+
+      .panel {
+        padding: 14px !important;
+      }
+
+      .overview-grid,
+      .session-grid,
+      .risk-grid,
+      .ledger-summary,
+      .custom-grid,
+      .challenge-grid {
+        grid-template-columns: 1fr !important;
+      }
+
+      .distribution {
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+      }
+
+      .donut {
+        margin-inline: auto;
+      }
+
+      .rank-row {
+        grid-template-columns: 48px minmax(110px, 1fr) 48px 46px !important;
+      }
+    }
+  </style>
+
 </head>
 <body class="analytics-body">
   <div class="ta-shell" id="analyticsApp">
