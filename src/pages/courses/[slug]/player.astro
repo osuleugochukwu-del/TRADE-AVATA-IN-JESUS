@@ -6,68 +6,157 @@ export function getStaticPaths() {
   return courses.map(course => ({
     params: { slug: course.slug },
     props: { course }
-  }));  
+  }));
 }
 
 const { course } = Astro.props;
 const base = import.meta.env.BASE_URL;
+
+const lessonVideoUrl = course.videoUrl || '';
+
+function getVideoEmbed(url = '') {
+  const value = String(url).trim();
+
+  const vimeoMatch = value.match(/vimeo\.com\/(?:video\/)?(\d+)/i);
+  if (vimeoMatch) {
+    return {
+      provider: 'vimeo',
+      src: `https://player.vimeo.com/video/${vimeoMatch[1]}?dnt=1&playsinline=1`
+    };
+  }
+
+  const youtubeMatch =
+    value.match(/[?&]v=([^&]+)/i) ||
+    value.match(/youtu\.be\/([^?&/]+)/i) ||
+    value.match(/youtube\.com\/shorts\/([^?&/]+)/i) ||
+    value.match(/youtube(?:-nocookie)?\.com\/embed\/([^?&/]+)/i);
+
+  if (youtubeMatch) {
+    return {
+      provider: 'youtube',
+      src: `https://www.youtube-nocookie.com/embed/${youtubeMatch[1]}?rel=0&playsinline=1&fs=1&iv_load_policy=3`
+    };
+  }
+
+  return { provider: '', src: '' };
+}
+
+const video = getVideoEmbed(lessonVideoUrl);
 ---
 
 <BaseLayout title={`${course.title} Player — Trade Avata`}>
   <section class="section dark" style="padding-top:22px">
     <div class="shell">
-      <div style="display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:14px">
+
+      <div class="player-heading">
         <div>
           <span class="eyebrow">Course Player</span>
-          <h1 style="font-size:24px;margin:4px 0">{course.title}</h1>
+          <h1>{course.title}</h1>
         </div>
-        <a class="button ghost button-small" href={`${base}courses/${course.slug}/`}>Course details</a>
+
+        <a
+          class="button ghost button-small"
+          href={`${base}courses/${course.slug}/`}
+        >
+          Course details
+        </a>
       </div>
 
-      <div class="course-player-grid" style="display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:14px">
+      <div class="course-player-grid">
+
         <div>
           <div class="course-video">
-            <iframe
-              src="https://player.vimeo.com/video/YOUR_VIMEO_VIDEO_ID"
-              title="Trade Avata Course Lesson"
-              loading="lazy"
-              allow="autoplay; fullscreen; picture-in-picture"
-              allowfullscreen
-            ></iframe>
+            {video.src ? (
+              <iframe
+                src={video.src}
+                title="Trade Avata Course Lesson"
+                loading="lazy"
+                allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
+                allowfullscreen
+                referrerpolicy="strict-origin-when-cross-origin"
+              ></iframe>
+            ) : (
+              <div class="video-empty">
+                <div class="video-empty-icon">▶</div>
+                <strong>Course video ready</strong>
+                <span>
+                  Add a Vimeo or YouTube lesson link from the Admin area.
+                </span>
+              </div>
+            )}
           </div>
 
-          <div class="card" style="margin-top:10px;padding:18px;background:#081827;border-color:#1e3b55">
-            <small style="color:#6db8f7">LESSON 1</small>
-            <h2 style="font-size:19px">Introduction and course workflow</h2>
-            <p style="color:#9db0c3;font-size:12px">Learn how this course is structured, what to record and how to continue from the same point later.</p>
-            <button class="button button-small" data-complete>Mark complete</button>
-            <span data-status style="font-size:10px;color:#20c990"></span>
+          <div class="card lesson-card">
+            <small>LESSON 1</small>
+
+            <h2>
+              Introduction and course workflow
+            </h2>
+
+            <p>
+              Learn how this course is structured, what to record and how to
+              continue from the same point later.
+            </p>
+
+            <button
+              class="button button-small"
+              data-complete
+            >
+              Mark complete
+            </button>
+
+            <span data-status></span>
           </div>
         </div>
 
-        <aside class="card" style="padding:12px;background:#081827;border-color:#1e3b55">
-          <h3>Course content</h3>
+        <aside class="card course-content">
+
+          <h3>
+            Course content
+          </h3>
+
           {Array.from({ length: course.lessons }, (_, i) =>
-            <button
-              data-lesson={i + 1}
-              style="width:100%;text-align:left;border:0;border-bottom:1px solid #18334c;background:transparent;color:#cfe0ee;padding:11px 6px;font-size:11px"
-            >
-              {i + 1}. {i === 0 ? 'Introduction and workflow' : 'Lesson ' + (i + 1)}
+            <button data-lesson={i + 1}>
+              {i + 1}. {i === 0
+                ? 'Introduction and workflow'
+                : 'Lesson ' + (i + 1)}
             </button>
           )}
+
         </aside>
+
       </div>
     </div>
   </section>
 
   <style>
+    .player-heading {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+
+    .player-heading h1 {
+      font-size: 24px;
+      margin: 4px 0;
+    }
+
+    .course-player-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 300px;
+      gap: 14px;
+    }
+
     .course-video {
       width: 100%;
       aspect-ratio: 16 / 9;
       background: #02070d;
       border: 1px solid #1e3b55;
-      border-radius: 12px;
+      border-radius: 14px;
       overflow: hidden;
+      box-shadow: 0 18px 50px rgba(0, 0, 0, .24);
     }
 
     .course-video iframe {
@@ -75,14 +164,102 @@ const base = import.meta.env.BASE_URL;
       width: 100%;
       height: 100%;
       border: 0;
+      background: #000;
     }
 
-    @media(max-width:760px) {
-      .course-player-grid {
-        grid-template-columns: 1fr !important;
+    .video-empty {
+      width: 100%;
+      height: 100%;
+      display: grid;
+      place-items: center;
+      align-content: center;
+      gap: 8px;
+      text-align: center;
+      color: #d7e7f6;
+      padding: 24px;
+      box-sizing: border-box;
+    }
+
+    .video-empty-icon {
+      width: 54px;
+      height: 54px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: #0c84fa;
+      color: white;
+      font-size: 20px;
+      padding-left: 3px;
+    }
+
+    .video-empty strong {
+      font-size: 14px;
+    }
+
+    .video-empty span {
+      max-width: 420px;
+      color: #829ab0;
+      font-size: 11px;
+      line-height: 1.6;
+    }
+
+    .lesson-card {
+      margin-top: 10px;
+      padding: 18px;
+      background: #081827;
+      border-color: #1e3b55;
+    }
+
+    .lesson-card small {
+      color: #6db8f7;
+    }
+
+    .lesson-card h2 {
+      font-size: 19px;
+    }
+
+    .lesson-card p {
+      color: #9db0c3;
+      font-size: 12px;
+    }
+
+    [data-status] {
+      font-size: 10px;
+      color: #20c990;
+    }
+
+    .course-content {
+      padding: 12px;
+      background: #081827;
+      border-color: #1e3b55;
+    }
+
+    .course-content button {
+      width: 100%;
+      text-align: left;
+      border: 0;
+      border-bottom: 1px solid #18334c;
+      background: transparent;
+      color: #cfe0ee;
+      padding: 11px 6px;
+      font-size: 11px;
+      cursor: pointer;
+    }
+
+    .course-content button:hover {
+      background: rgba(12, 132, 250, .08);
+    }
+
+    @media (max-width: 760px) {
+      .player-heading {
+        align-items: flex-start;
       }
 
-      .course-player-grid aside {
+      .course-player-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .course-content {
         max-height: 320px;
         overflow: auto;
       }
@@ -94,19 +271,46 @@ const base = import.meta.env.BASE_URL;
   </style>
 
   <script is:inline>
-    document.querySelector('[data-complete]')?.addEventListener('click', () => {
-      localStorage.setItem('ta-course-progress', JSON.stringify({
-        course: document.title,
-        lesson: 1,
-        complete: true
-      }));
-      document.querySelector('[data-status]').textContent = '✓ Progress saved on this device';
-    });
+    document
+      .querySelector('[data-complete]')
+      ?.addEventListener('click', () => {
 
-    document.querySelectorAll('[data-lesson]').forEach(x => {
-      x.addEventListener('click', () => {
-        document.querySelector('[data-status]').textContent = 'Lesson ' + x.dataset.lesson + ' selected';
+        localStorage.setItem(
+          'ta-course-progress',
+          JSON.stringify({
+            course: document.title,
+            lesson: 1,
+            complete: true
+          })
+        );
+
+        const status =
+          document.querySelector('[data-status]');
+
+        if (status) {
+          status.textContent =
+            '✓ Progress saved on this device';
+        }
       });
-    });
+
+    document
+      .querySelectorAll('[data-lesson]')
+      .forEach(button => {
+
+        button.addEventListener('click', () => {
+
+          const status =
+            document.querySelector('[data-status]');
+
+          if (status) {
+            status.textContent =
+              'Lesson ' +
+              button.dataset.lesson +
+              ' selected';
+          }
+        });
+
+      });
   </script>
+
 </BaseLayout>
