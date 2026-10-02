@@ -438,14 +438,148 @@ const json = (value) => JSON.stringify(value);
     }
   </style>
 
+
+  <style is:inline>
+    /* =========================================================
+       TRADE AVATA BRAND LOCKUP FIX
+       Correct proportions for sidebar, collapsed sidebar and mobile.
+       ========================================================= */
+
+    .ta-brand-row {
+      align-items: center !important;
+      gap: 10px !important;
+    }
+
+    .ta-brand {
+      display: flex !important;
+      align-items: center !important;
+      gap: 10px !important;
+      min-width: 0 !important;
+      padding: 0 !important;
+      text-decoration: none !important;
+    }
+
+    .ta-brand img {
+      width: 42px !important;
+      height: 42px !important;
+      flex: 0 0 42px !important;
+      object-fit: contain !important;
+      border-radius: 9px !important;
+    }
+
+    .ta-brand .ta-brand-copy {
+      display: flex !important;
+      flex-direction: column !important;
+      justify-content: center !important;
+      min-width: 0 !important;
+      line-height: 1.05 !important;
+    }
+
+    .ta-brand .ta-brand-copy b {
+      display: block !important;
+      white-space: nowrap !important;
+      font-size: 15px !important;
+      font-weight: 800 !important;
+      letter-spacing: -0.02em !important;
+      color: var(--ta-text) !important;
+    }
+
+    .ta-brand .ta-brand-copy small {
+      display: block !important;
+      margin-top: 5px !important;
+      white-space: nowrap !important;
+      font-size: 8px !important;
+      font-weight: 600 !important;
+      color: var(--ta-muted) !important;
+    }
+
+    .sidebar-collapse {
+      margin-left: auto !important;
+    }
+
+    body.analytics-sidebar-collapsed .ta-brand {
+      justify-content: center !important;
+      width: 100% !important;
+      gap: 0 !important;
+    }
+
+    body.analytics-sidebar-collapsed .ta-brand img {
+      width: 38px !important;
+      height: 38px !important;
+      flex-basis: 38px !important;
+    }
+
+    body.analytics-sidebar-collapsed .ta-brand .ta-brand-copy {
+      display: none !important;
+    }
+
+    .mobile-brand-link {
+      display: flex !important;
+      align-items: center !important;
+      gap: 8px !important;
+      min-width: 0 !important;
+      text-decoration: none !important;
+    }
+
+    .mobile-brand-link img {
+      width: 34px !important;
+      height: 34px !important;
+      flex: 0 0 34px !important;
+      object-fit: contain !important;
+      border-radius: 8px !important;
+    }
+
+    .mobile-brand-copy {
+      display: flex !important;
+      flex-direction: column !important;
+      line-height: 1.02 !important;
+    }
+
+    .mobile-brand-copy b {
+      white-space: nowrap !important;
+      font-size: 12px !important;
+      font-weight: 800 !important;
+      color: var(--ta-text) !important;
+    }
+
+    .mobile-brand-copy small {
+      margin-top: 3px !important;
+      white-space: nowrap !important;
+      font-size: 7px !important;
+      color: var(--ta-muted) !important;
+    }
+
+    @media (max-width: 850px) {
+      .mobile-brand-copy {
+        display: flex !important;
+      }
+
+      .mobile-brand-link img {
+        width: 32px !important;
+        height: 32px !important;
+        flex-basis: 32px !important;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .mobile-brand-copy b {
+        font-size: 11px !important;
+      }
+
+      .mobile-brand-copy small {
+        font-size: 6.5px !important;
+      }
+    }
+  </style>
+
 </head>
 <body class="analytics-body">
   <div class="ta-shell" id="analyticsApp">
     <aside class="ta-sidebar" id="sidebar">
       <div class="ta-brand-row">
         <a class="ta-brand" href={base} aria-label="Trade Avata home">
-          <img src={`${base}brand/trade-avata-mark.png`} alt="" />
-          <span><b>Trade Avata</b><small>Trade Simple.</small></span>
+          <img src={`${base}brand/trade-avata-mark.png`} alt="Trade Avata" />
+          <span class="ta-brand-copy"><b>Trade Avata</b><small>Trade Simple.</small></span>
         </a>
         <button class="sidebar-collapse" id="sidebarCollapse" aria-label="Collapse sidebar" title="Collapse sidebar">‹</button>
       </div>
@@ -468,7 +602,7 @@ const json = (value) => JSON.stringify(value);
       <header class="ta-topbar">
         <div class="mobile-brand">
           <button class="icon-btn" id="mobileMenu" aria-label="Open navigation">☰</button>
-          <a href={base}><img src={`${base}brand/trade-avata-mark.png`} alt="" /><span><b>Trade Avata</b><small>Trade Simple.</small></span></a>
+          <a class="mobile-brand-link" href={base}><img src={`${base}brand/trade-avata-mark.png`} alt="Trade Avata" /><span class="mobile-brand-copy"><b>Trade Avata</b><small>Trade Simple.</small></span></a>
         </div>
         <div class="account-header">
           <button class="account-picker" id="accountPicker" aria-haspopup="dialog">
