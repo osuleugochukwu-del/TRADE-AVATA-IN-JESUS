@@ -158,3 +158,88 @@ body.analytics-sidebar-collapsed .ta-sidebar{width:68px;flex-basis:68px;padding-
 @media(max-width:850px){.sidebar-collapse{display:none}body.analytics-sidebar-collapsed .ta-main{margin-left:0;width:100%}.appearance-preset-row{grid-template-columns:1fr 1fr 1fr;padding-inline:14px}}
 /* Official Trade Avata brand lockup */
 .ta-brand img,.mobile-brand img{border-radius:8px}.ta-brand span{display:grid}.ta-brand small{font-size:9px!important;color:var(--ta-muted)!important}.mobile-brand a span{display:grid;line-height:1}.mobile-brand a span b{font-size:11px}.mobile-brand a span small{font-size:7px;color:var(--ta-muted);margin-top:3px}@media(max-width:850px){.mobile-brand a span{display:none}}
+
+
+
+
+
+/* =========================================================
+   ANALYTICS DESKTOP LAYOUT FIX
+   Prevent dashboard panels collapsing into narrow columns
+   ========================================================= */
+
+@media (min-width: 1101px) {
+
+  #dashboardCanvas {
+    display: grid !important;
+    grid-template-columns: repeat(12, minmax(0, 1fr)) !important;
+    gap: 14px !important;
+    width: 100% !important;
+    align-items: start !important;
+  }
+
+  #dashboardCanvas > .kpi-strip {
+    grid-column: 1 / -1 !important;
+    width: 100% !important;
+  }
+
+  #dashboardCanvas > .grid-main {
+    display: grid !important;
+    grid-column: 1 / -1 !important;
+    grid-template-columns:
+      minmax(0, 1.6fr)
+      minmax(300px, 0.9fr) !important;
+    gap: 14px !important;
+    width: 100% !important;
+    margin: 0 !important;
+  }
+
+  #dashboardCanvas > .grid-2 {
+    display: grid !important;
+    grid-column: 1 / -1 !important;
+    grid-template-columns:
+      minmax(0, 1.1fr)
+      minmax(0, 1fr) !important;
+    gap: 14px !important;
+    width: 100% !important;
+    margin: 0 !important;
+  }
+
+  #dashboardCanvas > .grid-main:empty,
+  #dashboardCanvas > .grid-2:empty {
+    display: none !important;
+  }
+
+  #dashboardCanvas > [data-widget="equity"] {
+    grid-column: span 8 !important;
+  }
+
+  #dashboardCanvas > [data-widget="overview"] {
+    grid-column: span 4 !important;
+  }
+
+  #dashboardCanvas > [data-widget="comparison"] {
+    grid-column: span 7 !important;
+  }
+
+  #dashboardCanvas > [data-widget="distribution"] {
+    grid-column: span 5 !important;
+  }
+
+  #dashboardCanvas > [data-widget="monthly"],
+  #dashboardCanvas > [data-widget="symbols"],
+  #dashboardCanvas > [data-widget="sessions"],
+  #dashboardCanvas > [data-widget="insights"] {
+    grid-column: span 6 !important;
+  }
+
+  #dashboardCanvas > [data-widget="recent"] {
+    grid-column: 1 / -1 !important;
+  }
+
+  #dashboardCanvas > [data-widget] {
+    min-width: 0 !important;
+    width: auto !important;
+    max-width: none !important;
+  }
+}
