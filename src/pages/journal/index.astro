@@ -176,7 +176,7 @@ const evidencePreviewEndpoint = import.meta.env.PUBLIC_TRADE_AVATA_EVIDENCE_PREV
   <script is:inline define:vars={{ base, aiEndpoint, projectId, evidencePreviewEndpoint }}>
     window.__TA_JOURNAL_CONFIG__={base,aiEndpoint,projectId,evidencePreviewEndpoint};
   </script>
-  <script type="module">
+  <script>
     import { auth, watchAuth } from '../../lib/firebase/auth.js';
     import { db } from '../../lib/firebase/db.js';
     import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
