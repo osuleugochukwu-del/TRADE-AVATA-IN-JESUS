@@ -1,23 +1,385 @@
-<div id="copyGate" data-copy-gate><div class="gate-card"><span>TRADE AVATA</span><h1>Private Copy Trading Workspace</h1><p>This module is enabled for authorized testing only. Public visibility is controlled from the admin backend.</p><div class="gate-status" id="gateStatus">Checking access…</div></div></div>
-<script type="module">
-import { getAuth, onAuthStateChanged } from 'firebase/auth';
-import { doc, getDoc, getFirestore } from 'firebase/firestore';
-import { firebaseApp } from '../lib/firebase/config.js';
-const gate=document.querySelector('[data-copy-gate]');
-async function run(){
-  if(!firebaseApp){ gate.innerHTML='<div class="gate-card"><span>TRADE AVATA</span><h1>Private module</h1><p>Firebase is not configured in this environment yet.</p></div>'; return; }
-  const auth=getAuth(firebaseApp), db=getFirestore(firebaseApp);
-  onAuthStateChanged(auth,async user=>{
-    if(!user){ gate.innerHTML='<div class="gate-card"><span>PRIVATE ACCESS</span><h1>Sign in required</h1><p>Copy Trading is private during testing. Sign in with an authorized Trade Avata account.</p><a class="gate-btn" href={`${base}login/`}>Sign in</a></div>'; return; }
-    const role=await getDoc(doc(db,'roles',user.uid)); const settings=await getDoc(doc(db,'siteSettings','copyTrading'));
-    const data=role.exists()?role.data():{}; const cfg=settings.exists()?settings.data():{};
-    const allowed=['superAdmin','admin','staff','copyTradingTester'].includes(data.role)||data.permissions?.includes?.('copyTrading.test');
-    if(!allowed){gate.innerHTML='<div class="gate-card"><span>PRIVATE ACCESS</span><h1>Not available for this account</h1><p>Your account is not authorized to use the private Copy Trading workspace.</p></div>';return;}
-    gate.remove(); document.dispatchEvent(new CustomEvent('ta-copy-authorized',{detail:{userId:user.uid,config:cfg}}));
+<div id="copyGate" data-copy-gate>
+  <div class="gate-card">
+    <span>TRADE AVATA</span>
+    <h1>Private Copy Trading Workspace</h1>
+    <p>
+      This module is enabled for authorized testing only.
+      Public visibility is controlled from the admin backend.
+    </p>
+
+    <div class="gate-status" id="gateStatus">
+      Checking access…
+    </div>
+  </div>
+</div>
+
+<script>
+  import { getAuth, onAuthStateChanged } from 'firebase/auth';
+  import { doc, getDoc, getFirestore } from 'firebase/firestore';
+  import { firebaseApp } from '../lib/firebase/config.js';
+
+  const gate = document.querySelector('[data-copy-gate]');
+  const base = import.meta.env.BASE_URL;
+
+  let accessFinished = false;
+
+  function showGate(content) {
+    if (!gate) return;
+
+    gate.innerHTML = content;
+    accessFinished = true;
+  }
+
+  function showBackendUnavailable() {
+    showGate(`
+      <div class="gate-card">
+        <span>PRIVATE ACCESS</span>
+
+        <h1>Backend not connected yet</h1>
+
+        <p>
+          The Copy Trading workspace is protected correctly,
+          but Firebase access has not been configured for this
+          deployment yet.
+        </p>
+
+        <p class="gate-note">
+          We will connect this when we configure the Trade Avata backend.
+        </p>
+      </div>
+    `);
+  }
+
+  async function runAccessCheck() {
+    if (!gate) return;
+
+    if (!firebaseApp) {
+      showBackendUnavailable();
+      return;
+    }
+
+    const auth = getAuth(firebaseApp);
+    const db = getFirestore(firebaseApp);
+
+    const timeout = window.setTimeout(() => {
+      if (accessFinished) return;
+
+      showGate(`
+        <div class="gate-card">
+          <span>PRIVATE ACCESS</span>
+
+          <h1>Access check unavailable</h1>
+
+          <p>
+            Trade Avata could not complete the Copy Trading
+            access check.
+          </p>
+
+          <button
+            class="gate-btn"
+            type="button"
+            onclick="window.location.reload()"
+          >
+            Try again
+          </button>
+        </div>
+      `);
+    }, 10000);
+
+    onAuthStateChanged(
+      auth,
+
+      async user => {
+        window.clearTimeout(timeout);
+
+        try {
+          if (!user) {
+            showGate(`
+              <div class="gate-card">
+                <span>PRIVATE ACCESS</span>
+
+                <h1>Sign in required</h1>
+
+                <p>
+                  Copy Trading is private during testing.
+                  Sign in with an authorized Trade Avata account.
+                </p>
+
+                <a
+                  class="gate-btn"
+                  href="${base}login/"
+                >
+                  Sign in
+                </a>
+              </div>
+            `);
+
+            return;
+          }
+
+          const [roleSnapshot, settingsSnapshot] =
+            await Promise.all([
+              getDoc(
+                doc(
+                  db,
+                  'roles',
+                  user.uid
+                )
+              ),
+
+              getDoc(
+                doc(
+                  db,
+                  'siteSettings',
+                  'copyTrading'
+                )
+              )
+            ]);
+
+          const roleData =
+            roleSnapshot.exists()
+              ? roleSnapshot.data()
+              : {};
+
+          const copySettings =
+            settingsSnapshot.exists()
+              ? settingsSnapshot.data()
+              : {};
+
+          const allowedRoles = [
+            'superAdmin',
+            'admin',
+            'staff',
+            'copyTradingTester'
+          ];
+
+          const permissions =
+            Array.isArray(roleData.permissions)
+              ? roleData.permissions
+              : [];
+
+          const allowed =
+            allowedRoles.includes(roleData.role) ||
+            permissions.includes('copyTrading.test');
+
+          if (!allowed) {
+            showGate(`
+              <div class="gate-card">
+                <span>PRIVATE ACCESS</span>
+
+                <h1>Not available for this account</h1>
+
+                <p>
+                  Your Trade Avata account is signed in,
+                  but it has not been authorized to use the
+                  private Copy Trading workspace.
+                </p>
+              </div>
+            `);
+
+            return;
+          }
+
+          accessFinished = true;
+
+          gate.remove();
+
+          document.dispatchEvent(
+            new CustomEvent(
+              'ta-copy-authorized',
+              {
+                detail: {
+                  userId: user.uid,
+                  config: copySettings
+                }
+              }
+            )
+          );
+        }
+
+        catch (error) {
+          console.error(
+            'Copy Trading access check failed:',
+            error
+          );
+
+          showGate(`
+            <div class="gate-card">
+              <span>PRIVATE ACCESS</span>
+
+              <h1>Access check unavailable</h1>
+
+              <p>
+                Trade Avata could not verify access to the
+                private Copy Trading workspace.
+              </p>
+
+              <button
+                class="gate-btn"
+                type="button"
+                onclick="window.location.reload()"
+              >
+                Try again
+              </button>
+            </div>
+          `);
+        }
+      },
+
+      error => {
+        window.clearTimeout(timeout);
+
+        console.error(
+          'Authentication check failed:',
+          error
+        );
+
+        showGate(`
+          <div class="gate-card">
+            <span>PRIVATE ACCESS</span>
+
+            <h1>Authentication unavailable</h1>
+
+            <p>
+              Trade Avata could not complete the authentication
+              check. Please try again.
+            </p>
+
+            <button
+              class="gate-btn"
+              type="button"
+              onclick="window.location.reload()"
+            >
+              Try again
+            </button>
+          </div>
+        `);
+      }
+    );
+  }
+
+  runAccessCheck().catch(error => {
+    console.error(
+      'Copy Trading gate error:',
+      error
+    );
+
+    showGate(`
+      <div class="gate-card">
+        <span>PRIVATE ACCESS</span>
+
+        <h1>Access check unavailable</h1>
+
+        <p>
+          The private Copy Trading workspace could not complete
+          its access check.
+        </p>
+      </div>
+    `);
   });
-}
-run().catch(()=>{gate.innerHTML='<div class="gate-card"><h1>Access check unavailable</h1><p>Please try again after the backend is available.</p></div>'});
 </script>
+
 <style is:global>
-[data-copy-gate]{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;background:#070b12;color:#edf3fb;padding:24px}.gate-card{max-width:560px;text-align:center;border:1px solid #1c2735;border-radius:22px;padding:42px;background:#0d131d;box-shadow:0 25px 80px rgba(0,0,0,.35)}.gate-card span{font-size:11px;letter-spacing:.16em;color:#64d7ff}.gate-card h1{font-size:34px;margin:14px 0}.gate-card p{color:#8290a5;line-height:1.7}.gate-btn{display:inline-block;margin-top:14px;padding:11px 18px;border-radius:10px;background:#4b8cff;color:#fff}
+  [data-copy-gate] {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+
+    display: grid;
+    place-items: center;
+
+    background: #070b12;
+    color: #edf3fb;
+
+    padding: 24px;
+  }
+
+  .gate-card {
+    width: 100%;
+    max-width: 560px;
+
+    box-sizing: border-box;
+
+    text-align: center;
+
+    border: 1px solid #1c2735;
+    border-radius: 22px;
+
+    padding: 42px;
+
+    background: #0d131d;
+
+    box-shadow:
+      0 25px 80px
+      rgba(0, 0, 0, .35);
+  }
+
+  .gate-card span {
+    font-size: 11px;
+
+    letter-spacing: .16em;
+
+    color: #64d7ff;
+  }
+
+  .gate-card h1 {
+    font-size: 34px;
+
+    margin: 14px 0;
+  }
+
+  .gate-card p {
+    color: #8290a5;
+
+    line-height: 1.7;
+  }
+
+  .gate-note {
+    font-size: 12px;
+  }
+
+  .gate-status {
+    margin-top: 18px;
+
+    color: #edf3fb;
+  }
+
+  .gate-btn {
+    display: inline-block;
+
+    margin-top: 14px;
+
+    padding: 11px 18px;
+
+    border: 0;
+    border-radius: 10px;
+
+    background: #4b8cff;
+
+    color: #fff;
+
+    text-decoration: none;
+
+    font: inherit;
+
+    cursor: pointer;
+  }
+
+  .gate-btn:hover {
+    opacity: .92;
+  }
+
+  @media (max-width: 600px) {
+    [data-copy-gate] {
+      padding: 16px;
+    }
+
+    .gate-card {
+      padding: 30px 22px;
+    }
+
+    .gate-card h1 {
+      font-size: 27px;
+    }
+  }
 </style>
