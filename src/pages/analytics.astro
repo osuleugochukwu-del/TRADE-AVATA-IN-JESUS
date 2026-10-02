@@ -340,6 +340,104 @@ const json = (value) => JSON.stringify(value);
     }
   </style>
 
+
+  <style is:inline>
+    /* Functional dashboard filters */
+    .filter-chip,
+    .filter-more {
+      transition: border-color .16s ease, background .16s ease, color .16s ease;
+    }
+
+    .filter-chip.is-filtered,
+    .filter-more.is-filtered {
+      border-color: color-mix(in srgb, var(--ta-accent) 65%, var(--ta-border)) !important;
+      background: color-mix(in srgb, var(--ta-accent) 13%, var(--ta-panel)) !important;
+      color: var(--ta-text) !important;
+    }
+
+    .filter-option-list {
+      display: grid;
+      gap: 7px;
+      padding: 14px 18px 18px;
+      max-height: min(58vh, 520px);
+      overflow-y: auto;
+    }
+
+    .filter-option {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 11px 12px;
+      border: 1px solid var(--ta-border);
+      border-radius: 9px;
+      background: var(--ta-panel2);
+      color: var(--ta-text);
+      text-align: left;
+      font-size: 11px;
+    }
+
+    .filter-option:hover,
+    .filter-option.active {
+      border-color: color-mix(in srgb, var(--ta-accent) 70%, var(--ta-border));
+      background: color-mix(in srgb, var(--ta-accent) 12%, var(--ta-panel2));
+    }
+
+    .filter-option span {
+      color: var(--ta-muted);
+      font-size: 9px;
+    }
+
+    .advanced-filter-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      padding: 16px 20px 6px;
+    }
+
+    .advanced-filter-grid label {
+      display: grid;
+      gap: 6px;
+      color: var(--ta-muted);
+      font-size: 9px;
+      font-weight: 700;
+    }
+
+    .advanced-filter-grid select,
+    .advanced-filter-grid input {
+      width: 100%;
+      min-height: 38px;
+      border: 1px solid var(--ta-border);
+      border-radius: 8px;
+      background: var(--ta-panel2);
+      color: var(--ta-text);
+      padding: 8px 10px;
+      outline: none;
+    }
+
+    .advanced-filter-note {
+      margin: 8px 20px 0;
+      padding: 10px 12px;
+      border: 1px solid var(--ta-border);
+      border-radius: 8px;
+      background: color-mix(in srgb, var(--ta-accent) 7%, var(--ta-panel));
+      color: var(--ta-muted);
+      font-size: 9px;
+    }
+
+    @media (max-width: 620px) {
+      .advanced-filter-grid {
+        grid-template-columns: 1fr;
+        padding-inline: 14px;
+      }
+
+      .advanced-filter-note {
+        margin-inline: 14px;
+      }
+    }
+  </style>
+
 </head>
 <body class="analytics-body">
   <div class="ta-shell" id="analyticsApp">
@@ -400,13 +498,13 @@ const json = (value) => JSON.stringify(value);
           </div>
 
           <div class="filter-bar" id="filterBar">
-            <button class="filter-chip active">Account: <b id="filterAccount">Primary</b></button>
-            <button class="filter-chip">Period: <b>Last 90 days</b></button>
-            <button class="filter-chip">Symbol: <b>All</b></button>
-            <button class="filter-chip">Direction: <b>All</b></button>
-            <button class="filter-chip">Strategy: <b>All</b></button>
-            <button class="filter-chip">Session: <b>All</b></button>
-            <button class="filter-chip">Result: <b>All</b></button>
+            <button class="filter-chip active" id="filterAccountBtn">Account: <b id="filterAccount">Primary</b></button>
+            <button class="filter-chip" id="filterPeriodBtn">Period: <b id="filterPeriodLabel">Last 90 days</b></button>
+            <button class="filter-chip" id="filterSymbolBtn">Symbol: <b id="filterSymbolLabel">All</b></button>
+            <button class="filter-chip" id="filterDirectionBtn">Direction: <b id="filterDirectionLabel">All</b></button>
+            <button class="filter-chip" id="filterStrategyBtn">Strategy: <b id="filterStrategyLabel">All</b></button>
+            <button class="filter-chip" id="filterSessionBtn">Session: <b id="filterSessionLabel">All</b></button>
+            <button class="filter-chip" id="filterResultBtn">Result: <b id="filterResultLabel">All</b></button>
             <button class="filter-more" id="filterMore">＋ More filters</button>
           </div>
 
@@ -418,7 +516,7 @@ const json = (value) => JSON.stringify(value);
             <article class="kpi-card"><span>Profit Factor</span><strong id="kpiPf">1.84</strong><em>Gross profit / gross loss</em></article>
             <article class="kpi-card"><span>Max Drawdown</span><strong id="kpiDd">-8.7%</strong><em class="negative">$1,184.30</em></article>
             <article class="kpi-card"><span>Total Trades</span><strong id="kpiTrades">321</strong><em>+18 vs prior period</em></article>
-            <article class="kpi-card"><span>Average R</span><strong>+0.42R</strong><em>Risk-adjusted trade result</em></article>
+            <article class="kpi-card"><span>Average R</span><strong id="kpiAvgR">+0.42R</strong><em>Risk-adjusted trade result</em></article>
           </div>
 
           <div class="grid-main">
@@ -460,8 +558,8 @@ const json = (value) => JSON.stringify(value);
             <article class="panel widget" data-widget="distribution">
               <div class="panel-head"><div><span class="panel-kicker">TRADE DISTRIBUTION</span><h2>Wins vs Losses</h2><p>Understand the shape behind the headline win rate.</p></div></div>
               <div class="distribution">
-                <div class="donut" style="--value:64.2"><div><b>64.2%</b><span>Win rate</span></div></div>
-                <div class="dist-list"><div><span><i class="dot win"></i>Winning trades</span><b>206</b></div><div><span><i class="dot loss"></i>Losing trades</span><b>115</b></div><div><span>Avg win</span><b>+$126.40</b></div><div><span>Avg loss</span><b>-$74.10</b></div><div><span>Expectancy</span><b>+$24.80</b></div></div>
+                <div class="donut" id="distributionDonut" style="--value:64.2"><div><b id="distributionWinRate">64.2%</b><span>Win rate</span></div></div>
+                <div class="dist-list"><div><span><i class="dot win"></i>Winning trades</span><b id="distributionWins">206</b></div><div><span><i class="dot loss"></i>Losing trades</span><b id="distributionLosses">115</b></div><div><span>Avg win</span><b id="distributionAvgWin">+$126.40</b></div><div><span>Avg loss</span><b id="distributionAvgLoss">-$74.10</b></div><div><span>Expectancy</span><b id="distributionExpectancy">+$24.80</b></div></div>
               </div>
             </article>
           </div>
@@ -474,15 +572,15 @@ const json = (value) => JSON.stringify(value);
             </article>
             <article class="panel widget" data-widget="symbols">
               <div class="panel-head"><div><span class="panel-kicker">MARKET CONTRIBUTION</span><h2>Symbol Performance</h2><p>Which instruments contributed to the account result?</p></div><button class="text-link" data-view="trades">Drill down →</button></div>
-              <div class="rank-list">{symbols.map(([s,pf,profit,wr]) => <div class="rank-row"><span class="rank-name">{s}</span><span class="rank-bar"><i style={`width:${Math.min(100,Math.max(8,pf/700*100))}%`}></i></span><b>+${pf}</b><small>{wr}% win</small></div>)}</div>
+              <div class="rank-list" id="symbolRankList">{symbols.map(([s,pf,profit,wr]) => <div class="rank-row"><span class="rank-name">{s}</span><span class="rank-bar"><i style={`width:${Math.min(100,Math.max(8,pf/700*100))}%`}></i></span><b>+${pf}</b><small>{wr}% win</small></div>)}</div>
             </article>
           </div>
 
           <div class="grid-2">
             <article class="panel widget" data-widget="sessions">
               <div class="panel-head"><div><span class="panel-kicker">TIME ANALYSIS</span><h2>Sessions &amp; Days</h2><p>Find how performance changes by trading window.</p></div><button class="text-link" data-view="comparisons">Open analysis →</button></div>
-              <div class="session-grid">{sessions.map(([name,pf,profit,wr]) => <div class="session-card"><span>{name}</span><b>+${pf}</b><small>PF {profit} · {wr}% win</small></div>)}</div>
-              <div class="weekday-row">{weekday.map(([d,p,pf,wr]) => <div><span>{d}</span><i style={`height:${Math.max(18,wr)}%`}></i><b>+${p}</b></div>)}</div>
+              <div class="session-grid" id="sessionGrid">{sessions.map(([name,pf,profit,wr]) => <div class="session-card"><span>{name}</span><b>+${pf}</b><small>PF {profit} · {wr}% win</small></div>)}</div>
+              <div class="weekday-row" id="weekdayRow">{weekday.map(([d,p,pf,wr]) => <div><span>{d}</span><i style={`height:${Math.max(18,wr)}%`}></i><b>+${p}</b></div>)}</div>
             </article>
             <article class="panel widget" data-widget="insights">
               <div class="panel-head"><div><span class="panel-kicker">TRADE AVATA INSIGHTS</span><h2>What Matters Now</h2><p>Observations from recorded data, not diagnoses or guarantees.</p></div><button class="text-link" data-view="insights">View all →</button></div>
@@ -691,6 +789,50 @@ const json = (value) => JSON.stringify(value);
     <footer class="dialog-actions"><button class="primary-btn" data-close-dialog>Close</button></footer>
   </dialog>
 
+
+  <!-- DASHBOARD FILTER PICKER -->
+  <dialog class="ta-dialog small-dialog" id="filterDialog">
+    <div class="dialog-head">
+      <div><span class="eyebrow">DASHBOARD FILTER</span><h2 id="filterDialogTitle">Choose filter</h2><p id="filterDialogDescription">Select an option to update the analytics workspace.</p></div>
+      <button class="icon-btn" data-close-dialog>×</button>
+    </div>
+    <div class="filter-option-list" id="filterOptionList"></div>
+    <footer class="dialog-actions">
+      <button class="ghost-btn" data-close-dialog>Cancel</button>
+    </footer>
+  </dialog>
+
+  <!-- ADVANCED FILTERS -->
+  <dialog class="ta-dialog" id="advancedFilterDialog">
+    <div class="dialog-head">
+      <div><span class="eyebrow">ADVANCED FILTERS</span><h2>More Filters</h2><p>Narrow the current account data by date, weekday and holding time.</p></div>
+      <button class="icon-btn" data-close-dialog>×</button>
+    </div>
+    <div class="advanced-filter-grid">
+      <label>Weekday
+        <select id="advancedWeekday">
+          <option value="all">All days</option>
+          <option value="Mon">Monday</option>
+          <option value="Tue">Tuesday</option>
+          <option value="Wed">Wednesday</option>
+          <option value="Thu">Thursday</option>
+          <option value="Fri">Friday</option>
+          <option value="Sat">Saturday</option>
+          <option value="Sun">Sunday</option>
+        </select>
+      </label>
+      <label>From date<input type="date" id="advancedFromDate" /></label>
+      <label>To date<input type="date" id="advancedToDate" /></label>
+      <label>Minimum holding time (minutes)<input type="number" min="0" step="1" id="advancedMinHold" placeholder="Any" /></label>
+      <label>Maximum holding time (minutes)<input type="number" min="0" step="1" id="advancedMaxHold" placeholder="Any" /></label>
+    </div>
+    <div class="advanced-filter-note" id="advancedFilterNote">Filters are applied to the currently available trade records.</div>
+    <footer class="dialog-actions">
+      <button class="ghost-btn" id="resetAllDashboardFilters">Reset all filters</button>
+      <button class="primary-btn" id="applyAdvancedFilters">Apply filters</button>
+    </footer>
+  </dialog>
+
   <script define:vars={{ base, demoAccount, accounts, trades, monthly, symbols, strategies, sessions, weekday, equity }}>
     window.__TRADE_AVATA_ANALYTICS__ = {
       base,
@@ -723,6 +865,403 @@ const json = (value) => JSON.stringify(value);
     const $ = (s, scope=document) => scope.querySelector(s);
     const $$ = (s, scope=document) => [...scope.querySelectorAll(s)];
     const money = n => `${n >= 0 ? '+' : '-'}$${Math.abs(Number(n)).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}`;
+
+
+    /* =========================================================
+       DASHBOARD FILTER ENGINE
+       All top filter chips now open real selectors and update
+       the visible analytics data.
+       ========================================================= */
+    const filterState = {
+      period: '90d',
+      symbol: 'all',
+      direction: 'all',
+      strategy: 'all',
+      session: 'all',
+      result: 'all',
+      weekday: 'all',
+      fromDate: '',
+      toDate: '',
+      minHold: '',
+      maxHold: ''
+    };
+
+    const periodLabels = {
+      '7d': 'Last 7 days',
+      '30d': 'Last 30 days',
+      '90d': 'Last 90 days',
+      'this-month': 'This month',
+      'last-month': 'Last month',
+      'all': 'All data'
+    };
+
+    const uniqueTradeValues = index => [...new Set(DATA.trades.map(t => t[index]).filter(Boolean))].sort();
+
+    function latestTradeDate() {
+      const values = DATA.trades.map(t => new Date(`${t[0]}T00:00:00`).getTime()).filter(Number.isFinite);
+      return new Date(Math.max(...values));
+    }
+
+    function dateInPeriod(dateText) {
+      const d = new Date(`${dateText}T00:00:00`);
+      const latest = latestTradeDate();
+      if (filterState.period === 'all') return true;
+
+      if (filterState.period === 'this-month') {
+        return d.getFullYear() === latest.getFullYear() && d.getMonth() === latest.getMonth();
+      }
+
+      if (filterState.period === 'last-month') {
+        const y = latest.getMonth() === 0 ? latest.getFullYear() - 1 : latest.getFullYear();
+        const m = latest.getMonth() === 0 ? 11 : latest.getMonth() - 1;
+        return d.getFullYear() === y && d.getMonth() === m;
+      }
+
+      const dayCount = filterState.period === '7d' ? 7 : filterState.period === '30d' ? 30 : 90;
+      const cutoff = new Date(latest);
+      cutoff.setDate(cutoff.getDate() - (dayCount - 1));
+      cutoff.setHours(0,0,0,0);
+      return d >= cutoff && d <= latest;
+    }
+
+    function getFilteredTrades() {
+      return DATA.trades.filter(t => {
+        const date = t[0];
+        const pnl = Number(t[6]);
+        const hold = Number(t[12]);
+
+        if (!dateInPeriod(date)) return false;
+        if (filterState.symbol !== 'all' && t[1] !== filterState.symbol) return false;
+        if (filterState.direction !== 'all' && t[2] !== filterState.direction) return false;
+        if (filterState.strategy !== 'all' && t[7] !== filterState.strategy) return false;
+        if (filterState.session !== 'all' && t[8] !== filterState.session) return false;
+        if (filterState.weekday !== 'all' && t[9] !== filterState.weekday) return false;
+
+        if (filterState.result === 'win' && !(pnl > 0)) return false;
+        if (filterState.result === 'loss' && !(pnl < 0)) return false;
+        if (filterState.result === 'breakeven' && pnl !== 0) return false;
+
+        if (filterState.fromDate && date < filterState.fromDate) return false;
+        if (filterState.toDate && date > filterState.toDate) return false;
+        if (filterState.minHold !== '' && hold < Number(filterState.minHold)) return false;
+        if (filterState.maxHold !== '' && hold > Number(filterState.maxHold)) return false;
+
+        return true;
+      });
+    }
+
+    function isBroadFilterState() {
+      return ['90d','all'].includes(filterState.period)
+        && filterState.symbol === 'all'
+        && filterState.direction === 'all'
+        && filterState.strategy === 'all'
+        && filterState.session === 'all'
+        && filterState.result === 'all'
+        && filterState.weekday === 'all'
+        && !filterState.fromDate
+        && !filterState.toDate
+        && filterState.minHold === ''
+        && filterState.maxHold === '';
+    }
+
+    function filterMetrics(list) {
+      const wins = list.filter(t => Number(t[6]) > 0);
+      const losses = list.filter(t => Number(t[6]) < 0);
+      const pnl = list.reduce((sum,t) => sum + Number(t[6] || 0), 0);
+      const grossProfit = wins.reduce((sum,t) => sum + Number(t[6] || 0), 0);
+      const grossLoss = Math.abs(losses.reduce((sum,t) => sum + Number(t[6] || 0), 0));
+      const winRate = list.length ? wins.length / list.length * 100 : 0;
+      const pf = grossLoss ? grossProfit / grossLoss : (grossProfit ? grossProfit : 0);
+      const avgR = list.length ? list.reduce((sum,t) => sum + Number(t[10] || 0), 0) / list.length : 0;
+      const avgWin = wins.length ? grossProfit / wins.length : 0;
+      const avgLoss = losses.length ? grossLoss / losses.length : 0;
+      const expectancy = list.length ? pnl / list.length : 0;
+
+      let running = Number(currentAccount.balance || 0);
+      let peak = running;
+      let maxDrawdownValue = 0;
+      const equitySeries = [running];
+      [...list].sort((a,b) => a[0].localeCompare(b[0])).forEach(t => {
+        running += Number(t[6] || 0);
+        peak = Math.max(peak, running);
+        maxDrawdownValue = Math.max(maxDrawdownValue, peak - running);
+        equitySeries.push(running);
+      });
+      const maxDrawdownPct = peak ? maxDrawdownValue / peak * 100 : 0;
+
+      return {
+        wins: wins.length,
+        losses: losses.length,
+        pnl,
+        grossProfit,
+        grossLoss,
+        winRate,
+        profitFactor: pf,
+        avgR,
+        avgWin,
+        avgLoss,
+        expectancy,
+        equity: Number(currentAccount.balance || 0) + pnl,
+        maxDrawdownValue,
+        maxDrawdownPct,
+        equitySeries
+      };
+    }
+
+    function renderFilteredSymbols(list) {
+      const target = $('#symbolRankList');
+      if (!target) return;
+      const grouped = {};
+      list.forEach(t => {
+        const s = t[1];
+        grouped[s] ||= {pnl:0,wins:0,count:0};
+        grouped[s].pnl += Number(t[6] || 0);
+        grouped[s].count += 1;
+        if (Number(t[6]) > 0) grouped[s].wins += 1;
+      });
+      const rows = Object.entries(grouped).sort((a,b)=>b[1].pnl-a[1].pnl);
+      const maxAbs = Math.max(1, ...rows.map(([,v]) => Math.abs(v.pnl)));
+      target.innerHTML = rows.length ? rows.map(([name,v]) => {
+        const wr = v.count ? Math.round(v.wins/v.count*100) : 0;
+        const width = Math.max(8, Math.abs(v.pnl)/maxAbs*100);
+        return `<div class="rank-row"><span class="rank-name">${name}</span><span class="rank-bar"><i style="width:${width}%"></i></span><b class="${v.pnl>=0?'positive':'negative'}">${money(v.pnl)}</b><small>${wr}% win</small></div>`;
+      }).join('') : '<div class="ai-empty"><b>No symbol data</b><span>No trades match the current filters.</span></div>';
+    }
+
+    function renderFilteredSessions(list) {
+      const sessionTarget = $('#sessionGrid');
+      const weekdayTarget = $('#weekdayRow');
+      if (sessionTarget) {
+        const grouped = {};
+        list.forEach(t => {
+          const key = t[8] || 'Unknown';
+          grouped[key] ||= {pnl:0,wins:0,count:0};
+          grouped[key].pnl += Number(t[6] || 0);
+          grouped[key].count += 1;
+          if (Number(t[6]) > 0) grouped[key].wins += 1;
+        });
+        const rows = Object.entries(grouped);
+        sessionTarget.innerHTML = rows.length ? rows.map(([name,v]) => {
+          const wr = v.count ? Math.round(v.wins/v.count*100) : 0;
+          return `<div class="session-card"><span>${name}</span><b class="${v.pnl>=0?'positive':'negative'}">${money(v.pnl)}</b><small>${wr}% win · ${v.count} trades</small></div>`;
+        }).join('') : '<div class="session-card"><span>No matching sessions</span><b>—</b><small>Change the filters to view data.</small></div>';
+      }
+
+      if (weekdayTarget) {
+        const order = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+        const grouped = Object.fromEntries(order.map(d => [d,{pnl:0,wins:0,count:0}]));
+        list.forEach(t => {
+          const key = t[9] || 'Mon';
+          grouped[key] ||= {pnl:0,wins:0,count:0};
+          grouped[key].pnl += Number(t[6] || 0);
+          grouped[key].count += 1;
+          if (Number(t[6]) > 0) grouped[key].wins += 1;
+        });
+        const maxAbs = Math.max(1,...order.map(d=>Math.abs(grouped[d]?.pnl||0)));
+        weekdayTarget.innerHTML = order.map(d => {
+          const v = grouped[d] || {pnl:0,wins:0,count:0};
+          const h = v.count ? Math.max(18, Math.abs(v.pnl)/maxAbs*85) : 8;
+          return `<div><span>${d}</span><i style="height:${h}%"></i><b class="${v.pnl>=0?'positive':'negative'}">${v.count?money(v.pnl):'—'}</b></div>`;
+        }).join('');
+      }
+    }
+
+    function renderMonthlyForTrades(list) {
+      if (isBroadFilterState()) {
+        renderMonthly();
+        return;
+      }
+      const el = $('#monthlyChart');
+      if (!el) return;
+      const grouped = {};
+      list.forEach(t => {
+        const d = new Date(`${t[0]}T00:00:00`);
+        const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+        grouped[key] = (grouped[key] || 0) + Number(t[6] || 0);
+      });
+      const rows = Object.entries(grouped).sort((a,b)=>a[0].localeCompare(b[0]));
+      const max = Math.max(1,...rows.map(([,v])=>Math.abs(v)));
+      el.innerHTML = rows.length ? rows.map(([key,value]) => {
+        const d = new Date(`${key}-01T00:00:00`);
+        const label = d.toLocaleDateString(undefined,{month:'short'});
+        return `<button class="month-bar" data-month="${key}"><span style="height:${Math.max(12,Math.abs(value)/max*100)}%"></span><b class="${value>=0?'positive':'negative'}">${money(value)}</b><small>${label}</small></button>`;
+      }).join('') : '<div class="ai-empty"><b>No monthly data</b><span>No trades match the current filters.</span></div>';
+    }
+
+    function updateFilterLabels() {
+      const labels = {
+        symbol: filterState.symbol === 'all' ? 'All' : filterState.symbol,
+        direction: filterState.direction === 'all' ? 'All' : filterState.direction,
+        strategy: filterState.strategy === 'all' ? 'All' : filterState.strategy,
+        session: filterState.session === 'all' ? 'All' : filterState.session,
+        result: filterState.result === 'all' ? 'All' : filterState.result === 'win' ? 'Winners' : filterState.result === 'loss' ? 'Losers' : 'Breakeven'
+      };
+
+      $('#filterPeriodLabel').textContent = periodLabels[filterState.period] || 'Last 90 days';
+      $('#filterSymbolLabel').textContent = labels.symbol;
+      $('#filterDirectionLabel').textContent = labels.direction;
+      $('#filterStrategyLabel').textContent = labels.strategy;
+      $('#filterSessionLabel').textContent = labels.session;
+      $('#filterResultLabel').textContent = labels.result;
+      $('#periodBtn').innerHTML = `${periodLabels[filterState.period] || 'Last 90 days'} <span>⌄</span>`;
+
+      const changed = {
+        filterPeriodBtn: !['90d','all'].includes(filterState.period) || !!filterState.fromDate || !!filterState.toDate,
+        filterSymbolBtn: filterState.symbol !== 'all',
+        filterDirectionBtn: filterState.direction !== 'all',
+        filterStrategyBtn: filterState.strategy !== 'all',
+        filterSessionBtn: filterState.session !== 'all',
+        filterResultBtn: filterState.result !== 'all'
+      };
+      Object.entries(changed).forEach(([id,on]) => document.getElementById(id)?.classList.toggle('is-filtered',on));
+
+      const advancedCount = [
+        filterState.weekday !== 'all',
+        !!filterState.fromDate,
+        !!filterState.toDate,
+        filterState.minHold !== '',
+        filterState.maxHold !== ''
+      ].filter(Boolean).length;
+      $('#filterMore').textContent = advancedCount ? `＋ More filters · ${advancedCount}` : '＋ More filters';
+      $('#filterMore').classList.toggle('is-filtered', advancedCount > 0);
+    }
+
+    function applyDashboardFilters() {
+      const list = getFilteredTrades();
+      const broad = isBroadFilterState();
+
+      updateFilterLabels();
+      renderTrades(list);
+
+      if (broad) {
+        $('#kpiEquity').textContent = `$${Number(currentAccount.equity).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}`;
+        $('#kpiPnl').textContent = money(currentAccount.netPnl);
+        $('#kpiWin').textContent = `${(currentAccount.wins/currentAccount.trades*100).toFixed(1)}%`;
+        $('#kpiPf').textContent = Number(currentAccount.profitFactor).toFixed(2);
+        $('#kpiDd').textContent = `-${Number(currentAccount.drawdownPct).toFixed(1)}%`;
+        $('#kpiTrades').textContent = currentAccount.trades;
+        $('#kpiAvgR').textContent = `${currentAccount.avgR >= 0 ? '+' : ''}${Number(currentAccount.avgR).toFixed(2)}R`;
+
+        $('#distributionDonut')?.style.setProperty('--value', (currentAccount.wins/currentAccount.trades*100).toFixed(1));
+        $('#distributionWinRate').textContent = `${(currentAccount.wins/currentAccount.trades*100).toFixed(1)}%`;
+        $('#distributionWins').textContent = currentAccount.wins;
+        $('#distributionLosses').textContent = currentAccount.losses;
+        $('#distributionAvgWin').textContent = '+$126.40';
+        $('#distributionAvgLoss').textContent = '-$74.10';
+        $('#distributionExpectancy').textContent = money(currentAccount.avgTrade);
+
+        renderEquity('equityChart', DATA.equity);
+        renderEquity('performanceChart', DATA.equity);
+        renderMonthly();
+
+        const symbolTarget = $('#symbolRankList');
+        if (symbolTarget) symbolTarget.innerHTML = DATA.symbols.map(([s,pf,profit,wr]) => `<div class="rank-row"><span class="rank-name">${s}</span><span class="rank-bar"><i style="width:${Math.min(100,Math.max(8,pf/700*100))}%"></i></span><b>+${pf}</b><small>${wr}% win</small></div>`).join('');
+        const sessionTarget = $('#sessionGrid');
+        if (sessionTarget) sessionTarget.innerHTML = DATA.sessions.map(([name,pf,profit,wr]) => `<div class="session-card"><span>${name}</span><b>+${pf}</b><small>PF ${profit} · ${wr}% win</small></div>`).join('');
+        const weekdayTarget = $('#weekdayRow');
+        if (weekdayTarget) weekdayTarget.innerHTML = DATA.weekday.map(([d,p,pf,wr]) => `<div><span>${d}</span><i style="height:${Math.max(18,wr)}%"></i><b>+${p}</b></div>`).join('');
+        return;
+      }
+
+      const m = filterMetrics(list);
+      $('#kpiEquity').textContent = `$${m.equity.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}`;
+      $('#kpiPnl').textContent = money(m.pnl);
+      $('#kpiWin').textContent = `${m.winRate.toFixed(1)}%`;
+      $('#kpiPf').textContent = Number(m.profitFactor).toFixed(2);
+      $('#kpiDd').textContent = `-${m.maxDrawdownPct.toFixed(1)}%`;
+      $('#kpiTrades').textContent = list.length;
+      $('#kpiAvgR').textContent = `${m.avgR >= 0 ? '+' : ''}${m.avgR.toFixed(2)}R`;
+
+      $('#distributionDonut')?.style.setProperty('--value', m.winRate.toFixed(1));
+      $('#distributionWinRate').textContent = `${m.winRate.toFixed(1)}%`;
+      $('#distributionWins').textContent = m.wins;
+      $('#distributionLosses').textContent = m.losses;
+      $('#distributionAvgWin').textContent = money(m.avgWin);
+      $('#distributionAvgLoss').textContent = m.losses ? `-$${m.avgLoss.toFixed(2)}` : '$0.00';
+      $('#distributionExpectancy').textContent = money(m.expectancy);
+
+      renderEquity('equityChart', m.equitySeries.length > 1 ? m.equitySeries : [Number(currentAccount.balance||0), Number(currentAccount.balance||0)]);
+      renderEquity('performanceChart', m.equitySeries.length > 1 ? m.equitySeries : [Number(currentAccount.balance||0), Number(currentAccount.balance||0)]);
+      renderMonthlyForTrades(list);
+      renderFilteredSymbols(list);
+      renderFilteredSessions(list);
+    }
+
+    function filterOptions(kind) {
+      if (kind === 'period') return [
+        ['7d','Last 7 days'],['30d','Last 30 days'],['90d','Last 90 days'],
+        ['this-month','This month'],['last-month','Last month'],['all','All data']
+      ];
+      if (kind === 'symbol') return [['all','All symbols'], ...uniqueTradeValues(1).map(v=>[v,v])];
+      if (kind === 'direction') return [['all','All directions'],['BUY','Buy'],['SELL','Sell']];
+      if (kind === 'strategy') return [['all','All strategies'], ...uniqueTradeValues(7).map(v=>[v,v])];
+      if (kind === 'session') return [['all','All sessions'], ...uniqueTradeValues(8).map(v=>[v,v])];
+      if (kind === 'result') return [['all','All results'],['win','Winners'],['loss','Losers'],['breakeven','Breakeven']];
+      return [];
+    }
+
+    function openSimpleFilter(kind) {
+      const titleMap = {
+        period:'Choose period', symbol:'Choose symbol', direction:'Choose direction',
+        strategy:'Choose strategy', session:'Choose session', result:'Choose result'
+      };
+      $('#filterDialogTitle').textContent = titleMap[kind] || 'Choose filter';
+      $('#filterDialogDescription').textContent = 'The dashboard will update immediately after you choose an option.';
+      const current = filterState[kind];
+      $('#filterOptionList').innerHTML = filterOptions(kind).map(([value,label]) => `
+        <button class="filter-option ${String(current)===String(value)?'active':''}" data-filter-value="${value}">
+          <b>${label}</b><span>${String(current)===String(value)?'Selected':'Apply'}</span>
+        </button>`).join('');
+      $$('#filterOptionList [data-filter-value]').forEach(btn => btn.addEventListener('click', () => {
+        filterState[kind] = btn.dataset.filterValue;
+        closeDialog($('#filterDialog'));
+        applyDashboardFilters();
+      }));
+      openDialog('filterDialog');
+    }
+
+    function syncAdvancedFilterInputs() {
+      $('#advancedWeekday').value = filterState.weekday;
+      $('#advancedFromDate').value = filterState.fromDate;
+      $('#advancedToDate').value = filterState.toDate;
+      $('#advancedMinHold').value = filterState.minHold;
+      $('#advancedMaxHold').value = filterState.maxHold;
+    }
+
+    function resetDashboardFilters() {
+      Object.assign(filterState,{
+        period:'90d',symbol:'all',direction:'all',strategy:'all',session:'all',result:'all',
+        weekday:'all',fromDate:'',toDate:'',minHold:'',maxHold:''
+      });
+      syncAdvancedFilterInputs();
+      applyDashboardFilters();
+      toast('Dashboard filters reset.');
+    }
+
+    $('#filterAccountBtn')?.addEventListener('click',()=>openDialog('accountDialog'));
+    $('#filterPeriodBtn')?.addEventListener('click',()=>openSimpleFilter('period'));
+    $('#filterSymbolBtn')?.addEventListener('click',()=>openSimpleFilter('symbol'));
+    $('#filterDirectionBtn')?.addEventListener('click',()=>openSimpleFilter('direction'));
+    $('#filterStrategyBtn')?.addEventListener('click',()=>openSimpleFilter('strategy'));
+    $('#filterSessionBtn')?.addEventListener('click',()=>openSimpleFilter('session'));
+    $('#filterResultBtn')?.addEventListener('click',()=>openSimpleFilter('result'));
+    $('#periodBtn')?.addEventListener('click',()=>openSimpleFilter('period'));
+    $('#filterMore')?.addEventListener('click',()=>{syncAdvancedFilterInputs();openDialog('advancedFilterDialog')});
+
+    $('#applyAdvancedFilters')?.addEventListener('click',()=>{
+      filterState.weekday = $('#advancedWeekday').value;
+      filterState.fromDate = $('#advancedFromDate').value;
+      filterState.toDate = $('#advancedToDate').value;
+      filterState.minHold = $('#advancedMinHold').value;
+      filterState.maxHold = $('#advancedMaxHold').value;
+      closeDialog($('#advancedFilterDialog'));
+      applyDashboardFilters();
+    });
+
+    $('#resetAllDashboardFilters')?.addEventListener('click',()=>{
+      resetDashboardFilters();
+      closeDialog($('#advancedFilterDialog'));
+    });
 
     const analyticsPalettes={
       dark:{background:'#06101d',header:'#07101c',panel:'#0b1726',sidebar:'#07101c',text:'#f4f8ff',muted:'#8fa3bb'},
@@ -813,7 +1352,13 @@ const json = (value) => JSON.stringify(value);
     $('#accountPicker').addEventListener('click',()=>openDialog('accountDialog'));
     $$('[data-select-account]').forEach(b=>b.addEventListener('click',()=>{
       const a=DATA.accounts.find(x=>x.id===b.dataset.selectAccount);
-      if(a){updateAccount(a); closeDialog(b.closest('dialog')); show('dashboard');}
+      if(a){
+        updateAccount(a);
+        $('#filterAccount').textContent=a.name.replace(' Account','');
+        closeDialog(b.closest('dialog'));
+        applyDashboardFilters();
+        show('dashboard');
+      }
     }));
 
     function setDrill(label, description='') {
@@ -936,8 +1481,6 @@ const json = (value) => JSON.stringify(value);
 
     $('#mobileMenu').addEventListener('click',()=>document.body.classList.toggle('nav-open'));
     $('#topMore').addEventListener('click',()=>openDialog('customizeDialog'));
-    $('#periodBtn').addEventListener('click',()=>toast('Period selector ready for account-data filtering.'));
-    $('#filterMore').addEventListener('click',()=>toast('Advanced filters: day, hour, session, result, risk, holding time and tags.'));
     $('#clearFilters').addEventListener('click',()=>{$('#tradeSearch').value='';$('#sideFilter').value='';$('#resultFilter').value='';$('#strategyFilter').value='';applyTradeFilters()});
     ['tradeSearch','sideFilter','resultFilter','strategyFilter'].forEach(id=>document.getElementById(id)?.addEventListener('input',applyTradeFilters));
     $('#shareBtn').addEventListener('click',()=>{const v=$('#shareVisibility').value; $('#infoTitle').textContent='Share portfolio'; $('#infoBody').textContent=`${v} sharing will create a controlled view. The shared page will use source-derived authenticity status and will never expose broker credentials.`;openDialog('infoDialog')});
@@ -996,7 +1539,7 @@ const json = (value) => JSON.stringify(value);
     }
     $$('[data-export]').forEach(b=>b.addEventListener('click',()=>{const kind=b.dataset.export;if(kind.endsWith('-xlsx'))exportXlsx(kind.replace('-xlsx',''));else exportPdf(kind.replace('-pdf',''))}));
 
-    renderEquity('equityChart'); renderEquity('performanceChart'); renderMonthly(); renderTrades(); applyTradeFilters(); resetDrill();
+    renderEquity('equityChart'); renderEquity('performanceChart'); renderMonthly(); renderTrades(); applyTradeFilters(); resetDrill(); applyDashboardFilters();
   </script>
 </body>
 </html>
