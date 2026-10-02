@@ -1,0 +1,12 @@
+---
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import SupportChat from '../components/SupportChat.astro';
+import MaintenanceGate from '../components/MaintenanceGate.astro';
+import '../styles/site.css';
+const { title='Trade Avata — Trade Simple.', description='Trading tools, indicators, learning and intelligent review in one platform.' } = Astro.props;
+const base = import.meta.env.BASE_URL;
+---
+<!doctype html><html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><meta name="description" content={description}/><title>{title}</title><link rel="icon" type="image/png" href={`${base}brand/trade-avata-mark.png`}/><script is:inline>try{document.documentElement.dataset.theme=localStorage.getItem('ta-theme')==='light'?'light':'dark'}catch{}</script></head><body data-base-url={base}><Header/><main><slot/></main><Footer/><SupportChat/><MaintenanceGate/><script is:inline>
+const root=document.documentElement;const themeButton=document.querySelector('[data-theme-toggle]');themeButton?.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();const next=root.dataset.theme==='light'?'dark':'light';root.dataset.theme=next;try{localStorage.setItem('ta-theme',next)}catch{}});const menuBtn=document.querySelector('[data-menu-toggle]');const menu=document.querySelector('[data-mobile-menu]');menuBtn?.addEventListener('click',e=>{e.preventDefault();const open=menu?.classList.toggle('is-open');menuBtn.setAttribute('aria-expanded',String(Boolean(open)))});document.querySelectorAll('.nav-drop>button').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();b.parentElement?.classList.toggle('open')}));document.addEventListener('click',()=>document.querySelectorAll('.nav-drop.open').forEach(x=>x.classList.remove('open')));
+</script></body></html>

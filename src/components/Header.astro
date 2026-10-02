@@ -1,0 +1,29 @@
+---
+import BrandLockup from './BrandLockup.astro';
+const base = import.meta.env.BASE_URL;
+---
+<header class="site-header">
+  <div class="shell header-inner">
+    <BrandLockup href={base} theme="dark" />
+    <nav class="desktop-nav" aria-label="Primary navigation">
+      <a href={base}>Home</a>
+      <a href={`${base}products/`}>Indicators</a>
+      <div class="nav-drop"><button type="button">AI Tools <span>⌄</span></button><div class="nav-drop-menu"><a href={`${base}analytics/`}>AI Analytics</a><a href={`${base}journal/`}>Trading Journal</a></div></div>
+      <div class="nav-drop"><button type="button">Learn <span>⌄</span></button><div class="nav-drop-menu"><a href={`${base}courses/`}>Courses</a><a href={`${base}articles/`}>Articles</a><a href={`${base}learn/`}>Learning Hub</a></div></div>
+      <a href={`${base}market/`}>Market</a>
+      <a href={`${base}contact/`}>Support</a>
+    </nav>
+    <div class="header-actions">
+      <button class="theme-button" type="button" data-theme-toggle aria-label="Switch theme"><span aria-hidden="true">◐</span></button>
+      <a class="login-link" href={`${base}login/`}>Log in</a>
+      <a class="button button-small" href={`${base}register/`}>Sign Up</a>
+      <button class="menu-button" type="button" data-menu-toggle aria-expanded="false" aria-controls="mobile-nav" aria-label="Open menu">☰</button>
+    </div>
+  </div>
+  <div id="mobile-nav" class="mobile-nav" data-mobile-menu>
+    <div class="shell mobile-nav-inner">
+      <a href={base}>Home</a><a href={`${base}products/`}>Indicators</a><a href={`${base}analytics/`}>AI Analytics</a><a href={`${base}journal/`}>Trading Journal</a><a href={`${base}courses/`}>Courses</a><a href={`${base}articles/`}>Articles</a><a href={`${base}learn/`}>Learning Hub</a><a href={`${base}market/`}>Market</a><a href={`${base}contact/`}>Support</a>
+      <div class="mobile-actions"><a href={`${base}login/`}>Log in</a><a class="button" href={`${base}register/`}>Create account</a></div>
+    </div>
+  </div>
+</header>

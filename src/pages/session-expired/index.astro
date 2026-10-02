@@ -1,0 +1,4 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro'; const base=import.meta.env.BASE_URL;
+---
+<BaseLayout title="Session expired — Trade Avata"><section class="auth-shell"><div class="auth-card" style="text-align:center"><span class="eyebrow">Security</span><h1>Your session has expired</h1><p>For security, please sign in again to continue.</p><a class="button" href={`${base}login/`}>Log in again</a></div></section></BaseLayout>

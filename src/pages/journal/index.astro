@@ -1,0 +1,300 @@
+---
+import PrivateAppLayout from '../../layouts/PrivateAppLayout.astro';
+import '../../styles/journal.css';
+const base = import.meta.env.BASE_URL;
+const aiEndpoint = import.meta.env.PUBLIC_TRADE_AVATA_AI_ENDPOINT || '';
+const projectId = import.meta.env.PUBLIC_FIREBASE_PROJECT_ID || '';
+const evidencePreviewEndpoint = import.meta.env.PUBLIC_TRADE_AVATA_EVIDENCE_PREVIEW_ENDPOINT || '';
+---
+<PrivateAppLayout title="Trade Avata — Trading Journal" appearanceControls={false}>
+  <div class="journal-app" id="journalApp" data-j-theme="dark" data-density="comfortable">
+    <header class="journal-topbar">
+      <div class="top-left">
+        <button class="top-icon mobile-menu" id="journalMobileMenu" aria-label="Open journal navigation">☰</button>
+        <a class="journal-brand" href={base} aria-label="Trade Avata home">
+          <img src={`${base}brand/trade-avata-mark.png`} alt="" />
+          <span><b>Trade Avata</b><small>Trade Simple.</small></span>
+        </a>
+        <span class="slash">/</span><span class="crumb">My Trading</span><span class="slash">/</span><strong class="crumb-current">Journal</strong>
+      </div>
+      <div class="top-actions">
+        <span class="sync-pill" id="syncStatus"><i></i> Local</span>
+        <button class="top-btn hide-phone" id="exportBtn">Export</button>
+        <button class="top-btn hide-phone" id="importBtn">Import</button>
+        <input id="importFile" type="file" accept="application/json" hidden />
+        <button class="top-btn" id="customizeJournalBtn">⚙ Customize</button>
+        <button class="top-btn ai-top" id="aiReviewBtn">✦ AI Review</button>
+        <button class="top-btn primary" id="newTradeBtn">＋ New</button>
+      </div>
+    </header>
+
+    <div class="journal-layout">
+      <aside class="journal-sidebar" id="journalSidebar">
+        <div class="side-heading">
+          <div class="workspace-mark">✦</div>
+          <div class="side-copy"><strong>TRADING JOURNAL</strong><small id="userState">Personal workspace</small></div>
+          <button class="side-collapse" id="journalCollapse" aria-label="Collapse sidebar" title="Collapse sidebar">‹</button>
+        </div>
+        <button class="side-create" id="newTradeSide"><i>＋</i><span>New trade</span></button>
+        <nav class="side-nav" aria-label="Journal views">
+          <button class="active" data-view="all"><i>▦</i><span>All trades</span><em id="allCount">0</em></button>
+          <button data-view="today"><i>◷</i><span>Today</span></button>
+          <button data-view="reviews"><i>✎</i><span>Reviews</span></button>
+          <button data-view="gallery"><i>▧</i><span>Gallery</span></button>
+        </nav>
+        <div class="side-group">
+          <label>VIEWS</label>
+          <button data-filter="wins"><i><b class="dot win"></b></i><span>Winning trades</span></button>
+          <button data-filter="losses"><i><b class="dot loss"></b></i><span>Losing trades</span></button>
+          <button data-filter="open"><i><b class="dot open"></b></i><span>Incomplete</span></button>
+        </div>
+        <div class="side-group">
+          <label>LIBRARY</label>
+          <button id="strategiesBtn"><i>◇</i><span>Strategies</span><em id="strategyCount">0</em></button>
+          <button id="propertiesBtn"><i>☷</i><span>Properties</span></button>
+        </div>
+        <div class="side-bottom">
+          <div class="storage-note"><i>⌁</i><div class="side-copy"><strong>Saved automatically</strong><small>Local now · cloud when connected</small></div></div>
+          <button id="resetJournalBtn"><i>↺</i><span>Reset demo data</span></button>
+        </div>
+      </aside>
+
+      <main class="journal-main">
+        <section class="journal-header">
+          <div>
+            <div class="eyebrow">TRADING JOURNAL</div>
+            <h1 id="journalTitle">Journal</h1>
+            <p>Record the decision, keep the evidence link, and review the trade without leaving your workspace.</p>
+          </div>
+        </section>
+
+        <section class="journal-summary" id="journalSummary">
+          <article><span>Total Trades</span><strong id="statTrades">0</strong><small id="statReviewed">0% reviewed</small></article>
+          <article><span>Win Rate</span><strong id="statWinRate">0%</strong><small id="statWins">0 wins</small></article>
+          <article><span>Net P&amp;L</span><strong id="statPnl">$0.00</strong><small>Recorded journal P&amp;L</small></article>
+          <article><span>Profit Factor</span><strong id="statPf">—</strong><small>Gross profit ÷ gross loss</small></article>
+          <article><span>Average R:R</span><strong id="statRR">—</strong><small>Recorded planned R:R</small></article>
+          <article><span>Evidence Links</span><strong id="statEvidence">0</strong><small>Charts connected to trades</small></article>
+        </section>
+
+        <section class="database-toolbar">
+          <div class="view-tabs">
+            <button class="active" data-main-view="table">▤ Table</button>
+            <button data-main-view="gallery">▦ Gallery</button>
+            <button id="addPropertyBtn">＋ Property</button>
+          </div>
+          <div class="database-actions">
+            <div class="search-box"><span>⌕</span><input id="tradeSearch" placeholder="Search trades…" /></div>
+            <button id="filterBtn">≡ Filter</button>
+            <button id="sortBtn">↕ Newest</button>
+          </div>
+        </section>
+
+        <div class="active-filter" id="activeFilterBar" hidden><span id="activeFilterText"></span><button id="clearFilterBtn">Clear</button></div>
+
+        <section class="database" id="database">
+          <div class="database-scroll">
+            <table class="journal-table" id="journalTable"><thead><tr id="tableHead"></tr></thead><tbody id="tradeBody"></tbody></table>
+          </div>
+          <button class="new-row" id="newRowBtn">＋ New trade</button>
+          <div class="database-footer" id="tableFooter"></div>
+        </section>
+
+        <section class="gallery-view" id="galleryView" hidden></section>
+        <section class="reviews-view" id="reviewsView" hidden>
+          <div class="reviews-intro"><div class="ai-badge">✦</div><div><div class="eyebrow">AI JOURNAL REVIEW</div><h2>Review the decisions behind your trades.</h2><p>Select a reviewed trade to inspect its evidence, execution and lessons. AI uses only what you recorded.</p></div></div>
+          <div id="reviewCards" class="review-cards"></div>
+        </section>
+        <section class="library-view" id="libraryView" hidden></section>
+      </main>
+    </div>
+
+    <div class="journal-mobile-backdrop" id="journalMobileBackdrop"></div>
+    <div class="drawer-backdrop" id="drawerBackdrop"></div>
+
+    <aside class="trade-drawer" id="tradeDrawer" aria-hidden="true">
+      <div class="drawer-top">
+        <div class="drawer-title-wrap"><span class="eyebrow">TRADE DETAILS</span><h2 id="drawerTitle">EURUSD</h2><span id="drawerSub">—</span></div>
+        <div class="drawer-actions"><button class="drawer-btn" id="duplicateTradeBtn">Duplicate</button><button class="drawer-btn primary" id="saveTradeBtn">Save</button><button class="drawer-close" id="closeDrawer" aria-label="Close trade details">×</button></div>
+      </div>
+      <div class="drawer-scroll">
+        <section class="evidence-panel" id="evidencePanel">
+          <div class="evidence-head"><div><span class="eyebrow">CHART EVIDENCE</span><strong>Linked chart / screenshot</strong></div><a id="openEvidenceBtn" class="drawer-btn" target="_blank" rel="noopener noreferrer" hidden>Open chart ↗</a></div>
+          <div class="evidence-preview" id="evidencePreview"><div class="evidence-empty"><span>▧</span><b>No evidence link yet</b><small>Paste a chart/share link in the Review section below.</small></div></div>
+        </section>
+
+        <div class="record-section first"><div class="section-title"><strong>Properties</strong><span>Click any value to edit</span></div><div class="property-grid" id="propertyGrid"></div></div>
+        <div class="record-section"><div class="section-title"><strong>Decision</strong><span>Why did I take it?</span></div>
+          <label class="field"><span>Thesis</span><textarea id="fThesis" placeholder="What did you see, and why did the trade make sense?"></textarea></label>
+          <label class="field"><span>Confluences</span><textarea id="fConfluences" placeholder="Sweep, CIS, displacement, MSS, FVG…"></textarea></label>
+          <label class="field"><span>Execution notes</span><textarea id="fExecution" placeholder="Entry, stop, target, management, hesitation…"></textarea></label>
+        </div>
+        <div class="record-section"><div class="section-title"><strong>Review</strong><span>Separate setup quality from outcome</span></div>
+          <div class="ratings"><label><span>Setup quality <output id="setupRatingOut">7</output>/10</span><input id="fSetupRating" type="range" min="1" max="10" value="7" /></label><label><span>Execution quality <output id="executionRatingOut">7</output>/10</span><input id="fExecutionRating" type="range" min="1" max="10" value="7" /></label></div>
+          <label class="field"><span>Lesson</span><textarea id="fLesson" placeholder="What will you repeat, change or avoid next time?"></textarea></label>
+          <label class="field"><span>Evidence / chart link</span><input id="fEvidence" inputmode="url" placeholder="Paste TradingView or another chart/share link" /></label>
+          <p class="field-help">Trade Avata stores the link, not an uploaded image. Direct image links can preview immediately; supported chart previews can be resolved later through the secure preview service.</p>
+          <button class="drawer-btn" id="previewEvidenceBtn">Refresh evidence preview</button>
+        </div>
+        <div class="record-section ai-section">
+          <div class="ai-head"><div class="ai-orb">✦</div><div><strong>Trade Avata AI</strong><span>Evidence-based journal review</span></div><button class="drawer-btn" id="runDrawerAI">Analyze</button></div>
+          <div class="ai-output" id="aiOutput">AI will compare your recorded thesis, confirmations, strategy, execution and outcome. Missing information is shown instead of invented.</div>
+        </div>
+      </div>
+    </aside>
+
+    <div class="modal" id="propertyModal" hidden>
+      <div class="modal-card large">
+        <button class="modal-close" id="closePropertyModal">×</button>
+        <div class="eyebrow">JOURNAL SETUP</div><h2>Make the journal yours.</h2><p>Create properties once and they become available on every trade.</p>
+        <div class="modal-tabs"><button class="active" data-manager="properties">Properties</button><button data-manager="strategies">Strategies</button></div>
+        <div id="propertyManager"><div class="create-line"><input id="propertyInput" placeholder="Property name, e.g. Emotion" /><select id="propertyType"><option value="text">Text</option><option value="select">Select</option><option value="multi">Multi-select</option><option value="number">Number</option><option value="date">Date</option><option value="checkbox">Checkbox</option></select><button class="drawer-btn primary" id="createPropertyBtn">Add</button></div><div class="manager-list" id="propertyList"></div></div>
+        <div id="strategyManager" hidden><div class="create-line"><input id="strategyInput" placeholder="Strategy name, e.g. Liquidity Sweep" /><button class="drawer-btn primary" id="createStrategyBtn">＋ Save strategy</button></div><div class="manager-help">Create a strategy once. It becomes reusable whenever you journal a trade.</div><div class="manager-list" id="strategyList"></div></div>
+      </div>
+    </div>
+
+    <div class="modal" id="filterModal" hidden>
+      <div class="modal-card compact-modal"><button class="modal-close" id="closeFilterModal">×</button><div class="eyebrow">FILTER TRADES</div><h2>Choose a journal view</h2><div class="filter-options"><button data-modal-filter="all">All trades</button><button data-modal-filter="wins">Winning trades</button><button data-modal-filter="losses">Losing trades</button><button data-modal-filter="open">Incomplete</button><button data-modal-filter="reviewed">Reviewed</button><button data-modal-filter="evidence">Has evidence link</button></div></div>
+    </div>
+
+    <aside class="journal-customizer" id="journalCustomizer" aria-hidden="true">
+      <div class="customizer-head"><div><span class="eyebrow">APPEARANCE</span><h2>Customize Journal</h2><p>Choose a comfortable workspace without changing your journal data.</p></div><button class="top-icon" id="closeJournalCustomizer">×</button></div>
+      <div class="theme-presets"><button data-j-preset="dark">Trade Avata Dark</button><button data-j-preset="soft">Soft Gray</button><button data-j-preset="light">Light</button></div>
+      <div class="customizer-grid">
+        <label>Theme<select id="journalTheme"><option value="dark">Dark</option><option value="soft">Soft Gray</option><option value="light">Light</option></select></label>
+        <label>Density<select id="journalDensity"><option value="comfortable">Comfortable</option><option value="compact">Compact</option><option value="spacious">Spacious</option></select></label>
+        <label>Accent<input id="journalAccent" type="color" value="#4b8cff" /></label>
+        <label>Workspace<input id="journalBackground" type="color" value="#f7f7f5" /></label>
+        <label>Panels<input id="journalPanel" type="color" value="#ffffff" /></label>
+        <label>Sidebar<input id="journalSidebarColor" type="color" value="#f4f4f1" /></label>
+      </div>
+      <div class="customizer-section"><strong>Layout</strong><p>Use the collapsible sidebar for more room. Your choice is remembered.</p><button class="top-btn" id="customizerToggleSidebar">Toggle sidebar</button><label class="checkline"><input type="checkbox" id="showSummaryToggle" checked /> Show summary strip</label></div>
+      <div class="customizer-footer"><button class="top-btn" id="resetJournalAppearance">Reset</button><button class="top-btn primary" id="saveJournalAppearance">Save</button></div>
+    </aside>
+  </div>
+
+  <script is:inline define:vars={{ base, aiEndpoint, projectId, evidencePreviewEndpoint }}>
+    window.__TA_JOURNAL_CONFIG__={base,aiEndpoint,projectId,evidencePreviewEndpoint};
+  </script>
+  <script type="module">
+    import { auth, watchAuth } from '../../lib/firebase/auth.js';
+    import { db } from '../../lib/firebase/db.js';
+    import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
+
+    const CONFIG=window.__TA_JOURNAL_CONFIG__||{};
+    const seedTrades=[
+      {id:'t1',symbol:'EURUSD',position:'BUY',session:'LONDON',date:'2026-09-29',type:'CONTINUATION',confirmation:['SWEEP','MSS','FVG'],rr:'1:2.1',entryTF:'15m',risk:'0.5%',forecast:'HIGH PROBABILITY',strategy:'Liquidity Sweep',entry:'1.0724',exit:'1.0748',stopLoss:'1.0712',takeProfit:'1.0749',lotSize:'0.50',pnl:240,pips:24,status:'WIN',tags:['A+ SETUP','LONDON'],outcome:true,notes:{thesis:'HTF bullish structure with a clean liquidity sweep into the level.',confluences:'Sweep · MSS · FVG',execution:'Entered after confirmation; no early exit.',lesson:'Keep the trigger objective.',setupRating:8,executionRating:9,evidence:'https://www.tradingview.com/x/example1/'}},
+      {id:'t2',symbol:'XAUUSD',position:'SELL',session:'NEW YORK',date:'2026-09-28',type:'REVERSAL',confirmation:['FVG','MSS'],rr:'1:1.4',entryTF:'5m',risk:'0.5%',forecast:'MEDIUM',strategy:'Reversal',entry:'2321.40',exit:'2324.10',stopLoss:'2324.30',takeProfit:'2317.20',lotSize:'0.30',pnl:-180,pips:-27,status:'LOSS',tags:['REVERSAL','NY'],outcome:false,notes:{thesis:'Reversal after rejection from a higher-timeframe level.',confluences:'Sweep · FVG',execution:'Entered before the final trigger.',lesson:'Wait for complete confirmation.',setupRating:7,executionRating:5,evidence:''}},
+      {id:'t3',symbol:'GBPUSD',position:'BUY',session:'LONDON',date:'2026-09-27',type:'PULLBACK',confirmation:['HTF','SWEEP'],rr:'1:1.8',entryTF:'1H',risk:'0.4%',forecast:'HIGH PROBABILITY',strategy:'Continuation',entry:'1.2531',exit:'1.2587',stopLoss:'1.2500',takeProfit:'1.2589',lotSize:'0.20',pnl:312,pips:56,status:'WIN',tags:['PULLBACK'],outcome:true,notes:{thesis:'Pullback into structure with higher-timeframe alignment.',confluences:'HTF · Sweep',execution:'Clean execution.',lesson:'Repeat the same risk process.',setupRating:8,executionRating:8,evidence:''}}
+    ];
+    const defaultStrategies=['Liquidity Sweep','Continuation','Reversal'];
+    const storageKey='trade-avata-journal-v4',strategyKey='trade-avata-journal-strategies-v2',propertyKey='trade-avata-journal-properties-v2',appearanceKey='trade-avata-journal-appearance-v2';
+    let trades=JSON.parse(localStorage.getItem(storageKey)||'null')||seedTrades;
+    let strategies=JSON.parse(localStorage.getItem(strategyKey)||'null')||defaultStrategies;
+    let customProperties=JSON.parse(localStorage.getItem(propertyKey)||'null')||[];
+    let selectedId=trades[0]?.id||null,activeFilter='all',activeView='table',sortDesc=true,currentUser=null;
+    const $=(s,scope=document)=>scope.querySelector(s),$$=(s,scope=document)=>[...scope.querySelectorAll(s)];
+    const esc=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+    const dayName=date=>date?new Date(date+'T12:00:00').toLocaleDateString('en-US',{weekday:'long'}).toUpperCase():'';
+    const formatDate=date=>date?new Date(date+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}):'';
+    const money=n=>`${Number(n||0)>=0?'+':'-'}$${Math.abs(Number(n||0)).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}`;
+    const rrNumber=v=>{const m=String(v||'').match(/(?:1\s*:\s*)?([0-9.]+)/g);if(!m)return 0;const last=m[m.length-1].match(/[0-9.]+/);return Number(last?.[0]||0)};
+    const tag=(text,cls='neutral')=>text?`<span class="tag ${cls}">${esc(text)}</span>`:'';
+
+    function setSync(label,good=true){const el=$('#syncStatus');if(el)el.innerHTML=`<i class="${good?'good':''}"></i> ${esc(label)}`;}
+    function persistLocal(){localStorage.setItem(storageKey,JSON.stringify(trades));localStorage.setItem(strategyKey,JSON.stringify(strategies));localStorage.setItem(propertyKey,JSON.stringify(customProperties));setSync('Local');}
+    function getAppearancePrefs(){try{return JSON.parse(localStorage.getItem(appearanceKey)||'{}')}catch{return {}}}
+    function workspaceData(){return {trades,strategies,customProperties,appearance:getAppearancePrefs(),sidebar:localStorage.getItem('trade-avata-journal-sidebar')||'expanded',updatedAt:serverTimestamp()};}
+    async function syncCloud(){if(!currentUser||!db)return;try{await setDoc(doc(db,'journalWorkspaces',currentUser.uid),workspaceData(),{merge:true});setSync('Synced',true)}catch{setSync('Local',false)}}
+    async function loadCloud(user){currentUser=user;if(!user){setSync('Local');return}$('#userState').textContent=user.displayName||user.email||'Signed-in workspace';if(!db)return;try{const snap=await getDoc(doc(db,'journalWorkspaces',user.uid));if(snap.exists()){const d=snap.data();if(Array.isArray(d.trades))trades=d.trades;if(Array.isArray(d.strategies))strategies=d.strategies;if(Array.isArray(d.customProperties))customProperties=d.customProperties;if(d.appearance&&typeof d.appearance==='object'){localStorage.setItem(appearanceKey,JSON.stringify(d.appearance));applyAppearance(d.appearance)}if(d.sidebar)setSidebarCollapsed(d.sidebar==='collapsed',false);persistLocal();render()}await syncCloud()}catch{setSync('Local',false)}}
+    function persist(){persistLocal();clearTimeout(window.__journalCloudTimer);window.__journalCloudTimer=setTimeout(syncCloud,600)}
+
+    function normalizedTrade(t){t.notes=t.notes||{};t.tags=Array.isArray(t.tags)?t.tags:[];t.status=t.status||(t.outcome===true?'WIN':t.outcome===false?'LOSS':'OPEN');t.pnl=Number(t.pnl||0);return t}
+    trades.forEach(normalizedTrade);
+    function filtered(){const q=($('#tradeSearch')?.value||'').toLowerCase().trim();const today=new Date().toISOString().slice(0,10);let rows=trades.filter(t=>{if(activeFilter==='wins'&&t.outcome!==true)return false;if(activeFilter==='losses'&&t.outcome!==false)return false;if(activeFilter==='open'&&t.outcome!==null)return false;if(activeFilter==='reviewed'&&!(t.notes?.lesson||t.notes?.execution))return false;if(activeFilter==='evidence'&&!t.notes?.evidence)return false;if(activeView==='today'&&t.date!==today)return false;return !q||JSON.stringify(t).toLowerCase().includes(q)});return rows.sort((a,b)=>sortDesc?String(b.date).localeCompare(String(a.date)):String(a.date).localeCompare(String(b.date)))}
+
+    function renderSummary(){
+      const resolved=trades.filter(t=>t.outcome!==null),wins=resolved.filter(t=>t.outcome===true),reviewed=trades.filter(t=>t.notes?.lesson||t.notes?.execution);const grossProfit=trades.filter(t=>t.pnl>0).reduce((s,t)=>s+t.pnl,0),grossLoss=Math.abs(trades.filter(t=>t.pnl<0).reduce((s,t)=>s+t.pnl,0)),net=trades.reduce((s,t)=>s+t.pnl,0);const rr=trades.map(t=>rrNumber(t.rr)).filter(Boolean);const pf=grossLoss?grossProfit/grossLoss:0;
+      $('#statTrades').textContent=trades.length;$('#statReviewed').textContent=`${trades.length?Math.round(reviewed.length/trades.length*100):0}% reviewed`;$('#statWins').textContent=`${wins.length} wins`;$('#statWinRate').textContent=`${resolved.length?Math.round(wins.length/resolved.length*100):0}%`;$('#statPnl').textContent=money(net);$('#statPnl').classList.toggle('positive',net>=0);$('#statPnl').classList.toggle('negative',net<0);$('#statPf').textContent=pf?pf.toFixed(2):'—';$('#statRR').textContent=rr.length?`1:${(rr.reduce((a,b)=>a+b,0)/rr.length).toFixed(2)}`:'—';$('#statEvidence').textContent=trades.filter(t=>t.notes?.evidence).length;
+    }
+    function render(){
+      const rows=filtered();renderSummary();
+      $('#tableHead').innerHTML='<th class="trade-name-col">TRADE</th><th>POSITION</th><th>SESSION</th><th>DATE</th><th>DOW</th><th>TRADE TYPE</th><th>CONFIRMATION</th><th>RR</th><th>ENTRY TF</th><th>RISK</th><th>FORECAST</th><th>STRATEGY</th><th>P&amp;L</th><th>STATUS</th><th>EVIDENCE</th><th>OUTCOME</th><th></th>';
+      $('#tradeBody').innerHTML=rows.map(t=>`<tr data-id="${esc(t.id)}" class="${selectedId===t.id?'selected':''}"><td class="trade-name-col"><span class="row-icon">▱</span><b>${esc(t.symbol||'Untitled trade')}</b></td><td>${tag(t.position,t.position==='BUY'?'buy':'sell')}</td><td>${tag(t.session)}</td><td>${esc(formatDate(t.date))}</td><td>${tag(t.dow||dayName(t.date),'green')}</td><td>${tag(t.type,'yellow')}</td><td>${(t.confirmation||[]).slice(0,4).map(x=>tag(x,'purple')).join(' ')}${(t.confirmation||[]).length>4?tag('+'+((t.confirmation||[]).length-4),'gray'):''}</td><td>${tag(t.rr,'peach')}</td><td>${tag(t.entryTF)}</td><td>${tag(t.risk,'blue')}</td><td>${tag(t.forecast,t.forecast?.includes('LOW')?'gray':'purple')}</td><td>${tag(t.strategy||'Add strategy','strategy')}</td><td class="${t.pnl>=0?'positive':'negative'}"><b>${money(t.pnl)}</b></td><td>${tag(t.status,t.status==='WIN'?'win-status':t.status==='LOSS'?'loss-status':'gray')}</td><td><button class="evidence-cell" data-evidence-id="${esc(t.id)}" title="${t.notes?.evidence?'Open evidence':'No evidence link'}">${t.notes?.evidence?'▧ Linked':'—'}</button></td><td><span class="check ${t.outcome===true?'checked':t.outcome===false?'loss':''}">${t.outcome===true?'✓':t.outcome===false?'×':''}</span></td><td><button class="row-more" data-more="${esc(t.id)}">•••</button></td></tr>`).join('');
+      $$('#tradeBody tr').forEach(r=>r.addEventListener('click',e=>{if(e.target.closest('.row-more,.evidence-cell'))return;openTrade(r.dataset.id)}));
+      $$('[data-evidence-id]').forEach(b=>b.addEventListener('click',()=>openTrade(b.dataset.evidenceId)));
+      $$('[data-more]').forEach(b=>b.addEventListener('click',()=>openTrade(b.dataset.more)));
+      $('#allCount').textContent=trades.length;$('#strategyCount').textContent=strategies.length;
+      const reviewed=trades.filter(t=>t.notes?.lesson||t.notes?.execution).length;$('#tableFooter').innerHTML=`<span>COUNT ${rows.length}</span><span>CHECKED ${trades.filter(t=>t.outcome!==null).length}</span><span>REVIEWED ${reviewed}</span><span>WITH EVIDENCE ${trades.filter(t=>t.notes?.evidence).length}</span>`;
+      renderGallery(rows);renderReviews();renderProperties();renderStrategies();updateActiveFilter();
+    }
+    function renderGallery(rows){$('#galleryView').innerHTML=rows.map(t=>`<button class="gallery-card" data-gallery-id="${esc(t.id)}"><div class="gallery-top"><span>${tag(t.position,t.position==='BUY'?'buy':'sell')}</span><span>${esc(formatDate(t.date))}</span></div><div class="gallery-evidence ${t.notes?.evidence?'has-link':''}"><span>▧</span><small>${t.notes?.evidence?'Chart linked':'No chart link'}</small></div><h3>${esc(t.symbol||'Untitled trade')}</h3><p>${esc(t.strategy||'No strategy selected')}</p><div>${(t.confirmation||[]).slice(0,3).map(x=>tag(x,'purple')).join(' ')}</div><footer><span>RR ${esc(t.rr||'—')}</span><span class="${t.pnl>=0?'positive':'negative'}">${money(t.pnl)}</span></footer></button>`).join('')||'<div class="empty-state">No trades match this view.</div>';$$('[data-gallery-id]').forEach(b=>b.onclick=()=>openTrade(b.dataset.galleryId))}
+    function renderReviews(){const items=trades.filter(t=>t.notes?.lesson||t.notes?.execution);$('#reviewCards').innerHTML=items.map(t=>`<button class="review-card" data-review-id="${esc(t.id)}"><div><span class="review-symbol">${esc(t.symbol)}</span>${tag(t.strategy||'No strategy','strategy')}</div><p>${esc(t.notes?.lesson||t.notes?.execution||'No review recorded yet.')}</p><footer><span>Setup ${esc(t.notes?.setupRating||'—')}/10</span><span>Execution ${esc(t.notes?.executionRating||'—')}/10</span><span>${t.notes?.evidence?'▧ Evidence linked':'No evidence'}</span></footer></button>`).join('')||'<div class="empty-state">Complete a trade review and it will appear here.</div>';$$('[data-review-id]').forEach(b=>b.onclick=()=>openTrade(b.dataset.reviewId))}
+
+    function openTrade(id){selectedId=id;const t=trades.find(x=>x.id===id);if(!t)return;$('#drawerTitle').textContent=t.symbol||'Untitled trade';$('#drawerSub').textContent=`${formatDate(t.date)} · ${t.position||''} · ${t.session||''}`;$('#tradeDrawer').classList.add('open');$('#drawerBackdrop').classList.add('open');$('#tradeDrawer').setAttribute('aria-hidden','false');renderDrawer(t);render()}
+    function closeDrawer(){$('#tradeDrawer').classList.remove('open');$('#drawerBackdrop').classList.remove('open');$('#tradeDrawer').setAttribute('aria-hidden','true')}
+    function renderDrawer(t){
+      const fields=[['SYMBOL','symbol','text'],['POSITION','position','select',['BUY','SELL']],['ENTRY','entry','text'],['EXIT','exit','text'],['STOP LOSS','stopLoss','text'],['TAKE PROFIT','takeProfit','text'],['LOT SIZE','lotSize','text'],['P&L','pnl','number'],['PIPS','pips','number'],['STATUS','status','select',['WIN','LOSS','OPEN']],['CONFIRMATION','confirmation','tags'],['DATE','date','date'],['ENTRY TF','entryTF','select',['1m','5m','15m','30m','1H','4H','1D','1W']],['RR','rr','text'],['RISK','risk','text'],['DOW','dow','select',['MONDAY','TUESDAY','WEDNESDAY','THURSDAY','FRIDAY']],['FORECAST','forecast','text'],['TRADE TYPE','type','select',['CONTINUATION','REVERSAL','BREAKOUT','PULLBACK','RANGE']],['SESSION','session','select',['LONDON','NEW YORK','ASIA','SYDNEY','NYKZ','ASKZ']],['STRATEGY','strategy','strategy'],['TAGS','tags','tags'],['OUTCOME','outcome','outcome']];
+      $('#propertyGrid').innerHTML=fields.map(([label,key,type,opts])=>{const v=t[key];if(type==='outcome')return `<label class="prop-row"><span>${label}</span><select data-field="${key}"><option value="" ${v===null?'selected':''}>Incomplete</option><option value="true" ${v===true?'selected':''}>Win</option><option value="false" ${v===false?'selected':''}>Loss</option></select></label>`;if(type==='select')return `<label class="prop-row"><span>${label}</span><select data-field="${key}">${opts.map(o=>`<option value="${esc(o)}" ${o===v?'selected':''}>${esc(o)}</option>`).join('')}</select></label>`;if(type==='strategy')return `<label class="prop-row"><span>${label}</span><div class="strategy-select"><select data-field="${key}"><option value="">Select strategy…</option>${strategies.map(o=>`<option value="${esc(o)}" ${o===v?'selected':''}>${esc(o)}</option>`).join('')}</select><button type="button" id="quickStrategy">＋</button></div></label>`;if(type==='tags')return `<label class="prop-row"><span>${label}</span><input data-field="${key}" value="${esc((v||[]).join(', '))}" placeholder="Comma separated" /></label>`;return `<label class="prop-row"><span>${label}</span><input data-field="${key}" type="${type}" value="${esc(v??'')}" /></label>`}).join('')+customProperties.map(p=>customField(p,t)).join('');
+      $('#fThesis').value=t.notes?.thesis||'';$('#fConfluences').value=t.notes?.confluences||'';$('#fExecution').value=t.notes?.execution||'';$('#fLesson').value=t.notes?.lesson||'';$('#fEvidence').value=t.notes?.evidence||'';$('#fSetupRating').value=t.notes?.setupRating||7;$('#fExecutionRating').value=t.notes?.executionRating||7;$('#setupRatingOut').value=$('#fSetupRating').value;$('#executionRatingOut').value=$('#fExecutionRating').value;$('#aiOutput').textContent='AI review is ready. It will use only the information recorded in this trade.';$('#quickStrategy')?.addEventListener('click',()=>openManager('strategies'));renderEvidence(t.notes?.evidence||'')
+    }
+    function customField(p,t){const v=t.custom?.[p.id]??'';if(p.type==='checkbox')return `<label class="prop-row"><span>${esc(p.name.toUpperCase())}</span><input data-custom-field="${esc(p.id)}" type="checkbox" ${v===true?'checked':''}/></label>`;return `<label class="prop-row"><span>${esc(p.name.toUpperCase())}</span><input data-custom-field="${esc(p.id)}" type="${p.type==='number'?'number':p.type==='date'?'date':'text'}" value="${esc(v)}" /></label>`}
+    function collectTrade(){const t=trades.find(x=>x.id===selectedId);if(!t)return null;$('#propertyGrid').querySelectorAll('[data-field]').forEach(el=>{const k=el.dataset.field;if(k==='confirmation'||k==='tags')t[k]=el.value.split(',').map(x=>x.trim()).filter(Boolean);else if(k==='outcome')t[k]=el.value===''?null:el.value==='true';else if(k==='pnl'||k==='pips')t[k]=Number(el.value||0);else t[k]=el.value});t.dow=dayName(t.date);t.status=t.outcome===true?'WIN':t.outcome===false?'LOSS':(t.status||'OPEN');t.custom=t.custom||{};$('#propertyGrid').querySelectorAll('[data-custom-field]').forEach(el=>t.custom[el.dataset.customField]=el.type==='checkbox'?el.checked:el.value);t.notes={...(t.notes||{}),thesis:$('#fThesis').value,confluences:$('#fConfluences').value,execution:$('#fExecution').value,lesson:$('#fLesson').value,evidence:$('#fEvidence').value.trim(),setupRating:Number($('#fSetupRating').value),executionRating:Number($('#fExecutionRating').value)};return t}
+    function saveTrade(){const t=collectTrade();if(!t)return;persist();render();renderEvidence(t.notes.evidence);$('#saveTradeBtn').textContent='Saved';setTimeout(()=>$('#saveTradeBtn').textContent='Save',900)}
+    function newTrade(){const id='t'+Date.now(),date=new Date().toISOString().slice(0,10);trades.unshift({id,symbol:'NEW TRADE',position:'BUY',session:'LONDON',date,dow:dayName(date),type:'CONTINUATION',confirmation:[],rr:'1:2',entryTF:'15m',risk:'0.5%',forecast:'',strategy:strategies[0]||'',entry:'',exit:'',stopLoss:'',takeProfit:'',lotSize:'',pnl:0,pips:0,status:'OPEN',tags:[],outcome:null,notes:{}});persist();render();openTrade(id)}
+    function duplicateTrade(){const t=trades.find(x=>x.id===selectedId);if(!t)return;const copy=structuredClone(t);copy.id='t'+Date.now();copy.symbol=t.symbol+' copy';trades.unshift(copy);persist();render();openTrade(copy.id)}
+
+    async function renderEvidence(url){
+      const preview=$('#evidencePreview'),open=$('#openEvidenceBtn');open.hidden=true;open.removeAttribute('href');
+      if(!url){preview.innerHTML='<div class="evidence-empty"><span>▧</span><b>No evidence link yet</b><small>Paste a chart/share link in the Review section below.</small></div>';return}
+      if(!/^https?:\/\//i.test(url)){preview.innerHTML='<div class="evidence-empty"><span>!</span><b>Invalid link</b><small>Use a complete https:// chart or evidence URL.</small></div>';return}
+      open.hidden=false;open.href=url;
+      const direct=/\.(png|jpe?g|webp|gif)(?:[?#].*)?$/i.test(url);
+      if(direct){preview.innerHTML=`<img src="${esc(url)}" alt="Linked trade chart evidence" loading="lazy" referrerpolicy="no-referrer" /><span class="preview-badge">Linked image</span>`;return}
+      const previewEndpoint=CONFIG.evidencePreviewEndpoint||(CONFIG.projectId?`https://us-central1-${CONFIG.projectId}.cloudfunctions.net/previewEvidenceLink`:'');
+      if(previewEndpoint){try{preview.innerHTML='<div class="evidence-empty"><span>◌</span><b>Loading preview…</b></div>';const r=await fetch(`${previewEndpoint}?url=${encodeURIComponent(url)}`);if(r.ok){const d=await r.json();if(d?.imageUrl){preview.innerHTML=`<img src="${esc(d.imageUrl)}" alt="Linked trade chart preview" loading="lazy" referrerpolicy="no-referrer" /><span class="preview-badge">Link preview</span>`;return}}}catch{}}
+      const host=(()=>{try{return new URL(url).hostname.replace(/^www\./,'')}catch{return 'External chart'}})();preview.innerHTML=`<a class="evidence-link-card" href="${esc(url)}" target="_blank" rel="noopener noreferrer"><span>▧</span><div><b>${esc(host)}</b><small>Chart link saved. Open the original evidence in a new tab.</small></div><i>↗</i></a>`;
+    }
+
+    function renderProperties(){const el=$('#propertyList');if(!el)return;el.innerHTML=customProperties.map(p=>`<div class="manager-item"><span class="property-icon">☷</span><strong>${esc(p.name)}</strong><small>${esc(p.type)}</small><button data-delete-property="${esc(p.id)}">×</button></div>`).join('')||'<div class="manager-empty">No custom properties yet.</div>';$$('[data-delete-property]').forEach(b=>b.onclick=()=>{customProperties=customProperties.filter(p=>p.id!==b.dataset.deleteProperty);persist();render()})}
+    function renderStrategies(){const el=$('#strategyList');if(!el)return;el.innerHTML=strategies.map(s=>`<div class="manager-item"><span class="strategy-icon">◇</span><strong>${esc(s)}</strong><small>Reusable</small><button data-delete-strategy="${esc(s)}">×</button></div>`).join('')||'<div class="manager-empty">No strategies yet.</div>';$$('[data-delete-strategy]').forEach(b=>b.onclick=()=>{strategies=strategies.filter(s=>s!==b.dataset.deleteStrategy);persist();render()})}
+    function openManager(which='properties'){$('#propertyModal').hidden=false;$$('[data-manager]').forEach(b=>b.classList.toggle('active',b.dataset.manager===which));$('#propertyManager').hidden=which!=='properties';$('#strategyManager').hidden=which!=='strategies';renderProperties();renderStrategies()}
+    function switchMain(view){activeView=view;const display=view==='today'?'table':view;$('#database').hidden=display!=='table';$('#galleryView').hidden=display!=='gallery';$('#reviewsView').hidden=display!=='reviews';$('#libraryView').hidden=true;$$('[data-main-view]').forEach(b=>b.classList.toggle('active',b.dataset.mainView===display));render()}
+    function updateActiveFilter(){const names={all:'All trades',wins:'Winning trades',losses:'Losing trades',open:'Incomplete',reviewed:'Reviewed',evidence:'Has evidence link'};const active=activeFilter!=='all'||activeView==='today';$('#activeFilterBar').hidden=!active;$('#activeFilterText').textContent=activeView==='today'?'Today':names[activeFilter]}
+
+    function runLocalAI(t){const n=t.notes||{},missing=[];if(!t.strategy)missing.push('strategy');if(!n.thesis)missing.push('thesis');if(!n.execution)missing.push('execution notes');if(!n.confluences)missing.push('confluences');if(!n.evidence)missing.push('chart evidence link');const adherence=t.strategy&&n.thesis&&n.execution?'The recorded entry contains the main evidence needed to compare the plan with execution.':'The journal is missing some decision evidence, so adherence cannot be fully assessed.';const outcome=t.outcome===true?'The recorded outcome is positive.':t.outcome===false?'The recorded outcome is negative.':'The outcome is incomplete.';return `<strong>Summary</strong><p>${esc(adherence)} ${esc(outcome)}</p><strong>Recorded evidence</strong><p>Strategy: ${esc(t.strategy||'not recorded')}. Confirmation: ${esc((t.confirmation||[]).join(', ')||'not recorded')}. Setup ${esc(n.setupRating||'—')}/10; execution ${esc(n.executionRating||'—')}/10.</p><strong>Missing evidence</strong><p>${missing.length?esc(missing.join(', ')):'Nothing essential from the journal fields is currently missing.'}</p><strong>Next review point</strong><p>${esc(n.lesson||'Record one specific lesson so the next review can compare this trade with future trades.')}</p>`}
+    const resolvedAIEndpoint=CONFIG.aiEndpoint||(CONFIG.projectId?`https://us-central1-${CONFIG.projectId}.cloudfunctions.net/reviewJournal`:'');
+    async function runAI(t){const output=$('#aiOutput');output.innerHTML='<span class="ai-loading">✦ Reviewing your journal evidence…</span>';const n=t.notes||{},evidence={symbol:t.symbol,position:t.position,session:t.session,date:t.date,tradeType:t.type,confirmation:t.confirmation||[],rr:t.rr,entryTF:t.entryTF,risk:t.risk,forecast:t.forecast,strategy:t.strategy||null,outcome:t.outcome,pnl:t.pnl,entry:t.entry,exit:t.exit,stopLoss:t.stopLoss,takeProfit:t.takeProfit,thesis:n.thesis||'',confluences:n.confluences||'',execution:n.execution||'',setupRating:n.setupRating||null,executionRating:n.executionRating||null,lesson:n.lesson||'',evidenceUrl:n.evidence||'',custom:t.custom||{}};if(resolvedAIEndpoint){try{const token=auth?.currentUser?await auth.currentUser.getIdToken():'';const res=await fetch(resolvedAIEndpoint,{method:'POST',headers:{'Content-Type':'application/json',...(token?{Authorization:`Bearer ${token}`}:{})},body:JSON.stringify({evidence})});if(!res.ok)throw new Error(String(res.status));const data=await res.json();output.textContent=data?.report||data?.summary||'AI review completed.';return}catch{}}output.innerHTML=runLocalAI(t)}
+    function exportJournal(){const payload={version:4,exportedAt:new Date().toISOString(),trades,strategies,customProperties};const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='trade-avata-journal.json';a.click();URL.revokeObjectURL(a.href)}
+    function importJournal(file){const reader=new FileReader();reader.onload=()=>{try{const d=JSON.parse(reader.result);if(!Array.isArray(d.trades))throw new Error('Invalid journal');trades=d.trades.map(normalizedTrade);strategies=Array.isArray(d.strategies)?d.strategies:strategies;customProperties=Array.isArray(d.customProperties)?d.customProperties:customProperties;persist();render();if(trades[0])openTrade(trades[0].id)}catch{alert('That journal file could not be imported.')}};reader.readAsText(file)}
+
+    const palettes={dark:{theme:'dark',accent:'#4b8cff',background:'#070b12',panel:'#0d131d',sidebar:'#090e16'},soft:{theme:'soft',accent:'#5b8fd7',background:'#1a1d22',panel:'#24282f',sidebar:'#20242a'},light:{theme:'light',accent:'#4b8cff',background:'#f7f7f5',panel:'#ffffff',sidebar:'#f4f4f1'}};
+    function setSidebarCollapsed(collapsed,persistChoice=true){$('#journalApp').classList.toggle('sidebar-collapsed',collapsed);$('#journalCollapse').textContent=collapsed?'›':'‹';$('#journalCollapse').title=collapsed?'Expand sidebar':'Collapse sidebar';if(persistChoice)localStorage.setItem('trade-avata-journal-sidebar',collapsed?'collapsed':'expanded')}
+    function applyAppearance(p){const app=$('#journalApp'),v={...palettes[p.theme||'light'],...p};app.dataset.jTheme=v.theme;app.dataset.density=v.density||'comfortable';app.style.setProperty('--j-accent',v.accent);app.style.setProperty('--j-bg',v.background);app.style.setProperty('--j-panel',v.panel);app.style.setProperty('--j-sidebar',v.sidebar);$('#journalTheme').value=v.theme;$('#journalDensity').value=v.density||'comfortable';$('#journalAccent').value=v.accent;$('#journalBackground').value=v.background;$('#journalPanel').value=v.panel;$('#journalSidebarColor').value=v.sidebar;$('#journalSummary').hidden=p.showSummary===false;$('#showSummaryToggle').checked=p.showSummary!==false}
+    function loadAppearance(){let p={};try{p=JSON.parse(localStorage.getItem(appearanceKey)||'{}')}catch{}applyAppearance(Object.keys(p).length?p:{...palettes.dark,density:'comfortable',showSummary:true});setSidebarCollapsed(localStorage.getItem('trade-avata-journal-sidebar')==='collapsed',false)}
+    function openCustomizer(){$('#journalCustomizer').classList.add('open');$('#journalCustomizer').setAttribute('aria-hidden','false')}
+    function closeCustomizer(){$('#journalCustomizer').classList.remove('open');$('#journalCustomizer').setAttribute('aria-hidden','true')}
+
+    $('#newTradeBtn').onclick=$('#newTradeSide').onclick=$('#newRowBtn').onclick=newTrade;$('#saveTradeBtn').onclick=saveTrade;$('#duplicateTradeBtn').onclick=duplicateTrade;$('#closeDrawer').onclick=$('#drawerBackdrop').onclick=closeDrawer;
+    $('#fSetupRating').oninput=e=>$('#setupRatingOut').value=e.target.value;$('#fExecutionRating').oninput=e=>$('#executionRatingOut').value=e.target.value;$('#previewEvidenceBtn').onclick=()=>renderEvidence($('#fEvidence').value.trim());$('#runDrawerAI').onclick=()=>{const t=collectTrade();if(t)runAI(t)};
+    $('#exportBtn').onclick=exportJournal;$('#importBtn').onclick=()=>$('#importFile').click();$('#importFile').onchange=e=>{if(e.target.files?.[0])importJournal(e.target.files[0])};
+    $('#tradeSearch').oninput=render;$('#sortBtn').onclick=()=>{sortDesc=!sortDesc;$('#sortBtn').textContent=sortDesc?'↕ Newest':'↕ Oldest';render()};
+    $('#filterBtn').onclick=()=>$('#filterModal').hidden=false;$('#closeFilterModal').onclick=()=>$('#filterModal').hidden=true;$$('[data-modal-filter]').forEach(b=>b.onclick=()=>{activeFilter=b.dataset.modalFilter;activeView='table';switchMain('table');$('#filterModal').hidden=true});$('#clearFilterBtn').onclick=()=>{activeFilter='all';activeView='table';switchMain('table')};
+    $$('[data-main-view]').forEach(b=>b.onclick=()=>switchMain(b.dataset.mainView));
+    $$('[data-view]').forEach(b=>b.onclick=()=>{const v=b.dataset.view;$$('[data-view]').forEach(x=>x.classList.toggle('active',x===b));if(v==='reviews')switchMain('reviews');else if(v==='gallery')switchMain('gallery');else{activeFilter='all';switchMain(v==='today'?'today':'table')}});
+    $$('[data-filter]').forEach(b=>b.onclick=()=>{activeFilter=b.dataset.filter;activeView='table';switchMain('table')});
+    $('#addPropertyBtn').onclick=$('#propertiesBtn').onclick=()=>openManager('properties');$('#strategiesBtn').onclick=()=>openManager('strategies');$('#closePropertyModal').onclick=()=>$('#propertyModal').hidden=true;
+    $$('[data-manager]').forEach(b=>b.onclick=()=>openManager(b.dataset.manager));
+    $('#createPropertyBtn').onclick=()=>{const name=$('#propertyInput').value.trim();if(!name)return;customProperties.push({id:'p'+Date.now(),name,type:$('#propertyType').value});$('#propertyInput').value='';persist();renderProperties()};
+    $('#createStrategyBtn').onclick=()=>{const name=$('#strategyInput').value.trim();if(!name||strategies.includes(name))return;strategies.push(name);$('#strategyInput').value='';persist();renderStrategies();if(selectedId)renderDrawer(trades.find(t=>t.id===selectedId))};
+    $('#resetJournalBtn').onclick=()=>{if(confirm('Reset the demo journal on this device? Your locally saved journal entries will be replaced by the demo set.')){trades=structuredClone(seedTrades);strategies=[...defaultStrategies];customProperties=[];persist();render();closeDrawer()}};
+    $('#aiReviewBtn').onclick=()=>switchMain('reviews');
+    $('#journalCollapse').onclick=()=>setSidebarCollapsed(!$('#journalApp').classList.contains('sidebar-collapsed'));$('#customizerToggleSidebar').onclick=()=>setSidebarCollapsed(!$('#journalApp').classList.contains('sidebar-collapsed'));
+    $('#journalMobileMenu').onclick=()=>{$('#journalSidebar').classList.toggle('mobile-open');$('#journalMobileBackdrop').classList.toggle('open',$('#journalSidebar').classList.contains('mobile-open'))};$('#journalMobileBackdrop').onclick=()=>{$('#journalSidebar').classList.remove('mobile-open');$('#journalMobileBackdrop').classList.remove('open')};
+    $('#customizeJournalBtn').onclick=openCustomizer;$('#closeJournalCustomizer').onclick=closeCustomizer;$$('[data-j-preset]').forEach(b=>b.onclick=()=>applyAppearance({...palettes[b.dataset.jPreset],density:$('#journalDensity').value,showSummary:$('#showSummaryToggle').checked}));$('#journalTheme').onchange=e=>applyAppearance({...palettes[e.target.value],density:$('#journalDensity').value,showSummary:$('#showSummaryToggle').checked});$('#journalDensity').onchange=e=>$('#journalApp').dataset.density=e.target.value;$('#journalAccent').oninput=e=>$('#journalApp').style.setProperty('--j-accent',e.target.value);$('#journalBackground').oninput=e=>$('#journalApp').style.setProperty('--j-bg',e.target.value);$('#journalPanel').oninput=e=>$('#journalApp').style.setProperty('--j-panel',e.target.value);$('#journalSidebarColor').oninput=e=>$('#journalApp').style.setProperty('--j-sidebar',e.target.value);$('#showSummaryToggle').onchange=e=>$('#journalSummary').hidden=!e.target.checked;
+    $('#saveJournalAppearance').onclick=()=>{const p={theme:$('#journalTheme').value,density:$('#journalDensity').value,accent:$('#journalAccent').value,background:$('#journalBackground').value,panel:$('#journalPanel').value,sidebar:$('#journalSidebarColor').value,showSummary:$('#showSummaryToggle').checked};localStorage.setItem(appearanceKey,JSON.stringify(p));syncCloud();closeCustomizer()};$('#resetJournalAppearance').onclick=()=>{localStorage.removeItem(appearanceKey);localStorage.removeItem('trade-avata-journal-sidebar');applyAppearance({...palettes.dark,density:'comfortable',showSummary:true});setSidebarCollapsed(false,false)};
+    document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeDrawer();$('#propertyModal').hidden=true;$('#filterModal').hidden=true;closeCustomizer()}});
+    if(typeof watchAuth==='function')watchAuth(user=>loadCloud(user));
+    loadAppearance();render();
+  </script>
+</PrivateAppLayout>

@@ -1,0 +1,43 @@
+---
+import DashboardLayout from '../../layouts/DashboardLayout.astro';
+import { adminNav } from '../../data/admin-nav.js';
+const base=import.meta.env.BASE_URL;
+const nav=adminNav(base,'social');
+---
+<DashboardLayout title="Social Media — Trade Avata Admin" section="Admin" nav={nav} profile="Admin">
+  <Fragment slot="top-left"><span class="status-pill">Social controls</span></Fragment>
+  <Fragment slot="top-right"><a class="dash-control" href={`${base}contact/`}>View public support</a></Fragment>
+  <div class="dash-head"><div><span class="dash-eyebrow">SITE SETTINGS</span><h1>Social Media</h1><p>Control which Trade Avata social channels appear publicly, their URLs, and the order visitors see them.</p></div></div>
+  <div class="dash-grid two social-admin-grid">
+    <section class="dash-card"><div class="card-head"><div><h2>Channels</h2><p>Uncheck a platform to hide it everywhere. No code edit is required.</p></div><button class="dash-control" data-reset>Reset</button></div><div class="social-admin-list" data-list></div><div class="social-admin-actions"><button class="dash-control primary" data-save>Save social settings</button><span data-status></span></div></section>
+    <aside class="dash-card"><h2>Public preview</h2><p>Only enabled platforms with valid links are published.</p><div class="social-preview" data-preview></div><div class="social-note"><b>One setting, every public location.</b><span>The footer and Contact/Support page read this same social configuration.</span></div></aside>
+  </div>
+</DashboardLayout>
+<script>
+import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { db } from '../../lib/firebase/db.js';
+import { watchAuth } from '../../lib/firebase/auth.js';
+import { getAdminRole, writeAdminAudit } from '../../lib/firebase/admin.js';
+const defaults=[
+  {id:'youtube',label:'YouTube',url:'',enabled:true,order:1},
+  {id:'facebook',label:'Facebook',url:'',enabled:true,order:2},
+  {id:'instagram',label:'Instagram',url:'',enabled:true,order:3},
+  {id:'x',label:'X',url:'',enabled:false,order:4},
+  {id:'tiktok',label:'TikTok',url:'',enabled:false,order:5},
+  {id:'linkedin',label:'LinkedIn',url:'',enabled:false,order:6}
+];
+const icons={youtube:'▶',facebook:'f',instagram:'◎',x:'𝕏',tiktok:'♪',linkedin:'in'};
+const list=document.querySelector('[data-list]'),preview=document.querySelector('[data-preview]'),status=document.querySelector('[data-status]');let actorId=null;let links=[];
+const esc=s=>String(s??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+const validUrl=v=>{try{return ['https:','http:'].includes(new URL(String(v||'')).protocol)}catch{return false}};
+function render(){list.innerHTML=links.sort((a,b)=>(a.order||99)-(b.order||99)).map((x,i)=>`<div class="social-admin-row" data-id="${esc(x.id)}"><label class="social-switch"><input type="checkbox" data-enabled ${x.enabled?'checked':''}><span>${icons[x.id]||'•'}</span></label><div><b>${esc(x.label)}</b><small>${x.enabled?'Shown when URL is valid':'Hidden from public site'}</small></div><input data-url type="url" value="${esc(x.url||'')}" placeholder="https://…"><input data-order type="number" min="1" max="20" value="${Number(x.order)||i+1}" aria-label="Display order"></div>`).join('');list.querySelectorAll('[data-id]').forEach(row=>{const id=row.dataset.id;row.querySelector('[data-enabled]').addEventListener('change',e=>{links.find(x=>x.id===id).enabled=e.target.checked;renderPreview()});row.querySelector('[data-url]').addEventListener('input',e=>{links.find(x=>x.id===id).url=e.target.value.trim();renderPreview()});row.querySelector('[data-order]').addEventListener('input',e=>{links.find(x=>x.id===id).order=Number(e.target.value)||99;renderPreview()})});renderPreview()}
+function renderPreview(){const visible=[...links].filter(x=>x.enabled&&validUrl(x.url)).sort((a,b)=>(a.order||99)-(b.order||99));preview.innerHTML=visible.length?visible.map(x=>`<a href="${esc(x.url)}" target="_blank" rel="noopener noreferrer"><span>${icons[x.id]||'•'}</span>${esc(x.label)}</a>`).join(''):'<p>No public social channels yet. Add a valid URL to an enabled platform.</p>'}
+async function load(){let saved=null;if(db){try{const snap=await getDoc(doc(db,'siteSettings','global'));saved=snap.exists()?snap.data()?.socialLinks:null}catch{}}if(!saved){try{saved=JSON.parse(localStorage.getItem('ta-social-settings-draft')||'null')}catch{}}links=(Array.isArray(saved)&&saved.length?saved:defaults).map(x=>({...x}));render()}
+document.querySelector('[data-reset]').addEventListener('click',()=>{links=defaults.map(x=>({...x}));render();status.textContent='Defaults restored in the editor. Save to publish.'});
+document.querySelector('[data-save]').addEventListener('click',async()=>{links=links.map(x=>({...x,url:String(x.url||'').trim(),order:Number(x.order)||99}));localStorage.setItem('ta-social-settings-draft',JSON.stringify(links));if(!db){status.textContent='Saved on this device. Connect Firebase to publish these settings.';return;}if(!actorId){status.textContent='Administrator sign-in is required to publish.';return;}try{await setDoc(doc(db,'siteSettings','global'),{socialLinks:links,updatedAt:serverTimestamp()},{merge:true});await writeAdminAudit({actorId,action:'save',target:'socialSettings'});status.textContent='Social settings published.';}catch(e){status.textContent=e?.message||'Unable to save.'}});
+watchAuth(async user=>{if(!user){status.textContent='Sign in as an administrator to publish changes.';await load();return;}const role=await getAdminRole(user.uid);if(!role){status.textContent='Administrator access is required.';await load();return;}actorId=user.uid;await load();});
+load();
+</script>
+<style>
+.social-admin-grid{align-items:start}.social-admin-list{display:grid;gap:8px;margin-top:14px}.social-admin-row{display:grid;grid-template-columns:auto minmax(115px,.75fr) minmax(180px,1.7fr) 74px;align-items:center;gap:10px;padding:10px;border:1px solid var(--d-border);border-radius:10px;background:var(--d-panel2)}.social-admin-row input[type=url],.social-admin-row input[type=number]{width:100%;padding:9px 10px;border:1px solid var(--d-border);border-radius:8px;background:var(--d-bg);color:var(--d-text)}.social-admin-row b,.social-admin-row small{display:block}.social-admin-row small{color:var(--d-muted);font-size:9px;margin-top:3px}.social-switch{display:flex;align-items:center;gap:7px}.social-switch span{width:28px;height:28px;display:grid;place-items:center;border-radius:8px;background:color-mix(in srgb,var(--d-blue) 18%,var(--d-panel));font-weight:900}.social-admin-actions{display:flex;align-items:center;gap:12px;margin-top:14px}.social-admin-actions span{font-size:10px;color:var(--d-muted)}.social-preview{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0 24px}.social-preview a{display:inline-flex;align-items:center;gap:8px;padding:9px 11px;border:1px solid var(--d-border);border-radius:9px;background:var(--d-panel2)}.social-preview a span{font-weight:900;color:var(--d-blue)}.social-preview p{color:var(--d-muted)}.social-note{display:grid;gap:5px;padding:14px;border-radius:10px;background:var(--d-panel2);border:1px solid var(--d-border)}.social-note span{font-size:10px;color:var(--d-muted)}@media(max-width:720px){.social-admin-row{grid-template-columns:auto 1fr 72px}.social-admin-row>input[data-url]{grid-column:1/-1}.social-admin-actions{align-items:flex-start;flex-direction:column}}
+</style>

@@ -1,0 +1,160 @@
+---
+import '../styles/dashboard.css';
+import BrandLockup from '../components/BrandLockup.astro';
+const {title='Trade Avata',section='Dashboard',nav=[],profile='Member'}=Astro.props;
+const base=import.meta.env.BASE_URL;
+---
+<!doctype html>
+<html lang="en" data-dash-theme="dark" data-dash-density="comfortable">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>{title}</title>
+  <link rel="icon" type="image/png" href={`${base}brand/trade-avata-mark.png`} />
+  <script is:inline>
+    try {
+      const p=JSON.parse(localStorage.getItem('ta-dashboard-appearance')||'{}');
+      document.documentElement.dataset.dashTheme=p.theme||'dark';
+      document.documentElement.dataset.dashDensity=p.density||'comfortable';
+      if(p.accent)document.documentElement.style.setProperty('--d-blue',p.accent);
+      if(p.background)document.documentElement.style.setProperty('--d-bg',p.background);
+      if(p.panel)document.documentElement.style.setProperty('--d-panel',p.panel);
+      if(p.panel2)document.documentElement.style.setProperty('--d-panel2',p.panel2);
+      if(localStorage.getItem('ta-dashboard-sidebar')==='collapsed')document.documentElement.classList.add('dash-sidebar-collapsed');
+    } catch {}
+  </script>
+</head>
+<body data-base-url={base}>
+  <div class="dash-shell" data-dash-shell>
+    <aside class="dash-side" data-side>
+      <div class="dash-brand-row">
+        <BrandLockup class="dash-brand" href={base} theme="dark" compact={true} />
+        <button class="dash-collapse" data-collapse-sidebar aria-label="Collapse sidebar" title="Collapse sidebar">‹</button>
+      </div>
+      <nav>{nav.map(n=>n.group?<div class="dash-group">{n.group}</div>:<a href={n.href} class={n.active?'active':''} title={n.label}><i>{n.icon||'•'}</i><span>{n.label}</span></a>)}</nav>
+      <div class="dash-side-bottom">
+        <button type="button" data-open-appearance><i>◐</i><span>Customize workspace</span></button>
+        <a href={base}><i>←</i><span>Back to Trade Avata</span></a>
+      </div>
+    </aside>
+
+    <main class="dash-main">
+      <header class="dash-top">
+        <div class="dash-top-left">
+          <button class="dash-icon mobile-only" data-menu aria-label="Open navigation">☰</button>
+          <slot name="top-left" />
+        </div>
+        <div class="dash-top-right">
+          <slot name="top-right" />
+          <button class="dash-control dash-customize-btn" data-open-appearance>⚙ Customize</button>
+          <span class="dash-profile">{profile}</span>
+        </div>
+      </header>
+      <div class="dash-content" data-dashboard-content><slot /></div>
+    </main>
+  </div>
+
+  <div class="dash-mobile-backdrop" data-mobile-backdrop></div>
+
+  <aside class="dash-settings" data-appearance-panel aria-hidden="true">
+    <div class="dash-settings-head">
+      <div><span class="dash-eyebrow">WORKSPACE</span><h2>Customize dashboard</h2><p>Appearance and layout are saved on this device.</p></div>
+      <button class="dash-icon" data-close-appearance aria-label="Close">×</button>
+    </div>
+    <div class="dash-preset-row">
+      <button data-theme-preset="dark">Trade Avata Dark</button>
+      <button data-theme-preset="soft">Soft Gray</button>
+      <button data-theme-preset="light">Light</button>
+    </div>
+    <div class="dash-setting-grid">
+      <label>Theme<select data-theme-select><option value="dark">Dark</option><option value="soft">Soft Gray</option><option value="light">Light</option></select></label>
+      <label>Density<select data-density-select><option value="comfortable">Comfortable</option><option value="compact">Compact</option><option value="spacious">Spacious</option></select></label>
+      <label>Accent<input data-accent-input type="color" value="#0c84fa" /></label>
+      <label>Background<input data-bg-input type="color" value="#06101d" /></label>
+      <label>Panels<input data-panel-input type="color" value="#0b1726" /></label>
+      <label>Inner surfaces<input data-panel2-input type="color" value="#0f1e31" /></label>
+    </div>
+    <div class="dash-settings-section">
+      <h3>Layout</h3>
+      <p>Collapse the sidebar for more working space, or rearrange cards inside each dashboard section.</p>
+      <div class="dash-settings-actions">
+        <button class="dash-control" data-toggle-sidebar-setting>Toggle sidebar</button>
+        <button class="dash-control" data-layout-edit>Rearrange cards</button>
+      </div>
+      <small data-layout-help>When rearrange mode is on, drag cards inside the same row/section.</small>
+    </div>
+    <div class="dash-settings-footer">
+      <button class="dash-control" data-reset-appearance>Reset appearance</button>
+      <button class="dash-control primary" data-save-appearance>Save</button>
+    </div>
+  </aside>
+
+  <div class="dash-toast" data-toast hidden></div>
+
+  <script is:inline>
+    const root=document.documentElement;
+    const side=document.querySelector('[data-side]');
+    const settings=document.querySelector('[data-appearance-panel]');
+    const toast=document.querySelector('[data-toast]');
+    const pageKey='ta-dashboard-layout:'+location.pathname;
+    const palette={
+      dark:{theme:'dark',accent:'#0c84fa',background:'#06101d',panel:'#0b1726',panel2:'#0f1e31'},
+      soft:{theme:'soft',accent:'#4f8fdc',background:'#181b20',panel:'#23272e',panel2:'#2b3038'},
+      light:{theme:'light',accent:'#0b78e3',background:'#edf4fb',panel:'#ffffff',panel2:'#f5f8fc'}
+    };
+    const showToast=(m)=>{if(!toast)return;toast.textContent=m;toast.hidden=false;clearTimeout(window.__taToast);window.__taToast=setTimeout(()=>toast.hidden=true,2200)};
+    const getAppearance=()=>{try{return JSON.parse(localStorage.getItem('ta-dashboard-appearance')||'{}')}catch{return {}}};
+    const applyAppearance=(p)=>{
+      const v={...palette[p.theme||'dark'],...p};
+      root.dataset.dashTheme=v.theme||'dark';root.dataset.dashDensity=v.density||'comfortable';
+      root.style.setProperty('--d-blue',v.accent);root.style.setProperty('--d-bg',v.background);root.style.setProperty('--d-panel',v.panel);root.style.setProperty('--d-panel2',v.panel2);
+      document.querySelector('[data-theme-select]').value=v.theme||'dark';
+      document.querySelector('[data-density-select]').value=v.density||'comfortable';
+      document.querySelector('[data-accent-input]').value=v.accent;document.querySelector('[data-bg-input]').value=v.background;document.querySelector('[data-panel-input]').value=v.panel;document.querySelector('[data-panel2-input]').value=v.panel2;
+    };
+    applyAppearance(getAppearance());
+    const setCollapsed=(collapsed)=>{root.classList.toggle('dash-sidebar-collapsed',collapsed);localStorage.setItem('ta-dashboard-sidebar',collapsed?'collapsed':'expanded');const b=document.querySelector('[data-collapse-sidebar]');if(b){b.textContent=collapsed?'›':'‹';b.title=collapsed?'Expand sidebar':'Collapse sidebar';}};
+    setCollapsed(localStorage.getItem('ta-dashboard-sidebar')==='collapsed');
+    document.querySelector('[data-collapse-sidebar]')?.addEventListener('click',()=>setCollapsed(!root.classList.contains('dash-sidebar-collapsed')));
+    document.querySelector('[data-toggle-sidebar-setting]')?.addEventListener('click',()=>setCollapsed(!root.classList.contains('dash-sidebar-collapsed')));
+    const openSettings=()=>{settings?.classList.add('open');settings?.setAttribute('aria-hidden','false')};
+    const closeSettings=()=>{settings?.classList.remove('open');settings?.setAttribute('aria-hidden','true')};
+    document.querySelectorAll('[data-open-appearance]').forEach(b=>b.addEventListener('click',openSettings));
+    document.querySelector('[data-close-appearance]')?.addEventListener('click',closeSettings);
+    document.querySelectorAll('[data-theme-preset]').forEach(b=>b.addEventListener('click',()=>applyAppearance({...palette[b.dataset.themePreset],density:document.querySelector('[data-density-select]').value})));
+    document.querySelector('[data-theme-select]')?.addEventListener('change',e=>applyAppearance({...palette[e.target.value],density:document.querySelector('[data-density-select]').value}));
+    document.querySelector('[data-density-select]')?.addEventListener('change',e=>root.dataset.dashDensity=e.target.value);
+    document.querySelector('[data-accent-input]')?.addEventListener('input',e=>root.style.setProperty('--d-blue',e.target.value));
+    document.querySelector('[data-bg-input]')?.addEventListener('input',e=>root.style.setProperty('--d-bg',e.target.value));
+    document.querySelector('[data-panel-input]')?.addEventListener('input',e=>root.style.setProperty('--d-panel',e.target.value));
+    document.querySelector('[data-panel2-input]')?.addEventListener('input',e=>root.style.setProperty('--d-panel2',e.target.value));
+    document.querySelector('[data-save-appearance]')?.addEventListener('click',()=>{
+      const p={theme:document.querySelector('[data-theme-select]').value,density:document.querySelector('[data-density-select]').value,accent:document.querySelector('[data-accent-input]').value,background:document.querySelector('[data-bg-input]').value,panel:document.querySelector('[data-panel-input]').value,panel2:document.querySelector('[data-panel2-input]').value};
+      localStorage.setItem('ta-dashboard-appearance',JSON.stringify(p));closeSettings();showToast('Dashboard appearance saved.');
+    });
+    document.querySelector('[data-reset-appearance]')?.addEventListener('click',()=>{localStorage.removeItem('ta-dashboard-appearance');localStorage.removeItem('ta-dashboard-sidebar');localStorage.removeItem(pageKey);setCollapsed(false);applyAppearance({...palette.dark,density:'comfortable'});restoreCardOrder();showToast('Trade Avata default restored.');});
+
+    document.querySelector('[data-menu]')?.addEventListener('click',()=>{side?.classList.toggle('open');document.querySelector('[data-mobile-backdrop]')?.classList.toggle('open',side?.classList.contains('open'))});
+    document.querySelector('[data-mobile-backdrop]')?.addEventListener('click',()=>{side?.classList.remove('open');document.querySelector('[data-mobile-backdrop]')?.classList.remove('open')});
+
+    document.querySelectorAll('.dash-tabs button').forEach(b=>b.addEventListener('click',()=>{b.parentElement?.querySelectorAll('button').forEach(x=>x.classList.toggle('active',x===b));showToast(b.textContent.trim()+' view selected.')}));
+
+    const grids=[...document.querySelectorAll('.dash-grid,.metric-grid')];
+    grids.forEach((g,gi)=>[...g.children].forEach((card,ci)=>{if(!card.dataset.layoutId)card.dataset.layoutId=`g${gi}-c${ci}`}));
+    function restoreCardOrder(){let saved={};try{saved=JSON.parse(localStorage.getItem(pageKey)||'{}')}catch{}grids.forEach((g,gi)=>{const order=saved['g'+gi];if(Array.isArray(order))order.forEach(id=>{const el=g.querySelector(`[data-layout-id="${id}"]`);if(el)g.appendChild(el)})});}
+    restoreCardOrder();
+    let editMode=false,dragged=null;
+    function saveCardOrder(){const obj={};grids.forEach((g,gi)=>obj['g'+gi]=[...g.children].map(x=>x.dataset.layoutId).filter(Boolean));localStorage.setItem(pageKey,JSON.stringify(obj));}
+    document.querySelector('[data-layout-edit]')?.addEventListener('click',e=>{editMode=!editMode;document.body.classList.toggle('dash-layout-editing',editMode);e.currentTarget.textContent=editMode?'Finish rearranging':'Rearrange cards';document.querySelector('[data-layout-help]').textContent=editMode?'Drag cards within the same section. Changes save automatically.':'When rearrange mode is on, drag cards inside the same row/section.';grids.forEach(g=>[...g.children].forEach(c=>c.draggable=editMode));if(!editMode)saveCardOrder();});
+    grids.forEach(g=>{
+      g.addEventListener('dragstart',e=>{if(!editMode)return;dragged=e.target.closest('[data-layout-id]');dragged?.classList.add('dragging')});
+      g.addEventListener('dragend',()=>{dragged?.classList.remove('dragging');dragged=null;saveCardOrder()});
+      g.addEventListener('dragover',e=>{if(!editMode||!dragged||dragged.parentElement!==g)return;e.preventDefault();const cards=[...g.querySelectorAll('[data-layout-id]:not(.dragging)')];const next=cards.find(c=>e.clientY<c.getBoundingClientRect().top+c.getBoundingClientRect().height/2);next?g.insertBefore(dragged,next):g.appendChild(dragged)});
+    });
+
+    document.querySelectorAll('button.dash-control:not([data-open-appearance]):not([data-save-appearance]):not([data-reset-appearance]):not([data-layout-edit]):not([data-toggle-sidebar-setting])').forEach(b=>{
+      if(b.dataset.bound||b.hasAttribute('data-pause'))return;b.dataset.bound='1';b.addEventListener('click',()=>showToast('This control is ready for its connected account or Firebase action.'));
+    });
+  </script>
+</body>
+</html>

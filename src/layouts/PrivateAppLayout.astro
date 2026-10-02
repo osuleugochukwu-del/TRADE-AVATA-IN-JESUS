@@ -1,0 +1,30 @@
+---
+const { title = 'Trade Avata', description = 'Private Trade Avata workspace.', appearanceControls = true } = Astro.props;
+const base = import.meta.env.BASE_URL;
+---
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" /><meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta name="description" content={description} /><title>{title}</title>
+<link rel="icon" href={`${base}brand/trade-avata-mark.png`} />
+<script is:inline>try{const p=JSON.parse(localStorage.getItem('ta-private-appearance')||'{}');document.documentElement.dataset.theme=p.theme||localStorage.getItem('ta-theme')||'dark';document.documentElement.dataset.accent=p.accent||localStorage.getItem('ta-accent')||'blue'}catch{}</script>
+</head>
+<body data-base-url={base}>
+  <slot />
+  <div class="theme-controls" aria-label="Appearance controls" hidden={!appearanceControls}>
+    <select data-private-theme aria-label="Theme"><option value="dark">Dark</option><option value="soft">Soft Gray</option><option value="light">Light</option></select>
+    <select data-accent-select aria-label="Accent color"><option value="blue">Blue</option><option value="purple">Purple</option><option value="red">Red</option><option value="green">Green</option><option value="gold">Gold</option></select>
+  </div>
+  <script is:inline define:vars={{ appearanceControls }}>
+  if(appearanceControls){const r=document.documentElement;const theme=document.querySelector('[data-private-theme]');const accent=document.querySelector('[data-accent-select]');if(theme){theme.value=r.dataset.theme||'dark';theme.addEventListener('change',()=>{r.dataset.theme=theme.value;const p={theme:theme.value,accent:accent?.value||'blue'};localStorage.setItem('ta-private-appearance',JSON.stringify(p));localStorage.setItem('ta-theme',theme.value)})}if(accent){accent.value=r.dataset.accent||'blue';accent.addEventListener('change',()=>{r.dataset.accent=accent.value;const p={theme:theme?.value||'dark',accent:accent.value};localStorage.setItem('ta-private-appearance',JSON.stringify(p));localStorage.setItem('ta-accent',accent.value)})}}
+  </script>
+</body>
+</html>
+<style is:global>
+:root{--app-bg:#070b12;--app-panel:#0d131d;--app-panel2:#111a27;--app-border:#1c2735;--app-text:#edf3fb;--app-muted:#8290a5;--app-accent:#4b8cff;--app-accent-2:#64d7ff;--app-success:#37d39b;--app-danger:#ff6f7d;color-scheme:dark}
+:root[data-theme="soft"]{--app-bg:#1a1d22;--app-panel:#24282f;--app-panel2:#2a2f37;--app-border:#3b414a;--app-text:#eef1f5;--app-muted:#a7afb9;color-scheme:dark}
+:root[data-theme="light"]{--app-bg:#f5f7fb;--app-panel:#fff;--app-panel2:#eef2f7;--app-border:#d8dee8;--app-text:#172033;--app-muted:#657188;color-scheme:light}
+:root[data-accent="purple"]{--app-accent:#8b5cf6;--app-accent-2:#c4b5fd}:root[data-accent="red"]{--app-accent:#ef4444;--app-accent-2:#fca5a5}:root[data-accent="green"]{--app-accent:#10b981;--app-accent-2:#6ee7b7}:root[data-accent="gold"]{--app-accent:#d6a84f;--app-accent-2:#f1d28a}:root[data-accent="blue"],:root:not([data-accent]){--app-accent:#4b8cff;--app-accent-2:#64d7ff}
+body{margin:0;background:var(--app-bg);color:var(--app-text);font-family:Inter,ui-sans-serif,system-ui,sans-serif}*{box-sizing:border-box}a{color:inherit;text-decoration:none}.theme-controls[hidden]{display:none}.theme-controls{position:fixed;right:18px;bottom:18px;z-index:100;display:flex;gap:8px;padding:8px;border:1px solid var(--app-border);border-radius:14px;background:color-mix(in srgb,var(--app-panel) 92%,transparent);box-shadow:0 12px 40px rgba(0,0,0,.2)}.theme-controls select{border:1px solid var(--app-border);background:var(--app-panel2);color:var(--app-text);border-radius:9px;padding:7px;font-size:11px}
+</style>

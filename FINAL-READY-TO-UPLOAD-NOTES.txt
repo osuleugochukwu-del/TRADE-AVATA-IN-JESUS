@@ -1,0 +1,38 @@
+TRADE AVATA — FINAL READY-TO-UPLOAD PACKAGE
+
+FOUNDATION
+- Uses NEW-SITE-TRADE-AVATA as the foundation.
+- Advanced Analytics preserved and repaired; not replaced by the simplified newer dashboard.
+- Journal preserved and expanded; existing functionality remains.
+
+LATEST APPROVED UPDATES
+- Official blue TA mark is the only logo asset used across public pages, dashboards, favicons and email previews.
+- Brand lockup is: Trade Avata (primary) + Trade Simple. (smaller secondary line). Text adapts to dark/light dashboard themes so it does not disappear.
+- About page and all About navigation links removed.
+- Admin-managed Social Media controls added: URL, show/hide and display order for YouTube, Facebook, Instagram, X, TikTok and LinkedIn.
+- Social settings drive Footer and Contact/Support social areas.
+- Admin-managed branded Email Template Library added with 30 default templates covering account, security, orders, products, courses, support, Copy Trading, platform notices and campaigns.
+- Email templates support variables, enabled/disabled state, preview, duplicate, test queue and campaigns.
+- Journal adds compact trade summary, richer trade table and right-side Trade Details drawer while retaining existing Table/Gallery/Reviews/Strategies/Properties/search/filter/sort/custom fields/import/export/local save/cloud hooks.
+- Journal evidence is link-first: no normal user image upload workflow. Direct image links can preview; supported chart links can resolve an external preview through previewEvidenceLink; otherwise Open Chart remains available.
+- Analytics, Journal, Member, Admin and Copy Trading sidebars can collapse on desktop and become off-canvas on mobile.
+- Dashboard appearance customization supports Dark, Soft Gray and Light plus accent/background/panel colors and density.
+- Homepage follows approved structure and uses one four-card indicator row controlled by All / MT4 / MT5 / cTrader / TradingView. Every filter has at least four compatible products in demo catalogue data.
+- Extra calculator tools remain removed; public Tools focuses on Analytics and Journal.
+- Products, Courses, Course Player, Articles, Learning Hub, Market, Contact/Support, auth states and legal/system routes are present.
+
+GITHUB SAFETY
+- astro.config.mjs derives the GitHub Pages base path from GITHUB_REPOSITORY. No stale repository path is hard-coded.
+- Dynamic article/course/player/product routes use descriptive getStaticPaths props (article/course/product), avoiding the earlier undefined Astro.props errors.
+- GitHub workflow uses the same action major versions that succeeded in the previous deployment path: checkout@v6, setup-node@v7, Node 24, configure-pages@v5, upload-pages-artifact@v4, deploy-pages@v4.
+
+VALIDATION COMPLETED IN THIS WORKSPACE
+- JavaScript/module syntax checks: passed.
+- Inline Astro script syntax checks: passed.
+- Relative import existence checks: passed.
+- JSON parse checks: passed.
+- Static route/link audit: no missing internal page targets found (asset URLs excluded).
+- Full npm/Astro production build could not be run locally because npm dependency installation timed out in this environment. GitHub Actions is the final compiler-level verification after upload.
+
+UPLOAD
+Extract this ZIP. Upload the CONTENTS of the NEW-SITE-TRADE-AVATA-main folder to the ROOT of the GitHub repository. Do not upload the ZIP as a file and do not create an extra nested project folder.

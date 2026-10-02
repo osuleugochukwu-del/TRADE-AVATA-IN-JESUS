@@ -1,0 +1,35 @@
+---
+const { class: className = '', showLabel = false } = Astro.props;
+const platforms = [
+  ['youtube','YouTube','▶'],['facebook','Facebook','f'],['instagram','Instagram','◎'],['x','X','𝕏'],['tiktok','TikTok','♪'],['linkedin','LinkedIn','in']
+];
+---
+<div class:list={['ta-social-links', className]} data-social-links>
+  {platforms.map(([id,label,icon]) => <a data-social={id} href="#" target="_blank" rel="noopener noreferrer" hidden aria-label={label}><span>{icon}</span>{showLabel && <b>{label}</b>}</a>)}
+</div>
+<script>
+import { getPublicSocialLinks } from '../lib/firebase/site-settings.js';
+const safeUrl=(value)=>{try{const url=new URL(String(value||''));return ['https:','http:'].includes(url.protocol)?url.href:''}catch{return ''}};
+const fallback=[];
+getPublicSocialLinks(fallback).then(items=>{
+  const ordered=[...items].filter(x=>x && x.enabled!==false && safeUrl(x.url||x.href)).sort((a,b)=>(Number(a.order)||99)-(Number(b.order)||99));
+  document.querySelectorAll('[data-social-links]').forEach(container=>{
+    const nodes=[...container.querySelectorAll('[data-social]')];
+    nodes.forEach(node=>node.hidden=true);
+    ordered.forEach(item=>{
+      const id=String(item.id||item.platform||'').toLowerCase();
+      const node=container.querySelector(`[data-social="${id}"]`);
+      if(!node)return;
+      node.href=safeUrl(item.url||item.href);
+      node.hidden=false;
+      container.appendChild(node);
+    });
+    container.hidden=ordered.length===0;
+    const section=container.closest('[data-social-section]');
+    if(section)section.hidden=ordered.length===0;
+  });
+}).catch(()=>{});
+</script>
+<style>
+.ta-social-links{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.ta-social-links[hidden]{display:none}.ta-social-links a{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-width:30px;height:30px;padding:0 9px;border:1px solid color-mix(in srgb,currentColor 18%,transparent);border-radius:9px;background:rgba(255,255,255,.055);color:inherit;font:800 10px/1 Inter,ui-sans-serif,system-ui}.ta-social-links a:hover{transform:translateY(-1px);background:rgba(255,255,255,.1)}.ta-social-links b{font-size:10px}
+</style>

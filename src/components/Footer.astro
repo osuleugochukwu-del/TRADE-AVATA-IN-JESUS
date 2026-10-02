@@ -1,0 +1,19 @@
+---
+import BrandLockup from './BrandLockup.astro';
+import SocialLinks from './SocialLinks.astro';
+const base = import.meta.env.BASE_URL;
+const year = new Date().getFullYear();
+---
+<footer class="site-footer">
+  <div class="shell footer-grid">
+    <div class="footer-about"><BrandLockup href={base} theme="dark" /><p>Practical trading technology, education and review tools built to help traders make clearer decisions.</p><div class="footer-social-wrap" data-social-section><h2>Follow Trade Avata</h2><SocialLinks /></div></div>
+    <div><h2>Quick Links</h2><a href={base}>Home</a><a href={`${base}products/`}>Indicators</a><a href={`${base}analytics/`}>AI Analytics</a><a href={`${base}courses/`}>Courses</a><a href={`${base}articles/`}>Articles</a></div>
+    <div><h2>Platform</h2><a href={`${base}journal/`}>Trading Journal</a><a href={`${base}market/`}>Market</a><a href={`${base}member/`}>Member Area</a><a href={`${base}contact/`}>Support</a><a href={`${base}tools/`}>AI Tools</a></div>
+    <div><h2>Company</h2><a href={`${base}contact/`}>Contact</a><a href={`${base}privacy/`}>Privacy Policy</a><a href={`${base}terms/`}>Terms</a><a href={`${base}legal/risk-disclosure/`}>Risk Disclosure</a></div>
+    <div class="newsletter"><h2>Join Our Newsletter</h2><p>Get updates, learning resources and product news.</p><form data-newsletter><input type="email" placeholder="Enter your email address" aria-label="Email address" required /><button type="submit">Subscribe</button></form><small data-newsletter-status></small></div>
+  </div>
+  <div class="shell footer-bottom"><span>© {year} Trade Avata. All rights reserved.</span><span>Trading involves risk. Educational content is not financial advice.</span></div>
+</footer>
+<script is:inline>
+document.querySelector('[data-newsletter]')?.addEventListener('submit',e=>{e.preventDefault();const s=document.querySelector('[data-newsletter-status]');if(s)s.textContent='Newsletter signup will activate when the email service is connected.'})
+</script>

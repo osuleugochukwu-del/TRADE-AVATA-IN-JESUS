@@ -1,0 +1,4 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro'; import {articles} from '../../data/site.js'; const base=import.meta.env.BASE_URL;
+---
+<BaseLayout title="Trading Articles — Trade Avata"><section class="page-hero"><div class="shell"><span class="eyebrow">Articles</span><h1 class="page-title">Practical trading ideas, explained clearly.</h1><p class="lead">Read focused articles on process, risk, technical analysis, journaling and trading platforms.</p></div></section><section class="section"><div class="shell"><div class="grid grid-3">{articles.map(a=><a class="card card-link" href={`${base}articles/${a.slug}/`}><span class="chip">{a.category}</span><h3 style="margin-top:14px">{a.title}</h3><p>{a.excerpt}</p><small style="color:var(--muted)">{a.read} read</small><span style="display:block;margin-top:14px;color:#1588ee;font-size:11px;font-weight:800">Read article →</span></a>)}</div></div></section></BaseLayout>

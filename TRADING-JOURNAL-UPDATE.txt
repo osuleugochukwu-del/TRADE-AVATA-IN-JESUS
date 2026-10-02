@@ -1,0 +1,25 @@
+TRADE AVATA — TRADING JOURNAL UPDATE
+
+CORE RULE
+Nothing useful from the existing Journal was removed. The database/table workflow, Gallery, Reviews, Strategies, Properties, search, filtering, sorting, trade editing, thesis, confluences, execution notes, setup/execution ratings, lessons, AI review, JSON import/export, local persistence and optional Firebase sync are all retained.
+
+ADDED IN THIS UPDATE
+- Compact performance summary strip: Total Trades, Win Rate, Net P&L, Profit Factor, Average R:R and Evidence Links.
+- Richer trade rows with P&L, status and evidence-link state while keeping the original Journal fields.
+- Click any trade row to open a full right-side Trade Details drawer.
+- Drawer includes entry, exit, stop loss, take profit, lot size, P&L, pips, status, tags and all existing Journal review fields.
+- Close button at the top-right of the Trade Details drawer.
+- Link-first evidence system. Trade Avata stores the chart/share URL instead of uploading image files.
+- Direct image URLs can preview immediately.
+- Standard chart/share links can use the secure Firebase Function `previewEvidenceLink` to resolve an Open Graph preview image from approved providers.
+- Unsupported/non-previewable links remain safely stored and can be opened in a new tab.
+- No image-upload control was added to the Journal.
+- Collapsible left Journal sidebar on desktop; off-canvas sidebar on mobile.
+- Full Journal appearance customizer: Trade Avata Dark, Soft Gray and Light presets; density; accent; workspace, panel and sidebar colors; optional summary strip.
+- Appearance and sidebar preferences are persisted locally and can sync with the Journal workspace when Firebase is connected.
+
+EVIDENCE PREVIEW SECURITY
+The preview Firebase Function accepts HTTPS URLs only and resolves previews only from an allowlist of chart/trading providers. Additional approved hosts can be supplied through EVIDENCE_PREVIEW_ALLOWED_HOSTS. Arbitrary sites are not embedded inside the Journal.
+
+AI ARCHITECTURE
+The browser sends only recorded journal evidence to the Firebase Function `reviewJournal`. Provider secrets stay server-side. The local evidence-based fallback remains available when the AI endpoint is not configured.

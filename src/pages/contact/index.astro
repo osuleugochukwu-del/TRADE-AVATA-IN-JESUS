@@ -1,0 +1,16 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SocialLinks from '../../components/SocialLinks.astro';
+const base=import.meta.env.BASE_URL;
+---
+<BaseLayout title="Contact & Support — Trade Avata" description="Contact Trade Avata for product, account and platform support.">
+  <section class="page-hero"><div class="shell"><span class="eyebrow">SUPPORT</span><h1 class="page-title">How can we help?</h1><p class="lead">Use the form for general questions. Registered members can sign in for account and product support.</p></div></section>
+  <section class="section"><div class="shell grid grid-2"><form id="contactForm" class="card" style="padding:20px"><label>Name<input name="name" autocomplete="name" maxlength="100" required></label><label>Email<input name="email" type="email" autocomplete="email" maxlength="200" required></label><label>Subject<input name="subject" maxlength="160" required></label><label>Message<textarea name="message" maxlength="4000" rows="7" required></textarea></label><input name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px" /><button class="button" type="submit">Send message</button><p id="contactStatus" class="lead" style="font-size:14px;margin:0"></p></form><aside class="card" style="padding:20px"><span class="eyebrow">MEMBER SUPPORT</span><h2>Need account or product help?</h2><p>Registered members can use Member Support after signing in. Public visitors can use this contact form for general questions.</p><a class="button button-secondary" href={`${base}login/`}>Open Member Support</a><div data-social-section><h3 style="margin-top:28px">Follow Trade Avata</h3><p style="margin-top:0">Social links are controlled from the Admin dashboard, so only active channels appear here.</p><SocialLinks showLabel={true} /></div></aside></div></section>
+</BaseLayout>
+<script>
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { db } from '../../lib/firebase/db.js';
+const form=document.querySelector('#contactForm');const status=document.querySelector('#contactStatus');
+form?.addEventListener('submit',async e=>{e.preventDefault();status.textContent='Sending…';const data=Object.fromEntries(new FormData(form));if(data.website){status.textContent='Unable to send.';return;}try{if(!db)throw new Error('Support backend is not configured yet.');await addDoc(collection(db,'contactMessages'),{name:String(data.name||'').trim(),email:String(data.email||'').trim(),subject:String(data.subject||'').trim(),message:String(data.message||'').trim(),website:'',status:'new',createdAt:serverTimestamp()});form.reset();status.textContent='Message received. Trade Avata support can now review it.';}catch(error){status.textContent=String(error?.message||'Unable to send right now.');}});
+</script>
+<style>.card label{display:grid;gap:6px;margin-bottom:13px;font-size:11px;font-weight:800}.card input,.card textarea{padding:11px 12px;border:1px solid var(--line);border-radius:9px;background:var(--surface2);color:var(--text)}</style>
