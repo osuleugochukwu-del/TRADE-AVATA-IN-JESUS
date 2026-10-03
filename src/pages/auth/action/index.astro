@@ -1,0 +1,1336 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+
+const base = import.meta.env.BASE_URL;
+---
+
+<BaseLayout title="Account Action — Trade Avata">
+  <section class="auth-shell">
+    <div class="auth-card action-card">
+
+      <span class="eyebrow">
+        Trade Avata Account
+      </span>
+
+      <div
+        class="action-icon"
+        data-icon
+      >
+        ◌
+      </div>
+
+      <h1 data-title>
+        Checking your request…
+      </h1>
+
+      <p data-description>
+        Please wait while Trade Avata securely checks this account request.
+      </p>
+
+      <div
+        class="account-email"
+        data-email
+        hidden
+      ></div>
+
+
+      <!-- PASSWORD RESET FORM -->
+
+      <form
+        class="reset-form"
+        data-reset-form
+        hidden
+      >
+
+        <label class="field">
+          <span>New Password</span>
+
+          <div class="password-wrap">
+
+            <input
+              name="password"
+              type="password"
+              minlength="6"
+              autocomplete="new-password"
+              required
+              data-password
+            />
+
+            <button
+              class="password-toggle"
+              type="button"
+              data-toggle-password
+              aria-label="Show password"
+              aria-pressed="false"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <path
+                  d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z"
+                />
+
+                <circle
+                  cx="12"
+                  cy="12"
+                  r="2.7"
+                />
+              </svg>
+            </button>
+
+          </div>
+        </label>
+
+
+        <label class="field">
+          <span>Confirm New Password</span>
+
+          <div class="password-wrap">
+
+            <input
+              name="confirmPassword"
+              type="password"
+              minlength="6"
+              autocomplete="new-password"
+              required
+              data-confirm-password
+            />
+
+            <button
+              class="password-toggle"
+              type="button"
+              data-toggle-confirm
+              aria-label="Show confirm password"
+              aria-pressed="false"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <path
+                  d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z"
+                />
+
+                <circle
+                  cx="12"
+                  cy="12"
+                  r="2.7"
+                />
+              </svg>
+            </button>
+
+          </div>
+
+          <small
+            class="password-match"
+            data-password-match
+          ></small>
+
+        </label>
+
+
+        <button
+          class="button"
+          type="submit"
+          data-reset-submit
+        >
+          Update Password
+        </button>
+
+      </form>
+
+
+      <div
+        class="action-status"
+        data-status
+        aria-live="polite"
+      >
+        Securely checking…
+      </div>
+
+
+      <div
+        class="action-buttons"
+        data-actions
+        hidden
+      >
+
+        <a
+          class="button"
+          data-primary
+          href={`${base}login/`}
+        >
+          Continue to Trade Avata
+        </a>
+
+        <a
+          class="button ghost"
+          href={base}
+        >
+          Go to homepage
+        </a>
+
+      </div>
+
+    </div>
+  </section>
+
+
+  <style>
+    .action-card {
+      text-align: center;
+      max-width: 500px;
+    }
+
+    .action-icon {
+      width: 58px;
+      height: 58px;
+
+      display: grid;
+      place-items: center;
+
+      margin: 18px auto 12px;
+
+      border-radius: 50%;
+
+      background: var(--surface2);
+      border: 1px solid var(--line);
+
+      color: var(--blue);
+
+      font-size: 27px;
+      font-weight: 900;
+    }
+
+    .action-icon.success {
+      color: var(--good);
+      border-color: var(--good);
+    }
+
+    .action-icon.error {
+      color: var(--bad);
+      border-color: var(--bad);
+    }
+
+    .account-email {
+      margin: 16px 0;
+
+      padding: 11px 14px;
+
+      border: 1px solid var(--line);
+      border-radius: 10px;
+
+      background: var(--surface2);
+      color: var(--text);
+
+      font-size: 12px;
+
+      word-break: break-word;
+    }
+
+    .action-status {
+      margin-top: 15px;
+
+      min-height: 20px;
+
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .action-status.success {
+      color: var(--good);
+    }
+
+    .action-status.error {
+      color: var(--bad);
+    }
+
+    .action-buttons {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+
+      gap: 9px;
+
+      margin-top: 20px;
+    }
+
+    .reset-form {
+      display: grid;
+      gap: 13px;
+
+      margin-top: 20px;
+
+      text-align: left;
+    }
+
+    .password-wrap {
+      position: relative;
+      width: 100%;
+    }
+
+    .password-wrap input {
+      width: 100%;
+      padding-right: 52px;
+    }
+
+    .password-wrap input:-webkit-autofill,
+    .password-wrap input:-webkit-autofill:hover,
+    .password-wrap input:-webkit-autofill:focus,
+    .password-wrap input:-webkit-autofill:active {
+      -webkit-text-fill-color:
+        var(--text) !important;
+
+      -webkit-box-shadow:
+        0 0 0 1000px
+        var(--surface2)
+        inset !important;
+
+      box-shadow:
+        0 0 0 1000px
+        var(--surface2)
+        inset !important;
+
+      caret-color: var(--text);
+    }
+
+    .password-toggle {
+      position: absolute;
+
+      right: 9px;
+      top: 50%;
+
+      transform: translateY(-50%);
+
+      width: 36px;
+      height: 36px;
+
+      display: grid;
+      place-items: center;
+
+      border: 0;
+      border-radius: 8px;
+
+      background: transparent;
+
+      color: var(--text);
+
+      cursor: pointer;
+
+      padding: 0;
+
+      opacity: .82;
+    }
+
+    .password-toggle svg {
+      width: 19px;
+      height: 19px;
+
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.8;
+
+      stroke-linecap: round;
+      stroke-linejoin: round;
+
+      pointer-events: none;
+    }
+
+    .password-toggle:hover {
+      opacity: 1;
+
+      background:
+        color-mix(
+          in srgb,
+          var(--text) 8%,
+          transparent
+        );
+    }
+
+    .password-toggle:focus-visible {
+      outline: 2px solid var(--blue);
+      outline-offset: 1px;
+    }
+
+    .password-match {
+      display: block;
+
+      min-height: 17px;
+
+      margin-top: 5px;
+    }
+
+    .password-match.good {
+      color: var(--good);
+    }
+
+    .password-match.bad {
+      color: var(--bad);
+    }
+
+    @media (max-width: 520px) {
+      .action-buttons {
+        display: grid;
+      }
+
+      .action-buttons .button {
+        width: 100%;
+      }
+    }
+  </style>
+
+
+  <script>
+    import {
+      applyActionCode,
+      checkActionCode,
+      confirmPasswordReset,
+      verifyPasswordResetCode
+    } from 'firebase/auth';
+
+    import {
+      auth
+    } from '../../../lib/firebase/auth.js';
+
+
+    const title =
+      document.querySelector(
+        '[data-title]'
+      );
+
+    const description =
+      document.querySelector(
+        '[data-description]'
+      );
+
+    const icon =
+      document.querySelector(
+        '[data-icon]'
+      );
+
+    const status =
+      document.querySelector(
+        '[data-status]'
+      );
+
+    const emailBox =
+      document.querySelector(
+        '[data-email]'
+      );
+
+    const actions =
+      document.querySelector(
+        '[data-actions]'
+      );
+
+    const primaryButton =
+      document.querySelector(
+        '[data-primary]'
+      );
+
+    const resetForm =
+      document.querySelector(
+        '[data-reset-form]'
+      );
+
+    const resetSubmit =
+      document.querySelector(
+        '[data-reset-submit]'
+      );
+
+    const passwordInput =
+      document.querySelector(
+        '[data-password]'
+      );
+
+    const confirmPasswordInput =
+      document.querySelector(
+        '[data-confirm-password]'
+      );
+
+    const matchMessage =
+      document.querySelector(
+        '[data-password-match]'
+      );
+
+
+    const base =
+      document.body.dataset.baseUrl || '/';
+
+
+    const params =
+      new URLSearchParams(
+        window.location.search
+      );
+
+
+    const mode =
+      params.get('mode');
+
+    const actionCode =
+      params.get('oobCode');
+
+
+    /*
+      VISUAL HELPERS
+    */
+
+    function clearStatusClasses() {
+      status.classList.remove(
+        'success',
+        'error'
+      );
+
+      icon.classList.remove(
+        'success',
+        'error'
+      );
+    }
+
+
+    function setSuccess(
+      heading,
+      message
+    ) {
+      clearStatusClasses();
+
+      title.textContent =
+        heading;
+
+      description.textContent =
+        message;
+
+      icon.textContent =
+        '✓';
+
+      icon.classList.add(
+        'success'
+      );
+
+      status.classList.add(
+        'success'
+      );
+    }
+
+
+    function setError(
+      heading,
+      message
+    ) {
+      clearStatusClasses();
+
+      title.textContent =
+        heading;
+
+      description.textContent =
+        message;
+
+      icon.textContent =
+        '!';
+
+      icon.classList.add(
+        'error'
+      );
+
+      status.classList.add(
+        'error'
+      );
+
+      actions.hidden =
+        false;
+
+      primaryButton.href =
+        `${base}login/`;
+
+      primaryButton.textContent =
+        'Go to login';
+    }
+
+
+    function showEmail(email) {
+      if (!email) {
+        return;
+      }
+
+      emailBox.hidden =
+        false;
+
+      emailBox.textContent =
+        email;
+    }
+
+
+    /*
+      PASSWORD VISIBILITY
+    */
+
+    function togglePassword(
+      input,
+      button
+    ) {
+      if (!input || !button) {
+        return;
+      }
+
+
+      const hidden =
+        input.type ===
+        'password';
+
+
+      input.type =
+        hidden
+          ? 'text'
+          : 'password';
+
+
+      button.setAttribute(
+        'aria-label',
+        hidden
+          ? 'Hide password'
+          : 'Show password'
+      );
+
+
+      button.setAttribute(
+        'aria-pressed',
+        hidden
+          ? 'true'
+          : 'false'
+      );
+    }
+
+
+    document
+      .querySelector(
+        '[data-toggle-password]'
+      )
+      ?.addEventListener(
+        'click',
+        event => {
+
+          togglePassword(
+            passwordInput,
+            event.currentTarget
+          );
+
+        }
+      );
+
+
+    document
+      .querySelector(
+        '[data-toggle-confirm]'
+      )
+      ?.addEventListener(
+        'click',
+        event => {
+
+          togglePassword(
+            confirmPasswordInput,
+            event.currentTarget
+          );
+
+        }
+      );
+
+
+    /*
+      PASSWORD MATCHING
+    */
+
+    function checkPasswords() {
+
+      const password =
+        passwordInput?.value || '';
+
+      const confirmPassword =
+        confirmPasswordInput?.value || '';
+
+
+      matchMessage.classList.remove(
+        'good',
+        'bad'
+      );
+
+
+      if (!confirmPassword) {
+
+        matchMessage.textContent =
+          '';
+
+        return false;
+
+      }
+
+
+      if (
+        password ===
+        confirmPassword
+      ) {
+
+        matchMessage.textContent =
+          'Passwords match ✓';
+
+        matchMessage.classList.add(
+          'good'
+        );
+
+        return true;
+
+      }
+
+
+      matchMessage.textContent =
+        'Passwords do not match';
+
+      matchMessage.classList.add(
+        'bad'
+      );
+
+      return false;
+    }
+
+
+    passwordInput?.addEventListener(
+      'input',
+      checkPasswords
+    );
+
+
+    confirmPasswordInput
+      ?.addEventListener(
+        'input',
+        checkPasswords
+      );
+
+
+    /*
+      VERIFY EMAIL
+    */
+
+    async function handleVerifyEmail() {
+
+      title.textContent =
+        'Verifying your email…';
+
+      description.textContent =
+        'Trade Avata is confirming your email address.';
+
+      status.textContent =
+        'Please wait…';
+
+
+      try {
+
+        const info =
+          await checkActionCode(
+            auth,
+            actionCode
+          );
+
+
+        const email =
+          info?.data?.email || '';
+
+
+        showEmail(
+          email
+        );
+
+
+        await applyActionCode(
+          auth,
+          actionCode
+        );
+
+
+        /*
+          If the user is already signed
+          in on this browser, refresh
+          their Firebase account state.
+        */
+
+        if (
+          auth.currentUser
+        ) {
+
+          try {
+
+            await auth
+              .currentUser
+              .reload();
+
+          } catch {}
+
+        }
+
+
+        setSuccess(
+          'Email verified ✓',
+          'Your Trade Avata email address has been successfully verified.'
+        );
+
+
+        status.textContent =
+          'Your account is ready.';
+
+
+        actions.hidden =
+          false;
+
+
+        if (
+          auth.currentUser
+        ) {
+
+          primaryButton.href =
+            `${base}member/`;
+
+          primaryButton.textContent =
+            'Open Member Area';
+
+        } else {
+
+          primaryButton.href =
+            `${base}login/`;
+
+          primaryButton.textContent =
+            'Log in to Trade Avata';
+
+        }
+
+
+      } catch (error) {
+
+        console.error(
+          'Verify email action error:',
+          error
+        );
+
+
+        /*
+          A verification link can fail
+          because it expired or because
+          it was already used.
+        */
+
+        setError(
+          'Verification link unavailable',
+          'This verification link may have expired or may already have been used.'
+        );
+
+
+        status.textContent =
+          'You can log in or request another verification email if necessary.';
+
+      }
+    }
+
+
+    /*
+      VERIFY EMAIL CHANGE
+    */
+
+    async function handleVerifyEmailChange() {
+
+      title.textContent =
+        'Confirming your email change…';
+
+      description.textContent =
+        'Trade Avata is securely confirming your new email address.';
+
+      status.textContent =
+        'Please wait…';
+
+
+      try {
+
+        const info =
+          await checkActionCode(
+            auth,
+            actionCode
+          );
+
+
+        const email =
+          info?.data?.email || '';
+
+
+        showEmail(
+          email
+        );
+
+
+        await applyActionCode(
+          auth,
+          actionCode
+        );
+
+
+        if (
+          auth.currentUser
+        ) {
+
+          try {
+
+            await auth
+              .currentUser
+              .reload();
+
+          } catch {}
+
+        }
+
+
+        setSuccess(
+          'Email updated ✓',
+          'Your Trade Avata email address has been confirmed successfully.'
+        );
+
+
+        status.textContent =
+          'Your account information has been updated.';
+
+
+        actions.hidden =
+          false;
+
+
+        primaryButton.href =
+          `${base}member/`;
+
+        primaryButton.textContent =
+          'Continue to Trade Avata';
+
+
+      } catch (error) {
+
+        console.error(
+          'Email change action error:',
+          error
+        );
+
+
+        setError(
+          'Email confirmation unavailable',
+          'This email confirmation link is invalid, expired or has already been used.'
+        );
+
+
+        status.textContent =
+          'Please sign in and try the email change again.';
+
+      }
+    }
+
+
+    /*
+      PASSWORD RESET
+    */
+
+    async function handlePasswordReset() {
+
+      title.textContent =
+        'Create a new password';
+
+      description.textContent =
+        'Choose a new password for your Trade Avata account.';
+
+      status.textContent =
+        'Checking reset link…';
+
+
+      try {
+
+        const email =
+          await verifyPasswordResetCode(
+            auth,
+            actionCode
+          );
+
+
+        showEmail(
+          email
+        );
+
+
+        resetForm.hidden =
+          false;
+
+
+        status.textContent =
+          'Reset link confirmed.';
+
+
+        resetForm
+          ?.addEventListener(
+            'submit',
+            async event => {
+
+              event.preventDefault();
+
+
+              const password =
+                passwordInput?.value || '';
+
+
+              const confirmPassword =
+                confirmPasswordInput
+                  ?.value || '';
+
+
+              if (
+                password !==
+                confirmPassword
+              ) {
+
+                checkPasswords();
+
+
+                status.textContent =
+                  'Passwords do not match.';
+
+
+                status.classList.remove(
+                  'success'
+                );
+
+
+                status.classList.add(
+                  'error'
+                );
+
+
+                return;
+              }
+
+
+              if (
+                password.length < 6
+              ) {
+
+                status.textContent =
+                  'Password must contain at least 6 characters.';
+
+
+                status.classList.remove(
+                  'success'
+                );
+
+
+                status.classList.add(
+                  'error'
+                );
+
+
+                return;
+              }
+
+
+              resetSubmit.disabled =
+                true;
+
+
+              resetSubmit.textContent =
+                'Updating password…';
+
+
+              status.classList.remove(
+                'error',
+                'success'
+              );
+
+
+              status.textContent =
+                'Updating your password…';
+
+
+              try {
+
+                await confirmPasswordReset(
+                  auth,
+                  actionCode,
+                  password
+                );
+
+
+                resetForm.hidden =
+                  true;
+
+
+                setSuccess(
+                  'Password updated ✓',
+                  'Your Trade Avata password has been changed successfully.'
+                );
+
+
+                status.textContent =
+                  'You can now sign in with your new password.';
+
+
+                actions.hidden =
+                  false;
+
+
+                primaryButton.href =
+                  `${base}login/`;
+
+
+                primaryButton.textContent =
+                  'Log in to Trade Avata';
+
+
+              } catch (error) {
+
+                console.error(
+                  'Password reset confirmation error:',
+                  error
+                );
+
+
+                resetSubmit.disabled =
+                  false;
+
+
+                resetSubmit.textContent =
+                  'Update Password';
+
+
+                status.classList.remove(
+                  'success'
+                );
+
+
+                status.classList.add(
+                  'error'
+                );
+
+
+                if (
+                  error?.code ===
+                  'auth/weak-password'
+                ) {
+
+                  status.textContent =
+                    'Please choose a stronger password.';
+
+                } else {
+
+                  status.textContent =
+                    'This password reset could not be completed. The link may have expired.';
+
+                }
+              }
+            }
+          );
+
+
+      } catch (error) {
+
+        console.error(
+          'Password reset code error:',
+          error
+        );
+
+
+        resetForm.hidden =
+          true;
+
+
+        setError(
+          'Reset link unavailable',
+          'This password reset link may have expired or already been used.'
+        );
+
+
+        status.textContent =
+          'Request a new password reset link from Trade Avata.';
+
+
+        primaryButton.href =
+          `${base}forgot-password/`;
+
+
+        primaryButton.textContent =
+          'Request a new reset link';
+
+      }
+    }
+
+
+    /*
+      RECOVER EMAIL
+    */
+
+    async function handleRecoverEmail() {
+
+      title.textContent =
+        'Recovering your email…';
+
+      description.textContent =
+        'Trade Avata is checking this account recovery request.';
+
+      status.textContent =
+        'Please wait…';
+
+
+      try {
+
+        const info =
+          await checkActionCode(
+            auth,
+            actionCode
+          );
+
+
+        const restoredEmail =
+          info?.data?.email || '';
+
+
+        await applyActionCode(
+          auth,
+          actionCode
+        );
+
+
+        showEmail(
+          restoredEmail
+        );
+
+
+        setSuccess(
+          'Email restored ✓',
+          'Your previous Trade Avata email address has been restored.'
+        );
+
+
+        status.textContent =
+          'If you did not make the original change, we recommend resetting your password.';
+
+
+        actions.hidden =
+          false;
+
+
+        primaryButton.href =
+          `${base}forgot-password/`;
+
+
+        primaryButton.textContent =
+          'Reset password';
+
+
+      } catch (error) {
+
+        console.error(
+          'Recover email action error:',
+          error
+        );
+
+
+        setError(
+          'Recovery link unavailable',
+          'This recovery link is invalid, expired or has already been used.'
+        );
+
+
+        status.textContent =
+          'Please contact Trade Avata Support if you need help.';
+
+      }
+    }
+
+
+    /*
+      START THE TRADE AVATA
+      EMAIL ACTION HANDLER
+    */
+
+    async function start() {
+
+      if (!auth) {
+
+        setError(
+          'Account service unavailable',
+          'Trade Avata Authentication could not be loaded.'
+        );
+
+
+        status.textContent =
+          'Please try again later.';
+
+
+        return;
+      }
+
+
+      if (
+        !mode ||
+        !actionCode
+      ) {
+
+        setError(
+          'Invalid account link',
+          'This Trade Avata account link is incomplete.'
+        );
+
+
+        status.textContent =
+          'Please use the complete link from the email you received.';
+
+
+        return;
+      }
+
+
+      switch (mode) {
+
+        case 'verifyEmail':
+
+          await handleVerifyEmail();
+
+          break;
+
+
+        case 'resetPassword':
+
+          await handlePasswordReset();
+
+          break;
+
+
+        case 'recoverEmail':
+
+          await handleRecoverEmail();
+
+          break;
+
+
+        case 'verifyAndChangeEmail':
+
+          await handleVerifyEmailChange();
+
+          break;
+
+
+        default:
+
+          setError(
+            'Unsupported account request',
+            'Trade Avata could not identify this account action.'
+          );
+
+
+          status.textContent =
+            'Please return to Trade Avata and try again.';
+
+      }
+    }
+
+
+    start();
+  </script>
+
+</BaseLayout>
