@@ -6,56 +6,175 @@ const base = import.meta.env.BASE_URL;
 
 <BaseLayout title="Verify your email — Trade Avata">
   <section class="auth-shell">
-    <div class="auth-card" style="text-align:center">
-      <span class="eyebrow">Account confirmation</span>
+    <div class="auth-card verify-card">
 
-      <h1>Check your email</h1>
+      <span class="eyebrow">
+        Account confirmation
+      </span>
 
-      <p>
-        We use email verification to confirm account ownership.
-        Open the verification message, then return to sign in.
+      <h1 data-title>
+        Check your email
+      </h1>
+
+      <p data-description>
+        We sent a verification link to your email address.
+        Open the message and verify your email to continue.
       </p>
 
-      <p
+      <div
+        class="email-box"
         data-email-hint
-        style="color:var(--muted);margin-top:.6rem"
-      ></p>
+      >
+        Checking your account…
+      </div>
 
       <div
-        style="
-          display:flex;
-          gap:.75rem;
-          justify-content:center;
-          flex-wrap:wrap;
-          margin-top:1rem;
-        "
+        class="verification-status"
+        data-status-box
+        aria-live="polite"
       >
+        <span
+          class="status-icon"
+          data-status-icon
+        >
+          ◌
+        </span>
+
+        <span data-status>
+          Waiting for verification…
+        </span>
+      </div>
+
+
+      <div class="verification-actions">
+
         <button
           class="button"
+          type="button"
+          data-check
+        >
+          I’ve verified my email
+        </button>
+
+
+        <button
+          class="button ghost"
           type="button"
           data-resend
         >
           Resend verification email
         </button>
 
-        <a
-          class="button"
-          href={`${base}login/`}
-        >
-          Back to login
+      </div>
+
+
+      <div class="auth-links verify-links">
+        <a href={`${base}login/`}>
+          ← Back to login
         </a>
       </div>
 
-      <small
-        data-status
-        style="
-          display:block;
-          color:var(--muted);
-          margin-top:1rem;
-        "
-      ></small>
     </div>
   </section>
+
+
+  <style>
+    .verify-card {
+      text-align: center;
+    }
+
+    .email-box {
+      margin-top: 18px;
+      padding: 11px 14px;
+
+      border: 1px solid var(--line);
+      border-radius: 10px;
+
+      background: var(--surface2);
+      color: var(--text);
+
+      font-size: 12px;
+      word-break: break-word;
+    }
+
+    .verification-status {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+
+      margin-top: 14px;
+
+      padding: 11px 14px;
+
+      border: 1px solid var(--line);
+      border-radius: 10px;
+
+      background: var(--surface2);
+      color: var(--muted);
+
+      font-size: 12px;
+      min-height: 44px;
+    }
+
+    .status-icon {
+      display: inline-grid;
+      place-items: center;
+
+      width: 22px;
+      height: 22px;
+
+      border-radius: 50%;
+
+      font-weight: 900;
+      flex: 0 0 auto;
+    }
+
+    .verification-status.success {
+      border-color: var(--good);
+      color: var(--good);
+    }
+
+    .verification-status.error {
+      border-color: var(--bad);
+      color: var(--bad);
+    }
+
+    .verification-actions {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+
+      gap: 9px;
+
+      margin-top: 18px;
+    }
+
+    .verification-actions .button {
+      min-width: 185px;
+    }
+
+    .verification-actions button:disabled {
+      opacity: .55;
+      cursor: not-allowed;
+    }
+
+    .verify-links {
+      justify-content: center;
+      margin-top: 18px;
+    }
+
+    @media (max-width: 520px) {
+      .verification-actions {
+        display: grid;
+      }
+
+      .verification-actions .button {
+        width: 100%;
+      }
+    }
+  </style>
+
 
   <script>
     import {
@@ -63,87 +182,768 @@ const base = import.meta.env.BASE_URL;
       sendEmailVerification
     } from 'firebase/auth';
 
-    import { auth } from '../../lib/firebase/auth.js';
+    import {
+      auth
+    } from '../../lib/firebase/auth.js';
 
-    const status = document.querySelector('[data-status]');
-    const emailHint = document.querySelector('[data-email-hint]');
-    const resendButton = document.querySelector('[data-resend]');
 
-    const params = new URLSearchParams(location.search);
+    const title =
+      document.querySelector('[data-title]');
 
-    if (params.get('sent') === '1') {
-      status.textContent =
-        'Verification email requested. Check Inbox, Spam/Junk and Promotions.';
+    const description =
+      document.querySelector(
+        '[data-description]'
+      );
+
+    const emailHint =
+      document.querySelector(
+        '[data-email-hint]'
+      );
+
+    const statusBox =
+      document.querySelector(
+        '[data-status-box]'
+      );
+
+    const statusText =
+      document.querySelector(
+        '[data-status]'
+      );
+
+    const statusIcon =
+      document.querySelector(
+        '[data-status-icon]'
+      );
+
+    const resendButton =
+      document.querySelector(
+        '[data-resend]'
+      );
+
+    const checkButton =
+      document.querySelector(
+        '[data-check]'
+      );
+
+
+    const base =
+      document.body.dataset.baseUrl || '/';
+
+
+    const params =
+      new URLSearchParams(
+        location.search
+      );
+
+
+    let currentUser = null;
+
+    let verificationTimer = null;
+
+    let cooldownTimer = null;
+
+    let redirectStarted = false;
+
+
+    /*
+      STATUS HELPERS
+    */
+
+    function setStatus(
+      message,
+      type = 'normal'
+    ) {
+      statusText.textContent =
+        message;
+
+      statusBox.classList.remove(
+        'success',
+        'error'
+      );
+
+
+      if (type === 'success') {
+        statusBox.classList.add(
+          'success'
+        );
+
+        statusIcon.textContent =
+          '✓';
+
+      } else if (type === 'error') {
+        statusBox.classList.add(
+          'error'
+        );
+
+        statusIcon.textContent =
+          '!';
+
+      } else {
+        statusIcon.textContent =
+          '◌';
+      }
     }
 
-    if (params.get('sendFailed') === '1') {
-      status.textContent =
-        'Your account was created, but the verification email could not be confirmed as sent. Use the resend button below.';
+
+    /*
+      RESEND COOLDOWN
+    */
+
+    function cooldownKey(user) {
+      return user
+        ? `ta-email-verification-cooldown-${user.uid}`
+        : 'ta-email-verification-cooldown';
     }
 
-    if (!auth) {
-      status.textContent =
-        'Firebase Authentication is not available on this build.';
 
-      resendButton.disabled = true;
-    } else {
-      onAuthStateChanged(auth, (user) => {
+    function getCooldownEnd(user) {
+      try {
+        return Number(
+          localStorage.getItem(
+            cooldownKey(user)
+          ) || 0
+        );
+
+      } catch {
+        return 0;
+      }
+    }
+
+
+    function setCooldown(
+      user,
+      seconds = 60
+    ) {
+      const end =
+        Date.now() +
+        seconds * 1000;
+
+      try {
+        localStorage.setItem(
+          cooldownKey(user),
+          String(end)
+        );
+      } catch {}
+
+      startCooldownDisplay(user);
+    }
+
+
+    function clearCooldown(user) {
+      try {
+        localStorage.removeItem(
+          cooldownKey(user)
+        );
+      } catch {}
+
+      if (cooldownTimer) {
+        clearInterval(
+          cooldownTimer
+        );
+
+        cooldownTimer = null;
+      }
+    }
+
+
+    function startCooldownDisplay(user) {
+
+      if (cooldownTimer) {
+        clearInterval(
+          cooldownTimer
+        );
+      }
+
+
+      function update() {
+
+        const remaining =
+          Math.ceil(
+            (
+              getCooldownEnd(user) -
+              Date.now()
+            ) / 1000
+          );
+
+
+        if (remaining > 0) {
+
+          resendButton.disabled =
+            true;
+
+          resendButton.textContent =
+            `Resend available in ${remaining}s`;
+
+        } else {
+
+          resendButton.disabled =
+            false;
+
+          resendButton.textContent =
+            'Resend verification email';
+
+
+          if (cooldownTimer) {
+            clearInterval(
+              cooldownTimer
+            );
+
+            cooldownTimer = null;
+          }
+        }
+      }
+
+
+      update();
+
+      cooldownTimer =
+        setInterval(
+          update,
+          1000
+        );
+    }
+
+
+    /*
+      VERIFICATION SUCCESS
+    */
+
+    function verificationComplete() {
+
+      if (redirectStarted) {
+        return;
+      }
+
+
+      redirectStarted =
+        true;
+
+
+      if (verificationTimer) {
+        clearInterval(
+          verificationTimer
+        );
+      }
+
+
+      clearCooldown(
+        currentUser
+      );
+
+
+      title.textContent =
+        'Email verified ✓';
+
+
+      description.textContent =
+        'Your Trade Avata account is ready.';
+
+
+      setStatus(
+        'Verification successful. Opening your Member Area…',
+        'success'
+      );
+
+
+      resendButton.disabled =
+        true;
+
+      checkButton.disabled =
+        true;
+
+
+      resendButton.textContent =
+        'Email verified';
+
+      checkButton.textContent =
+        'Verified ✓';
+
+
+      setTimeout(
+        () => {
+          location.replace(
+            `${base}member/`
+          );
+        },
+        1500
+      );
+    }
+
+
+    /*
+      CHECK FIREBASE VERIFICATION
+    */
+
+    async function checkVerification(
+      showMessage = false
+    ) {
+
+      const user =
+        auth?.currentUser;
+
+
+      if (!user) {
+
+        if (showMessage) {
+          setStatus(
+            'Please sign in again so we can check your verification status.',
+            'error'
+          );
+        }
+
+        return false;
+      }
+
+
+      try {
+
+        if (showMessage) {
+          setStatus(
+            'Checking your verification status…'
+          );
+        }
+
+
+        await user.reload();
+
+
+        /*
+          Get the refreshed Firebase user
+          after reload().
+        */
+
+        const refreshedUser =
+          auth.currentUser;
+
+
+        if (
+          refreshedUser?.emailVerified
+        ) {
+
+          currentUser =
+            refreshedUser;
+
+          verificationComplete();
+
+          return true;
+        }
+
+
+        if (showMessage) {
+          setStatus(
+            'Your email is not verified yet. Open the verification link in your email, then come back here.'
+          );
+        }
+
+
+        return false;
+
+
+      } catch (error) {
+
+        console.error(
+          'Verification check error:',
+          error
+        );
+
+
+        if (showMessage) {
+          setStatus(
+            'We could not check your verification status. Please try again.',
+            'error'
+          );
+        }
+
+
+        return false;
+      }
+    }
+
+
+    /*
+      MANUAL CHECK BUTTON
+    */
+
+    checkButton?.addEventListener(
+      'click',
+      async () => {
+
+        checkButton.disabled =
+          true;
+
+
+        await checkVerification(
+          true
+        );
+
+
+        if (
+          !auth?.currentUser
+            ?.emailVerified
+        ) {
+          checkButton.disabled =
+            false;
+        }
+      }
+    );
+
+
+    /*
+      RESEND EMAIL
+    */
+
+    resendButton?.addEventListener(
+      'click',
+      async () => {
+
+        const user =
+          auth?.currentUser;
+
+
         if (!user) {
-          emailHint.textContent =
-            'Your sign-in session is not active. Please sign in again if you need to resend the verification email.';
 
-          resendButton.disabled = true;
+          setStatus(
+            'Please sign in again before requesting another verification email.',
+            'error'
+          );
+
           return;
         }
 
-        if (user.email) {
-          emailHint.textContent =
-            `Verification will be sent to ${user.email}`;
-        }
 
-        if (user.emailVerified) {
-          status.textContent =
-            'Your email is already verified. You can return to login.';
+        /*
+          Do not resend if the account
+          has already been verified.
+        */
 
-          resendButton.disabled = true;
-        }
-      });
+        await user.reload();
 
-      resendButton?.addEventListener('click', async () => {
-        const user = auth.currentUser;
 
-        if (!user) {
-          status.textContent =
-            'Please sign in again before resending the verification email.';
+        if (
+          auth.currentUser
+            ?.emailVerified
+        ) {
+
+          currentUser =
+            auth.currentUser;
+
+          verificationComplete();
+
           return;
         }
 
-        resendButton.disabled = true;
-        status.textContent = 'Sending verification email…';
+
+        const cooldownEnd =
+          getCooldownEnd(user);
+
+
+        if (
+          cooldownEnd >
+          Date.now()
+        ) {
+
+          startCooldownDisplay(
+            user
+          );
+
+          return;
+        }
+
+
+        resendButton.disabled =
+          true;
+
+
+        setStatus(
+          'Sending verification email…'
+        );
+
 
         try {
-          await sendEmailVerification(user);
 
-          status.textContent =
-            'Verification email sent. Check Inbox, Spam/Junk and Promotions.';
+          await sendEmailVerification(
+            user
+          );
+
+
+          setCooldown(
+            user,
+            60
+          );
+
+
+          setStatus(
+            'Verification email sent. Check your Inbox, Spam/Junk and Promotions.'
+          );
+
 
         } catch (error) {
-          console.error('Resend verification error:', error);
 
-          if (error?.code === 'auth/too-many-requests') {
-            status.textContent =
-              'Too many verification requests were made. Wait a little while, then try again.';
+          console.error(
+            'Resend verification error:',
+            error
+          );
+
+
+          if (
+            error?.code ===
+            'auth/too-many-requests'
+          ) {
+
+            setCooldown(
+              user,
+              60
+            );
+
+
+            setStatus(
+              'Too many verification requests were made. Please wait before trying again.',
+              'error'
+            );
+
+
           } else {
-            status.textContent =
+
+            resendButton.disabled =
+              false;
+
+
+            setStatus(
               error?.message ||
-              'The verification email could not be sent.';
-          }
-        } finally {
-          if (!user.emailVerified) {
-            resendButton.disabled = false;
+              'The verification email could not be sent.',
+              'error'
+            );
           }
         }
-      });
+      }
+    );
+
+
+    /*
+      FIREBASE AUTH STATE
+    */
+
+    if (!auth) {
+
+      emailHint.textContent =
+        'Firebase Authentication is unavailable.';
+
+
+      setStatus(
+        'Authentication is not available on this build.',
+        'error'
+      );
+
+
+      resendButton.disabled =
+        true;
+
+      checkButton.disabled =
+        true;
+
+
+    } else {
+
+      onAuthStateChanged(
+        auth,
+        async (user) => {
+
+          currentUser =
+            user;
+
+
+          if (!user) {
+
+            emailHint.textContent =
+              'Your sign-in session is not active.';
+
+
+            setStatus(
+              'Please return to login and sign in again.',
+              'error'
+            );
+
+
+            resendButton.disabled =
+              true;
+
+            checkButton.disabled =
+              true;
+
+
+            return;
+          }
+
+
+          if (user.email) {
+
+            emailHint.textContent =
+              `Verification email: ${user.email}`;
+          }
+
+
+          /*
+            If the account is already
+            verified, proceed immediately.
+          */
+
+          await user.reload();
+
+
+          if (
+            auth.currentUser
+              ?.emailVerified
+          ) {
+
+            currentUser =
+              auth.currentUser;
+
+            verificationComplete();
+
+            return;
+          }
+
+
+          /*
+            When the user has just
+            registered and Firebase has
+            already sent the first email,
+            begin the cooldown immediately.
+          */
+
+          if (
+            params.get('sent') ===
+            '1'
+          ) {
+
+            const existingEnd =
+              getCooldownEnd(user);
+
+
+            if (
+              existingEnd <
+              Date.now()
+            ) {
+              setCooldown(
+                user,
+                60
+              );
+
+            } else {
+              startCooldownDisplay(
+                user
+              );
+            }
+
+
+            setStatus(
+              'Verification email sent. Check your Inbox, Spam/Junk and Promotions.'
+            );
+
+
+          } else if (
+            params.get(
+              'sendFailed'
+            ) === '1'
+          ) {
+
+            setStatus(
+              'Your account was created, but the first verification email could not be sent. Use the resend button below.',
+              'error'
+            );
+
+
+          } else if (
+            params.get(
+              'required'
+            ) === '1'
+          ) {
+
+            startCooldownDisplay(
+              user
+            );
+
+
+            setStatus(
+              'Please verify your email before entering your account.'
+            );
+
+
+          } else {
+
+            startCooldownDisplay(
+              user
+            );
+
+
+            setStatus(
+              'Waiting for verification…'
+            );
+          }
+
+
+          /*
+            Automatically check Firebase
+            every 3 seconds.
+
+            Once verification happens in
+            the email tab, this page will
+            notice it automatically.
+          */
+
+          if (
+            verificationTimer
+          ) {
+            clearInterval(
+              verificationTimer
+            );
+          }
+
+
+          verificationTimer =
+            setInterval(
+              () => {
+                checkVerification(
+                  false
+                );
+              },
+              3000
+            );
+        }
+      );
     }
+
+
+    /*
+      ALSO CHECK WHEN THE USER
+      COMES BACK TO THIS TAB
+    */
+
+    window.addEventListener(
+      'focus',
+      () => {
+        checkVerification(
+          false
+        );
+      }
+    );
+
+
+    document.addEventListener(
+      'visibilitychange',
+      () => {
+
+        if (
+          document.visibilityState ===
+          'visible'
+        ) {
+
+          checkVerification(
+            false
+          );
+        }
+      }
+    );
   </script>
+
 </BaseLayout>
