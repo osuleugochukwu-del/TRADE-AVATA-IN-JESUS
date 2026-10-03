@@ -46,12 +46,37 @@ const base = import.meta.env.BASE_URL;
         <label class="field">
           <span>Password</span>
 
-          <input
-            name="password"
-            type="password"
-            autocomplete="current-password"
-            required
-          />
+          <div class="password-wrap">
+            <input
+              name="password"
+              type="password"
+              autocomplete="current-password"
+              required
+              data-password
+            />
+
+            <button
+              class="password-toggle"
+              type="button"
+              data-toggle-password
+              aria-label="Show password"
+              aria-pressed="false"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <path
+                  d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z"
+                />
+                <circle
+                  cx="12"
+                  cy="12"
+                  r="2.7"
+                />
+              </svg>
+            </button>
+          </div>
         </label>
 
         <button
@@ -79,6 +104,98 @@ const base = import.meta.env.BASE_URL;
     </div>
   </section>
 
+  <style>
+    .password-wrap {
+      position: relative;
+      width: 100%;
+    }
+
+    .password-wrap input {
+      width: 100%;
+      padding-right: 52px;
+    }
+
+    .password-wrap input:-webkit-autofill,
+    .password-wrap input:-webkit-autofill:hover,
+    .password-wrap input:-webkit-autofill:focus,
+    .password-wrap input:-webkit-autofill:active {
+      -webkit-text-fill-color: var(--text) !important;
+      -webkit-box-shadow:
+        0 0 0 1000px var(--surface2) inset !important;
+
+      box-shadow:
+        0 0 0 1000px var(--surface2) inset !important;
+
+      caret-color: var(--text);
+      border-color: var(--line);
+    }
+
+    .password-toggle {
+      position: absolute;
+      right: 9px;
+      top: 50%;
+      transform: translateY(-50%);
+
+      width: 36px;
+      height: 36px;
+
+      display: grid;
+      place-items: center;
+
+      border: 0;
+      border-radius: 8px;
+
+      background: transparent;
+
+      color: var(--text);
+
+      cursor: pointer;
+      padding: 0;
+
+      opacity: 0.82;
+
+      transition:
+        background .15s ease,
+        opacity .15s ease,
+        transform .15s ease;
+    }
+
+    .password-toggle svg {
+      width: 19px;
+      height: 19px;
+
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+
+      pointer-events: none;
+    }
+
+    .password-toggle:hover {
+      background: color-mix(
+        in srgb,
+        var(--text) 8%,
+        transparent
+      );
+
+      opacity: 1;
+    }
+
+    .password-toggle:focus-visible {
+      outline: 2px solid var(--blue);
+      outline-offset: 1px;
+      opacity: 1;
+    }
+
+    .password-toggle:active {
+      transform:
+        translateY(-50%)
+        scale(.94);
+    }
+  </style>
+
   <script>
     import {
       signInWithEmailAndPassword,
@@ -86,109 +203,231 @@ const base = import.meta.env.BASE_URL;
       signInWithPopup
     } from 'firebase/auth';
 
-    import { auth } from '../../lib/firebase/auth.js';
-    import { ensureUserProfile } from '../../lib/firebase/db.js';
+    import { auth }
+      from '../../lib/firebase/auth.js';
 
-    const status = document.querySelector('[data-status]');
-    const base = document.body.dataset.baseUrl || '/';
+    import { ensureUserProfile }
+      from '../../lib/firebase/db.js';
+
+    const status =
+      document.querySelector('[data-status]');
+
+    const passwordInput =
+      document.querySelector('[data-password]');
+
+    const base =
+      document.body.dataset.baseUrl || '/';
+
+
+    /*
+      PASSWORD VISIBILITY
+    */
+
+    document
+      .querySelector('[data-toggle-password]')
+      ?.addEventListener(
+        'click',
+        (event) => {
+          if (!passwordInput) return;
+
+          const isHidden =
+            passwordInput.type === 'password';
+
+          passwordInput.type =
+            isHidden
+              ? 'text'
+              : 'password';
+
+          event.currentTarget.setAttribute(
+            'aria-label',
+            isHidden
+              ? 'Hide password'
+              : 'Show password'
+          );
+
+          event.currentTarget.setAttribute(
+            'aria-pressed',
+            isHidden
+              ? 'true'
+              : 'false'
+          );
+        }
+      );
+
+
+    /*
+      NAVIGATION
+    */
 
     function goToMember() {
-      location.href = `${base}member/`;
+      location.href =
+        `${base}member/`;
     }
 
     function goToVerification() {
-      location.href = `${base}verify-email/?required=1`;
+      location.href =
+        `${base}verify-email/?required=1`;
     }
+
+
+    /*
+      EMAIL / PASSWORD LOGIN
+    */
 
     document
       .querySelector('[data-login]')
-      ?.addEventListener('submit', async (event) => {
-        event.preventDefault();
+      ?.addEventListener(
+        'submit',
+        async (event) => {
+          event.preventDefault();
 
-        if (!auth) {
-          status.textContent =
-            'Firebase Authentication is not available on this build.';
-          return;
-        }
-
-        const form = new FormData(event.currentTarget);
-
-        const email = String(form.get('email') || '').trim();
-        const password = String(form.get('password') || '');
-
-        status.textContent = 'Signing in…';
-
-        try {
-          const credential =
-            await signInWithEmailAndPassword(
-              auth,
-              email,
-              password
-            );
-
-          await credential.user.reload();
-
-          if (!credential.user.emailVerified) {
+          if (!auth) {
             status.textContent =
-              'Please verify your email before entering your account.';
+              'Firebase Authentication is not available on this build.';
 
-            goToVerification();
             return;
           }
 
-          await ensureUserProfile(credential.user);
+          const form =
+            new FormData(
+              event.currentTarget
+            );
 
-          goToMember();
+          const email =
+            String(
+              form.get('email') || ''
+            ).trim();
 
-        } catch (error) {
-          console.error('Login error:', error);
+          const password =
+            String(
+              form.get('password') || ''
+            );
 
-          if (
-            error?.code === 'auth/invalid-credential' ||
-            error?.code === 'auth/wrong-password' ||
-            error?.code === 'auth/user-not-found'
-          ) {
-            status.textContent =
-              'The email or password you entered is incorrect.';
-          } else if (error?.code === 'auth/too-many-requests') {
-            status.textContent =
-              'Too many login attempts. Please wait a little while and try again.';
-          } else {
-            status.textContent =
-              error?.message || 'Sign-in failed.';
+          status.textContent =
+            'Signing in…';
+
+
+          try {
+            const credential =
+              await signInWithEmailAndPassword(
+                auth,
+                email,
+                password
+              );
+
+
+            /*
+              Refresh Firebase account state.
+
+              This makes sure email verification
+              status is current before we allow
+              access to the Member Area.
+            */
+
+            await credential.user.reload();
+
+
+            if (
+              !credential.user.emailVerified
+            ) {
+              status.textContent =
+                'Please verify your email before entering your account.';
+
+              goToVerification();
+
+              return;
+            }
+
+
+            await ensureUserProfile(
+              credential.user
+            );
+
+
+            goToMember();
+
+          } catch (error) {
+            console.error(
+              'Login error:',
+              error
+            );
+
+
+            if (
+              error?.code ===
+                'auth/invalid-credential' ||
+              error?.code ===
+                'auth/wrong-password' ||
+              error?.code ===
+                'auth/user-not-found'
+            ) {
+              status.textContent =
+                'The email or password you entered is incorrect.';
+
+            } else if (
+              error?.code ===
+              'auth/too-many-requests'
+            ) {
+              status.textContent =
+                'Too many login attempts. Please wait a little while and try again.';
+
+            } else {
+              status.textContent =
+                error?.message ||
+                'Sign-in failed.';
+            }
           }
         }
-      });
+      );
+
+
+    /*
+      GOOGLE LOGIN
+    */
 
     document
       .querySelector('[data-google]')
-      ?.addEventListener('click', async () => {
-        if (!auth) {
+      ?.addEventListener(
+        'click',
+        async () => {
+          if (!auth) {
+            status.textContent =
+              'Firebase Authentication is not available on this build.';
+
+            return;
+          }
+
+
           status.textContent =
-            'Firebase Authentication is not available on this build.';
-          return;
-        }
+            'Opening Google sign-in…';
 
-        status.textContent =
-          'Opening Google sign-in…';
 
-        try {
-          const credential =
-            await signInWithPopup(
-              auth,
-              new GoogleAuthProvider()
+          try {
+            const credential =
+              await signInWithPopup(
+                auth,
+                new GoogleAuthProvider()
+              );
+
+
+            await ensureUserProfile(
+              credential.user
             );
 
-          await ensureUserProfile(credential.user);
 
-          goToMember();
+            goToMember();
 
-        } catch (error) {
-          console.error('Google sign-in error:', error);
+          } catch (error) {
+            console.error(
+              'Google sign-in error:',
+              error
+            );
 
-          status.textContent =
-            error?.message || 'Google sign-in failed.';
+            status.textContent =
+              error?.message ||
+              'Google sign-in failed.';
+          }
         }
-      });
+      );
   </script>
 </BaseLayout>
