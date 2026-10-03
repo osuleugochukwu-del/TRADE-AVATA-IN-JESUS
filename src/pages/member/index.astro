@@ -1,20 +1,455 @@
 ---
-import DashboardLayout from '../../layouts/DashboardLayout.astro'; const base=import.meta.env.BASE_URL;
-const nav=[{label:'Dashboard',icon:'⌂',href:'#home',active:true},{label:'My Courses',icon:'▤',href:`${base}courses/`},{label:'My Library',icon:'▥',href:'#library'},{label:'My Purchases',icon:'◇',href:'#purchases'},{label:'Saved Content',icon:'★',href:'#saved'},{label:'Downloads',icon:'⇩',href:'#downloads'},{label:'Certificates',icon:'✓',href:'#certificates'},{label:'Notifications',icon:'◉',href:'#notifications'},{label:'Support',icon:'?',href:`${base}contact/`},{label:'Profile',icon:'○',href:'#profile'},{label:'Settings',icon:'⚙',href:'#settings'}];
----
-<DashboardLayout title="Member Dashboard — Trade Avata" section="Member Area" nav={nav} profile="Member"><Fragment slot="top-left"><span style="font-size:11px;color:var(--d-muted)">Your Trade Avata workspace</span></Fragment><Fragment slot="top-right"><a class="dash-control" href={`${base}analytics/`}>Open Analytics</a><a class="dash-control" href={`${base}journal/`}>Open Journal</a></Fragment>
-<div class="dash-head" id="home"><div><span class="dash-eyebrow">MEMBER AREA</span><h1>Continue where you left off.</h1><p>Your learning, purchases and saved resources in one simple place.</p></div></div>
-<div class="dash-grid two"><article class="dash-card"><div class="card-head"><div><span class="dash-eyebrow">CONTINUE LEARNING</span><h2 style="font-size:20px;margin-top:4px">Technical Analysis Mastery</h2></div><span class="status-pill">42% complete</span></div><p>Module 3 · Market structure and confirmation</p><div style="height:7px;background:#173149;border-radius:99px;overflow:hidden;margin:12px 0"><i style="display:block;width:42%;height:100%;background:linear-gradient(90deg,#21d0a1,#1488ff)"></i></div><a class="dash-control primary" href={`${base}courses/technical-analysis-mastery/player/`}>Resume Lesson →</a></article><article class="dash-card"><h2>Recent activity</h2><div class="dash-list"><div class="dash-row"><span><b>Risk Management Essentials</b><small>Completed lesson 4</small></span><span>Today</span></div><div class="dash-row"><span><b>Trading Plan article</b><small>Saved to library</small></span><span>Yesterday</span></div><div class="dash-row"><span><b>Pro Trend</b><small>Product update available</small></span><span>2d</span></div></div></article></div>
-<div class="dash-grid three" style="margin-top:10px"><article class="dash-card"><div class="card-head"><h2>My Courses</h2><a href={`${base}courses/`} style="font-size:9px;color:#63b3ff">View all →</a></div><div class="dash-list"><div class="dash-row"><span><b>Technical Analysis</b><small>42% complete</small></span><span>→</span></div><div class="dash-row"><span><b>Trading Psychology</b><small>18% complete</small></span><span>→</span></div></div></article><article class="dash-card" id="purchases"><div class="card-head"><h2>My Purchases</h2><a href={`${base}products/`} style="font-size:9px;color:#63b3ff">Browse →</a></div><div class="dash-list"><div class="dash-row"><span><b>Trade Avata Pro Trend</b><small>MT5 · TradingView</small></span><span class="good">Active</span></div><div class="dash-row"><span><b>AI Scalper</b><small>cTrader</small></span><span>Download</span></div></div></article><article class="dash-card" id="library"><h2>Saved & Library</h2><div class="dash-list"><div class="dash-row"><span><b>3 saved articles</b><small>Continue reading anytime</small></span><span>→</span></div><div class="dash-row"><span><b>2 downloads</b><small>Product files and resources</small></span><span>→</span></div><div class="dash-row"><span><b>1 certificate</b><small>Available to view</small></span><span>→</span></div></div></article></div>
+import DashboardLayout from '../../layouts/DashboardLayout.astro';
 
-<div class="dash-grid three" style="margin-top:10px">
-  <article class="dash-card" id="saved"><div class="card-head"><h2>Saved Content</h2><a href={`${base}articles/`} style="font-size:9px;color:#63b3ff">Browse articles →</a></div><div class="dash-row"><span><b>Trading Plan</b><small>Saved article · Continue reading</small></span><a href={`${base}articles/build-a-trading-plan/`}>Open →</a></div><div class="dash-row"><span><b>Risk Per Trade</b><small>Saved article</small></span><a href={`${base}articles/risk-per-trade/`}>Open →</a></div></article>
-  <article class="dash-card" id="downloads"><h2>Downloads</h2><div class="dash-row"><span><b>Product files</b><small>Available downloads appear here after purchase access is connected.</small></span><a href={`${base}products/`}>Products →</a></div><div class="dash-row"><span><b>Course resources</b><small>Lesson resources appear with enrolled courses.</small></span><a href={`${base}courses/`}>Courses →</a></div></article>
-  <article class="dash-card" id="certificates"><h2>Certificates</h2><div class="dash-row"><span><b>Completed learning</b><small>Certificates appear here when completion rules are connected.</small></span><a href={`${base}courses/`}>Learning →</a></div></article>
-</div>
-<div class="dash-grid two" style="margin-top:10px">
-  <article class="dash-card" id="profile"><h2>Profile</h2><p>Your account identity, display name and sign-in details will sync from Firebase Auth and your member profile.</p><a class="dash-control" href={`${base}my-trading/`}>Open account workspace →</a></article>
-  <article class="dash-card" id="settings"><h2>Member Settings</h2><p>Use Customize for workspace appearance. Account, notification and privacy preferences will sync here when Firebase is connected.</p><button class="dash-control" data-open-appearance>Customize appearance</button></article>
-</div>
-<div class="dash-grid two" style="margin-top:10px"><article class="dash-card" id="notifications"><div class="card-head"><h2>Notifications</h2><span class="status-pill">2 new</span></div><div class="dash-row"><span><b>Course progress saved</b><small>Your latest lesson is ready to resume.</small></span><span>Now</span></div><div class="dash-row"><span><b>Indicator update</b><small>A new Pro Trend build is available.</small></span><span>1d</span></div></article><article class="dash-card"><h2>Need help?</h2><p>Use Trade Avata Support for account, course, product or platform questions.</p><a class="dash-control" href={`${base}contact/`}>Open Support →</a></article></div>
+const base = import.meta.env.BASE_URL;
+
+const nav = [
+  { label:'Dashboard', icon:'⌂', href:'#home', active:true },
+  { label:'My Courses', icon:'▤', href:`${base}courses/` },
+  { label:'My Library', icon:'▥', href:'#library' },
+  { label:'My Purchases', icon:'◇', href:'#purchases' },
+  { label:'Saved Content', icon:'★', href:'#saved' },
+  { label:'Downloads', icon:'⇩', href:'#downloads' },
+  { label:'Certificates', icon:'✓', href:'#certificates' },
+  { label:'Notifications', icon:'◉', href:'#notifications' },
+  { label:'Support', icon:'?', href:`${base}contact/` },
+  { label:'Profile', icon:'○', href:'#profile' },
+  { label:'Settings', icon:'⚙', href:'#settings' }
+];
+---
+
+<DashboardLayout
+  title="Member Dashboard — Trade Avata"
+  section="Member Area"
+  nav={nav}
+  profile="Member"
+>
+  <Fragment slot="top-left">
+    <span style="font-size:11px;color:var(--d-muted)">
+      Your Trade Avata workspace
+    </span>
+  </Fragment>
+
+  <Fragment slot="top-right">
+    <a class="dash-control" href={`${base}analytics/`}>
+      Open Analytics
+    </a>
+
+    <a class="dash-control" href={`${base}journal/`}>
+      Open Journal
+    </a>
+  </Fragment>
+
+  <div class="dash-head" id="home">
+    <div>
+      <span class="dash-eyebrow">MEMBER AREA</span>
+      <h1>Continue where you left off.</h1>
+      <p>
+        Your learning, purchases and saved resources in one simple place.
+      </p>
+    </div>
+  </div>
+
+  <div class="dash-grid two">
+    <article class="dash-card">
+      <div class="card-head">
+        <div>
+          <span class="dash-eyebrow">CONTINUE LEARNING</span>
+          <h2 style="font-size:20px;margin-top:4px">
+            Technical Analysis Mastery
+          </h2>
+        </div>
+
+        <span class="status-pill">
+          42% complete
+        </span>
+      </div>
+
+      <p>
+        Module 3 · Market structure and confirmation
+      </p>
+
+      <div
+        style="
+          height:7px;
+          background:#173149;
+          border-radius:99px;
+          overflow:hidden;
+          margin:12px 0;
+        "
+      >
+        <i
+          style="
+            display:block;
+            width:42%;
+            height:100%;
+            background:linear-gradient(90deg,#21d0a1,#1488ff);
+          "
+        ></i>
+      </div>
+
+      <a
+        class="dash-control primary"
+        href={`${base}courses/technical-analysis-mastery/player/`}
+      >
+        Resume Lesson →
+      </a>
+    </article>
+
+    <article class="dash-card">
+      <h2>Recent activity</h2>
+
+      <div class="dash-list">
+        <div class="dash-row">
+          <span>
+            <b>Risk Management Essentials</b>
+            <small>Completed lesson 4</small>
+          </span>
+          <span>Today</span>
+        </div>
+
+        <div class="dash-row">
+          <span>
+            <b>Trading Plan article</b>
+            <small>Saved to library</small>
+          </span>
+          <span>Yesterday</span>
+        </div>
+
+        <div class="dash-row">
+          <span>
+            <b>Pro Trend</b>
+            <small>Product update available</small>
+          </span>
+          <span>2d</span>
+        </div>
+      </div>
+    </article>
+  </div>
+
+  <div
+    class="dash-grid three"
+    style="margin-top:10px"
+  >
+    <article class="dash-card">
+      <div class="card-head">
+        <h2>My Courses</h2>
+
+        <a
+          href={`${base}courses/`}
+          style="font-size:9px;color:#63b3ff"
+        >
+          View all →
+        </a>
+      </div>
+
+      <div class="dash-list">
+        <div class="dash-row">
+          <span>
+            <b>Technical Analysis</b>
+            <small>42% complete</small>
+          </span>
+          <span>→</span>
+        </div>
+
+        <div class="dash-row">
+          <span>
+            <b>Trading Psychology</b>
+            <small>18% complete</small>
+          </span>
+          <span>→</span>
+        </div>
+      </div>
+    </article>
+
+    <article
+      class="dash-card"
+      id="purchases"
+    >
+      <div class="card-head">
+        <h2>My Purchases</h2>
+
+        <a
+          href={`${base}products/`}
+          style="font-size:9px;color:#63b3ff"
+        >
+          Browse →
+        </a>
+      </div>
+
+      <div class="dash-list">
+        <div class="dash-row">
+          <span>
+            <b>Trade Avata Pro Trend</b>
+            <small>MT5 · TradingView</small>
+          </span>
+
+          <span class="good">
+            Active
+          </span>
+        </div>
+
+        <div class="dash-row">
+          <span>
+            <b>AI Scalper</b>
+            <small>cTrader</small>
+          </span>
+
+          <span>
+            Download
+          </span>
+        </div>
+      </div>
+    </article>
+
+    <article
+      class="dash-card"
+      id="library"
+    >
+      <h2>Saved & Library</h2>
+
+      <div class="dash-list">
+        <div class="dash-row">
+          <span>
+            <b>3 saved articles</b>
+            <small>Continue reading anytime</small>
+          </span>
+          <span>→</span>
+        </div>
+
+        <div class="dash-row">
+          <span>
+            <b>2 downloads</b>
+            <small>Product files and resources</small>
+          </span>
+          <span>→</span>
+        </div>
+
+        <div class="dash-row">
+          <span>
+            <b>1 certificate</b>
+            <small>Available to view</small>
+          </span>
+          <span>→</span>
+        </div>
+      </div>
+    </article>
+  </div>
+
+  <div
+    class="dash-grid three"
+    style="margin-top:10px"
+  >
+    <article
+      class="dash-card"
+      id="saved"
+    >
+      <div class="card-head">
+        <h2>Saved Content</h2>
+
+        <a
+          href={`${base}articles/`}
+          style="font-size:9px;color:#63b3ff"
+        >
+          Browse articles →
+        </a>
+      </div>
+
+      <div class="dash-row">
+        <span>
+          <b>Trading Plan</b>
+          <small>Saved article · Continue reading</small>
+        </span>
+
+        <a href={`${base}articles/build-a-trading-plan/`}>
+          Open →
+        </a>
+      </div>
+
+      <div class="dash-row">
+        <span>
+          <b>Risk Per Trade</b>
+          <small>Saved article</small>
+        </span>
+
+        <a href={`${base}articles/risk-per-trade/`}>
+          Open →
+        </a>
+      </div>
+    </article>
+
+    <article
+      class="dash-card"
+      id="downloads"
+    >
+      <h2>Downloads</h2>
+
+      <div class="dash-row">
+        <span>
+          <b>Product files</b>
+          <small>
+            Available downloads appear here after purchase access is connected.
+          </small>
+        </span>
+
+        <a href={`${base}products/`}>
+          Products →
+        </a>
+      </div>
+
+      <div class="dash-row">
+        <span>
+          <b>Course resources</b>
+          <small>
+            Lesson resources appear with enrolled courses.
+          </small>
+        </span>
+
+        <a href={`${base}courses/`}>
+          Courses →
+        </a>
+      </div>
+    </article>
+
+    <article
+      class="dash-card"
+      id="certificates"
+    >
+      <h2>Certificates</h2>
+
+      <div class="dash-row">
+        <span>
+          <b>Completed learning</b>
+          <small>
+            Certificates appear here when completion rules are connected.
+          </small>
+        </span>
+
+        <a href={`${base}courses/`}>
+          Learning →
+        </a>
+      </div>
+    </article>
+  </div>
+
+  <div
+    class="dash-grid two"
+    style="margin-top:10px"
+  >
+    <article
+      class="dash-card"
+      id="profile"
+    >
+      <h2>Profile</h2>
+
+      <p>
+        Your account identity, display name and sign-in details will sync
+        from Firebase Auth and your member profile.
+      </p>
+
+      <a
+        class="dash-control"
+        href={`${base}my-trading/`}
+      >
+        Open account workspace →
+      </a>
+    </article>
+
+    <article
+      class="dash-card"
+      id="settings"
+    >
+      <h2>Member Settings</h2>
+
+      <p>
+        Use Customize for workspace appearance. Account, notification
+        and privacy preferences will sync here when Firebase is connected.
+      </p>
+
+      <button
+        class="dash-control"
+        data-open-appearance
+      >
+        Customize appearance
+      </button>
+    </article>
+  </div>
+
+  <div
+    class="dash-grid two"
+    style="margin-top:10px"
+  >
+    <article
+      class="dash-card"
+      id="notifications"
+    >
+      <div class="card-head">
+        <h2>Notifications</h2>
+        <span class="status-pill">2 new</span>
+      </div>
+
+      <div class="dash-row">
+        <span>
+          <b>Course progress saved</b>
+          <small>Your latest lesson is ready to resume.</small>
+        </span>
+
+        <span>Now</span>
+      </div>
+
+      <div class="dash-row">
+        <span>
+          <b>Indicator update</b>
+          <small>A new Pro Trend build is available.</small>
+        </span>
+
+        <span>1d</span>
+      </div>
+    </article>
+
+    <article class="dash-card">
+      <h2>Need help?</h2>
+
+      <p>
+        Use Trade Avata Support for account, course, product or platform questions.
+      </p>
+
+      <a
+        class="dash-control"
+        href={`${base}contact/`}
+      >
+        Open Support →
+      </a>
+    </article>
+  </div>
 </DashboardLayout>
+
+<script>
+  import { onAuthStateChanged } from 'firebase/auth';
+  import { auth } from '../../lib/firebase/auth.js';
+
+  const base = document.body.dataset.baseUrl || '/';
+
+  if (!auth) {
+    location.replace(`${base}login/`);
+  } else {
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        location.replace(`${base}login/`);
+        return;
+      }
+
+      try {
+        await user.reload();
+
+        if (!user.emailVerified) {
+          location.replace(`${base}verify-email/?required=1`);
+          return;
+        }
+      } catch (error) {
+        console.error('Member authentication check failed:', error);
+        location.replace(`${base}login/`);
+      }
+    });
+  }
+</script>
