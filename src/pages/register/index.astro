@@ -1,9 +1,187 @@
 ---
-import BaseLayout from '../../layouts/BaseLayout.astro'; const base=import.meta.env.BASE_URL;
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+const base = import.meta.env.BASE_URL;
 ---
-<BaseLayout title="Create account — Trade Avata"><section class="auth-shell"><div class="auth-card"><span class="eyebrow">Get started</span><h1>Create your account</h1><p>Keep learning progress, purchases and Trade Avata workspace access connected to one account.</p><button class="google-btn" type="button" data-google>G&nbsp;&nbsp; Sign up with Google</button><div class="auth-divider">or create an account with email</div><form class="form-grid" data-register><label class="field"><span>Name</span><input name="name" autocomplete="name" required></label><label class="field"><span>Email</span><input name="email" type="email" autocomplete="email" required></label><label class="field"><span>Password</span><input name="password" type="password" minlength="6" autocomplete="new-password" required></label><button class="button" type="submit">Create account</button><small data-status style="color:var(--muted)"></small></form><div class="auth-links"><span>Already a member?</span><a href={`${base}login/`}>Log in →</a></div></div></section><script>
-import { createUserWithEmailAndPassword, updateProfile, GoogleAuthProvider, signInWithPopup, sendEmailVerification } from 'firebase/auth';import { auth } from '../../lib/firebase/auth.js';import { ensureUserProfile } from '../../lib/firebase/db.js';
-const status=document.querySelector('[data-status]');const base=document.body.dataset.baseUrl||'/';async function finish(user){try{await ensureUserProfile(user);await sendEmailVerification(user)}catch{}location.href=`${base}verify-email/`}
-document.querySelector('[data-register]')?.addEventListener('submit',async e=>{e.preventDefault();if(!auth){status.textContent='Account creation will activate when Firebase is configured.';return;}const f=new FormData(e.currentTarget);status.textContent='Creating account…';try{const c=await createUserWithEmailAndPassword(auth,String(f.get('email')),String(f.get('password')));await updateProfile(c.user,{displayName:String(f.get('name')||'').trim()});await finish(c.user)}catch(err){status.textContent=err?.message||'Account creation failed.'}});
-document.querySelector('[data-google]')?.addEventListener('click',async()=>{if(!auth){status.textContent='Google sign-up will activate when Firebase is configured.';return;}try{const c=await signInWithPopup(auth,new GoogleAuthProvider());await ensureUserProfile(c.user);location.href=`${base}member/`}catch(err){status.textContent=err?.message||'Google sign-up failed.'}});
-</script></BaseLayout>
+
+<BaseLayout title="Create account — Trade Avata">
+  <section class="auth-shell">
+    <div class="auth-card">
+      <span class="eyebrow">Get started</span>
+
+      <h1>Create your account</h1>
+
+      <p>
+        Keep learning progress, purchases and Trade Avata workspace access
+        connected to one account.
+      </p>
+
+      <button class="google-btn" type="button" data-google>
+        G&nbsp;&nbsp; Sign up with Google
+      </button>
+
+      <div class="auth-divider">or create an account with email</div>
+
+      <form class="form-grid" data-register>
+        <label class="field">
+          <span>Name</span>
+          <input
+            name="name"
+            autocomplete="name"
+            required
+          />
+        </label>
+
+        <label class="field">
+          <span>Email</span>
+          <input
+            name="email"
+            type="email"
+            autocomplete="email"
+            required
+          />
+        </label>
+
+        <label class="field">
+          <span>Password</span>
+          <input
+            name="password"
+            type="password"
+            minlength="6"
+            autocomplete="new-password"
+            required
+          />
+        </label>
+
+        <button class="button" type="submit">
+          Create account
+        </button>
+
+        <small data-status style="color:var(--muted)"></small>
+      </form>
+
+      <div class="auth-links">
+        <span>Already a member?</span>
+        <a href={`${base}login/`}>Log in →</a>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    import {
+      createUserWithEmailAndPassword,
+      updateProfile,
+      GoogleAuthProvider,
+      signInWithPopup,
+      sendEmailVerification
+    } from 'firebase/auth';
+
+    import { auth } from '../../lib/firebase/auth.js';
+    import { ensureUserProfile } from '../../lib/firebase/db.js';
+
+    const status = document.querySelector('[data-status]');
+    const base = document.body.dataset.baseUrl || '/';
+
+    async function finishEmailRegistration(user) {
+      // Save the user's Firestore profile.
+      try {
+        await ensureUserProfile(user);
+      } catch (error) {
+        console.error('Firestore profile error:', error);
+      }
+
+      // Send verification separately so errors are no longer hidden.
+      try {
+        await sendEmailVerification(user);
+
+        location.href = `${base}verify-email/?sent=1`;
+      } catch (error) {
+        console.error('Verification email error:', error);
+
+        location.href = `${base}verify-email/?sendFailed=1`;
+      }
+    }
+
+    document
+      .querySelector('[data-register]')
+      ?.addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        if (!auth) {
+          status.textContent =
+            'Firebase Authentication is not available on this build.';
+          return;
+        }
+
+        const form = new FormData(event.currentTarget);
+
+        const name = String(form.get('name') || '').trim();
+        const email = String(form.get('email') || '').trim();
+        const password = String(form.get('password') || '');
+
+        status.textContent = 'Creating account…';
+
+        try {
+          const credential =
+            await createUserWithEmailAndPassword(
+              auth,
+              email,
+              password
+            );
+
+          await updateProfile(credential.user, {
+            displayName: name
+          });
+
+          await finishEmailRegistration(credential.user);
+
+        } catch (error) {
+          console.error('Registration error:', error);
+
+          if (error?.code === 'auth/email-already-in-use') {
+            status.textContent =
+              'An account already exists with this email. Please log in instead.';
+          } else if (error?.code === 'auth/weak-password') {
+            status.textContent =
+              'Please use a stronger password.';
+          } else if (error?.code === 'auth/invalid-email') {
+            status.textContent =
+              'Please enter a valid email address.';
+          } else {
+            status.textContent =
+              error?.message || 'Account creation failed.';
+          }
+        }
+      });
+
+    document
+      .querySelector('[data-google]')
+      ?.addEventListener('click', async () => {
+        if (!auth) {
+          status.textContent =
+            'Firebase Authentication is not available on this build.';
+          return;
+        }
+
+        status.textContent = 'Opening Google sign-in…';
+
+        try {
+          const credential =
+            await signInWithPopup(
+              auth,
+              new GoogleAuthProvider()
+            );
+
+          await ensureUserProfile(credential.user);
+
+          location.href = `${base}member/`;
+
+        } catch (error) {
+          console.error('Google sign-in error:', error);
+
+          status.textContent =
+            error?.message || 'Google sign-up failed.';
+        }
+      });
+  </script>
+</BaseLayout>
