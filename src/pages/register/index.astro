@@ -23,6 +23,7 @@ const base = import.meta.env.BASE_URL;
       <div class="auth-divider">or create an account with email</div>
 
       <form class="form-grid" data-register>
+
         <label class="field">
           <span>Name</span>
           <input
@@ -44,20 +45,65 @@ const base = import.meta.env.BASE_URL;
 
         <label class="field">
           <span>Password</span>
-          <input
-            name="password"
-            type="password"
-            minlength="6"
-            autocomplete="new-password"
-            required
-          />
+
+          <div class="password-wrap">
+            <input
+              name="password"
+              type="password"
+              minlength="6"
+              autocomplete="new-password"
+              required
+              data-password
+            />
+
+            <button
+              class="password-toggle"
+              type="button"
+              data-toggle-password
+              aria-label="Show password"
+            >
+              👁
+            </button>
+          </div>
+        </label>
+
+        <label class="field">
+          <span>Confirm Password</span>
+
+          <div class="password-wrap">
+            <input
+              name="confirmPassword"
+              type="password"
+              minlength="6"
+              autocomplete="new-password"
+              required
+              data-confirm-password
+            />
+
+            <button
+              class="password-toggle"
+              type="button"
+              data-toggle-confirm
+              aria-label="Show confirm password"
+            >
+              👁
+            </button>
+          </div>
+
+          <small
+            data-password-match
+            style="margin-top:6px"
+          ></small>
         </label>
 
         <button class="button" type="submit">
           Create account
         </button>
 
-        <small data-status style="color:var(--muted)"></small>
+        <small
+          data-status
+          style="color:var(--muted)"
+        ></small>
       </form>
 
       <div class="auth-links">
@@ -66,6 +112,44 @@ const base = import.meta.env.BASE_URL;
       </div>
     </div>
   </section>
+
+  <style>
+    .password-wrap {
+      position: relative;
+      width: 100%;
+    }
+
+    .password-wrap input {
+      width: 100%;
+      padding-right: 52px;
+    }
+
+    .password-toggle {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      border: 0;
+      background: transparent;
+      color: inherit;
+      cursor: pointer;
+      font-size: 18px;
+      padding: 6px;
+      border-radius: 8px;
+    }
+
+    .password-toggle:hover {
+      background: rgba(255,255,255,.08);
+    }
+
+    [data-password-match].good {
+      color: #28c995;
+    }
+
+    [data-password-match].bad {
+      color: #ff6b6b;
+    }
+  </style>
 
   <script>
     import {
@@ -79,109 +163,269 @@ const base = import.meta.env.BASE_URL;
     import { auth } from '../../lib/firebase/auth.js';
     import { ensureUserProfile } from '../../lib/firebase/db.js';
 
-    const status = document.querySelector('[data-status]');
-    const base = document.body.dataset.baseUrl || '/';
+    const status =
+      document.querySelector('[data-status]');
+
+    const passwordInput =
+      document.querySelector('[data-password]');
+
+    const confirmPasswordInput =
+      document.querySelector('[data-confirm-password]');
+
+    const matchMessage =
+      document.querySelector('[data-password-match]');
+
+    const base =
+      document.body.dataset.baseUrl || '/';
+
+    function togglePassword(input, button) {
+      if (!input || !button) return;
+
+      const hidden = input.type === 'password';
+
+      input.type = hidden ? 'text' : 'password';
+
+      button.setAttribute(
+        'aria-label',
+        hidden ? 'Hide password' : 'Show password'
+      );
+
+      button.setAttribute(
+        'aria-pressed',
+        hidden ? 'true' : 'false'
+      );
+    }
+
+    document
+      .querySelector('[data-toggle-password]')
+      ?.addEventListener('click', (event) => {
+        togglePassword(
+          passwordInput,
+          event.currentTarget
+        );
+      });
+
+    document
+      .querySelector('[data-toggle-confirm]')
+      ?.addEventListener('click', (event) => {
+        togglePassword(
+          confirmPasswordInput,
+          event.currentTarget
+        );
+      });
+
+    function checkPasswordMatch() {
+      if (!matchMessage) return true;
+
+      const password =
+        passwordInput?.value || '';
+
+      const confirmPassword =
+        confirmPasswordInput?.value || '';
+
+      matchMessage.classList.remove('good', 'bad');
+
+      if (!confirmPassword) {
+        matchMessage.textContent = '';
+        return false;
+      }
+
+      if (password === confirmPassword) {
+        matchMessage.textContent =
+          'Passwords match ✓';
+
+        matchMessage.classList.add('good');
+
+        return true;
+      }
+
+      matchMessage.textContent =
+        'Passwords do not match';
+
+      matchMessage.classList.add('bad');
+
+      return false;
+    }
+
+    passwordInput?.addEventListener(
+      'input',
+      checkPasswordMatch
+    );
+
+    confirmPasswordInput?.addEventListener(
+      'input',
+      checkPasswordMatch
+    );
 
     async function finishEmailRegistration(user) {
-      // Save the user's Firestore profile.
       try {
         await ensureUserProfile(user);
       } catch (error) {
-        console.error('Firestore profile error:', error);
+        console.error(
+          'Firestore profile error:',
+          error
+        );
       }
 
-      // Send verification separately so errors are no longer hidden.
       try {
         await sendEmailVerification(user);
 
-        location.href = `${base}verify-email/?sent=1`;
-      } catch (error) {
-        console.error('Verification email error:', error);
+        location.href =
+          `${base}verify-email/?sent=1`;
 
-        location.href = `${base}verify-email/?sendFailed=1`;
+      } catch (error) {
+        console.error(
+          'Verification email error:',
+          error
+        );
+
+        location.href =
+          `${base}verify-email/?sendFailed=1`;
       }
     }
 
     document
       .querySelector('[data-register]')
-      ?.addEventListener('submit', async (event) => {
-        event.preventDefault();
+      ?.addEventListener(
+        'submit',
+        async (event) => {
+          event.preventDefault();
 
-        if (!auth) {
-          status.textContent =
-            'Firebase Authentication is not available on this build.';
-          return;
-        }
+          if (!auth) {
+            status.textContent =
+              'Firebase Authentication is not available on this build.';
+            return;
+          }
 
-        const form = new FormData(event.currentTarget);
+          const form =
+            new FormData(event.currentTarget);
 
-        const name = String(form.get('name') || '').trim();
-        const email = String(form.get('email') || '').trim();
-        const password = String(form.get('password') || '');
+          const name =
+            String(form.get('name') || '').trim();
 
-        status.textContent = 'Creating account…';
+          const email =
+            String(form.get('email') || '').trim();
 
-        try {
-          const credential =
-            await createUserWithEmailAndPassword(
-              auth,
-              email,
-              password
+          const password =
+            String(form.get('password') || '');
+
+          const confirmPassword =
+            String(
+              form.get('confirmPassword') || ''
             );
 
-          await updateProfile(credential.user, {
-            displayName: name
-          });
+          if (password !== confirmPassword) {
+            status.textContent =
+              'Passwords do not match. Please check both password fields.';
 
-          await finishEmailRegistration(credential.user);
+            checkPasswordMatch();
 
-        } catch (error) {
-          console.error('Registration error:', error);
+            return;
+          }
 
-          if (error?.code === 'auth/email-already-in-use') {
+          if (password.length < 6) {
             status.textContent =
-              'An account already exists with this email. Please log in instead.';
-          } else if (error?.code === 'auth/weak-password') {
-            status.textContent =
-              'Please use a stronger password.';
-          } else if (error?.code === 'auth/invalid-email') {
-            status.textContent =
-              'Please enter a valid email address.';
-          } else {
-            status.textContent =
-              error?.message || 'Account creation failed.';
+              'Password must contain at least 6 characters.';
+            return;
+          }
+
+          status.textContent =
+            'Creating account…';
+
+          try {
+            const credential =
+              await createUserWithEmailAndPassword(
+                auth,
+                email,
+                password
+              );
+
+            await updateProfile(
+              credential.user,
+              {
+                displayName: name
+              }
+            );
+
+            await finishEmailRegistration(
+              credential.user
+            );
+
+          } catch (error) {
+            console.error(
+              'Registration error:',
+              error
+            );
+
+            if (
+              error?.code ===
+              'auth/email-already-in-use'
+            ) {
+              status.textContent =
+                'An account already exists with this email. Please log in instead.';
+
+            } else if (
+              error?.code ===
+              'auth/weak-password'
+            ) {
+              status.textContent =
+                'Please use a stronger password.';
+
+            } else if (
+              error?.code ===
+              'auth/invalid-email'
+            ) {
+              status.textContent =
+                'Please enter a valid email address.';
+
+            } else {
+              status.textContent =
+                error?.message ||
+                'Account creation failed.';
+            }
           }
         }
-      });
+      );
 
     document
       .querySelector('[data-google]')
-      ?.addEventListener('click', async () => {
-        if (!auth) {
+      ?.addEventListener(
+        'click',
+        async () => {
+          if (!auth) {
+            status.textContent =
+              'Firebase Authentication is not available on this build.';
+            return;
+          }
+
           status.textContent =
-            'Firebase Authentication is not available on this build.';
-          return;
-        }
+            'Opening Google sign-in…';
 
-        status.textContent = 'Opening Google sign-in…';
+          try {
+            const credential =
+              await signInWithPopup(
+                auth,
+                new GoogleAuthProvider()
+              );
 
-        try {
-          const credential =
-            await signInWithPopup(
-              auth,
-              new GoogleAuthProvider()
+            await ensureUserProfile(
+              credential.user
             );
 
-          await ensureUserProfile(credential.user);
+            location.href =
+              `${base}member/`;
 
-          location.href = `${base}member/`;
+          } catch (error) {
+            console.error(
+              'Google sign-in error:',
+              error
+            );
 
-        } catch (error) {
-          console.error('Google sign-in error:', error);
-
-          status.textContent =
-            error?.message || 'Google sign-up failed.';
+            status.textContent =
+              error?.message ||
+              'Google sign-up failed.';
+          }
         }
-      });
+      );
   </script>
 </BaseLayout>
