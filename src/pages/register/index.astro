@@ -20,12 +20,15 @@ const base = import.meta.env.BASE_URL;
         G&nbsp;&nbsp; Sign up with Google
       </button>
 
-      <div class="auth-divider">or create an account with email</div>
+      <div class="auth-divider">
+        or create an account with email
+      </div>
 
       <form class="form-grid" data-register>
 
         <label class="field">
           <span>Name</span>
+
           <input
             name="name"
             autocomplete="name"
@@ -35,6 +38,7 @@ const base = import.meta.env.BASE_URL;
 
         <label class="field">
           <span>Email</span>
+
           <input
             name="email"
             type="email"
@@ -61,8 +65,21 @@ const base = import.meta.env.BASE_URL;
               type="button"
               data-toggle-password
               aria-label="Show password"
+              aria-pressed="false"
             >
-              👁
+              <svg
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <path
+                  d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z"
+                />
+                <circle
+                  cx="12"
+                  cy="12"
+                  r="2.7"
+                />
+              </svg>
             </button>
           </div>
         </label>
@@ -85,18 +102,34 @@ const base = import.meta.env.BASE_URL;
               type="button"
               data-toggle-confirm
               aria-label="Show confirm password"
+              aria-pressed="false"
             >
-              👁
+              <svg
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <path
+                  d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z"
+                />
+                <circle
+                  cx="12"
+                  cy="12"
+                  r="2.7"
+                />
+              </svg>
             </button>
           </div>
 
           <small
             data-password-match
-            style="margin-top:6px"
+            class="password-match"
           ></small>
         </label>
 
-        <button class="button" type="submit">
+        <button
+          class="button"
+          type="submit"
+        >
           Create account
         </button>
 
@@ -108,7 +141,10 @@ const base = import.meta.env.BASE_URL;
 
       <div class="auth-links">
         <span>Already a member?</span>
-        <a href={`${base}login/`}>Log in →</a>
+
+        <a href={`${base}login/`}>
+          Log in →
+        </a>
       </div>
     </div>
   </section>
@@ -124,30 +160,109 @@ const base = import.meta.env.BASE_URL;
       padding-right: 52px;
     }
 
+    /*
+      Keep browser autofill using the Trade Avata theme.
+
+      Light theme:
+      light input + dark text + dark eye
+
+      Dark theme:
+      dark input + light text + light eye
+    */
+    .password-wrap input:-webkit-autofill,
+    .password-wrap input:-webkit-autofill:hover,
+    .password-wrap input:-webkit-autofill:focus,
+    .password-wrap input:-webkit-autofill:active {
+      -webkit-text-fill-color: var(--text) !important;
+      -webkit-box-shadow:
+        0 0 0 1000px var(--surface2) inset !important;
+      box-shadow:
+        0 0 0 1000px var(--surface2) inset !important;
+      caret-color: var(--text);
+      border-color: var(--line);
+    }
+
     .password-toggle {
       position: absolute;
-      right: 10px;
+      right: 9px;
       top: 50%;
       transform: translateY(-50%);
+
+      width: 36px;
+      height: 36px;
+
+      display: grid;
+      place-items: center;
+
       border: 0;
-      background: transparent;
-      color: inherit;
-      cursor: pointer;
-      font-size: 18px;
-      padding: 6px;
       border-radius: 8px;
+
+      background: transparent;
+
+      /*
+        This is what makes the eye adaptive.
+        --text changes automatically with the website theme.
+      */
+      color: var(--text);
+
+      cursor: pointer;
+      padding: 0;
+
+      opacity: 0.82;
+
+      transition:
+        background .15s ease,
+        opacity .15s ease,
+        transform .15s ease;
+    }
+
+    .password-toggle svg {
+      width: 19px;
+      height: 19px;
+
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+
+      pointer-events: none;
     }
 
     .password-toggle:hover {
-      background: rgba(255,255,255,.08);
+      background: color-mix(
+        in srgb,
+        var(--text) 8%,
+        transparent
+      );
+
+      opacity: 1;
     }
 
-    [data-password-match].good {
-      color: #28c995;
+    .password-toggle:focus-visible {
+      outline: 2px solid var(--blue);
+      outline-offset: 1px;
+      opacity: 1;
     }
 
-    [data-password-match].bad {
-      color: #ff6b6b;
+    .password-toggle:active {
+      transform:
+        translateY(-50%)
+        scale(.94);
+    }
+
+    .password-match {
+      margin-top: 6px;
+      min-height: 18px;
+      display: block;
+    }
+
+    .password-match.good {
+      color: var(--good);
+    }
+
+    .password-match.bad {
+      color: var(--bad);
     }
   </style>
 
@@ -160,8 +275,11 @@ const base = import.meta.env.BASE_URL;
       sendEmailVerification
     } from 'firebase/auth';
 
-    import { auth } from '../../lib/firebase/auth.js';
-    import { ensureUserProfile } from '../../lib/firebase/db.js';
+    import { auth }
+      from '../../lib/firebase/auth.js';
+
+    import { ensureUserProfile }
+      from '../../lib/firebase/db.js';
 
     const status =
       document.querySelector('[data-status]');
@@ -170,52 +288,89 @@ const base = import.meta.env.BASE_URL;
       document.querySelector('[data-password]');
 
     const confirmPasswordInput =
-      document.querySelector('[data-confirm-password]');
+      document.querySelector(
+        '[data-confirm-password]'
+      );
 
     const matchMessage =
-      document.querySelector('[data-password-match]');
+      document.querySelector(
+        '[data-password-match]'
+      );
 
     const base =
       document.body.dataset.baseUrl || '/';
 
-    function togglePassword(input, button) {
+
+    /*
+      PASSWORD VISIBILITY
+    */
+
+    function togglePassword(
+      input,
+      button
+    ) {
       if (!input || !button) return;
 
-      const hidden = input.type === 'password';
+      const isHidden =
+        input.type === 'password';
 
-      input.type = hidden ? 'text' : 'password';
+      input.type =
+        isHidden
+          ? 'text'
+          : 'password';
 
       button.setAttribute(
         'aria-label',
-        hidden ? 'Hide password' : 'Show password'
+        isHidden
+          ? 'Hide password'
+          : 'Show password'
       );
 
       button.setAttribute(
         'aria-pressed',
-        hidden ? 'true' : 'false'
+        isHidden
+          ? 'true'
+          : 'false'
       );
     }
 
-    document
-      .querySelector('[data-toggle-password]')
-      ?.addEventListener('click', (event) => {
-        togglePassword(
-          passwordInput,
-          event.currentTarget
-        );
-      });
 
     document
-      .querySelector('[data-toggle-confirm]')
-      ?.addEventListener('click', (event) => {
-        togglePassword(
-          confirmPasswordInput,
-          event.currentTarget
-        );
-      });
+      .querySelector(
+        '[data-toggle-password]'
+      )
+      ?.addEventListener(
+        'click',
+        (event) => {
+          togglePassword(
+            passwordInput,
+            event.currentTarget
+          );
+        }
+      );
+
+
+    document
+      .querySelector(
+        '[data-toggle-confirm]'
+      )
+      ?.addEventListener(
+        'click',
+        (event) => {
+          togglePassword(
+            confirmPasswordInput,
+            event.currentTarget
+          );
+        }
+      );
+
+
+    /*
+      PASSWORD MATCH CHECK
+    */
 
     function checkPasswordMatch() {
-      if (!matchMessage) return true;
+      if (!matchMessage) return false;
 
       const password =
         passwordInput?.value || '';
@@ -223,7 +378,10 @@ const base = import.meta.env.BASE_URL;
       const confirmPassword =
         confirmPasswordInput?.value || '';
 
-      matchMessage.classList.remove('good', 'bad');
+      matchMessage.classList.remove(
+        'good',
+        'bad'
+      );
 
       if (!confirmPassword) {
         matchMessage.textContent = '';
@@ -234,7 +392,9 @@ const base = import.meta.env.BASE_URL;
         matchMessage.textContent =
           'Passwords match ✓';
 
-        matchMessage.classList.add('good');
+        matchMessage.classList.add(
+          'good'
+        );
 
         return true;
       }
@@ -242,10 +402,13 @@ const base = import.meta.env.BASE_URL;
       matchMessage.textContent =
         'Passwords do not match';
 
-      matchMessage.classList.add('bad');
+      matchMessage.classList.add(
+        'bad'
+      );
 
       return false;
     }
+
 
     passwordInput?.addEventListener(
       'input',
@@ -257,15 +420,24 @@ const base = import.meta.env.BASE_URL;
       checkPasswordMatch
     );
 
-    async function finishEmailRegistration(user) {
+
+    /*
+      EMAIL REGISTRATION FINISH
+    */
+
+    async function finishEmailRegistration(
+      user
+    ) {
       try {
         await ensureUserProfile(user);
+
       } catch (error) {
         console.error(
           'Firestore profile error:',
           error
         );
       }
+
 
       try {
         await sendEmailVerification(user);
@@ -284,6 +456,11 @@ const base = import.meta.env.BASE_URL;
       }
     }
 
+
+    /*
+      EMAIL/PASSWORD REGISTRATION
+    */
+
     document
       .querySelector('[data-register]')
       ?.addEventListener(
@@ -294,27 +471,52 @@ const base = import.meta.env.BASE_URL;
           if (!auth) {
             status.textContent =
               'Firebase Authentication is not available on this build.';
+
             return;
           }
 
+
           const form =
-            new FormData(event.currentTarget);
+            new FormData(
+              event.currentTarget
+            );
+
 
           const name =
-            String(form.get('name') || '').trim();
+            String(
+              form.get('name') || ''
+            ).trim();
+
 
           const email =
-            String(form.get('email') || '').trim();
+            String(
+              form.get('email') || ''
+            ).trim();
+
 
           const password =
-            String(form.get('password') || '');
+            String(
+              form.get('password') || ''
+            );
+
 
           const confirmPassword =
             String(
-              form.get('confirmPassword') || ''
+              form.get(
+                'confirmPassword'
+              ) || ''
             );
 
-          if (password !== confirmPassword) {
+
+          /*
+            STOP ACCOUNT CREATION
+            WHEN PASSWORDS DIFFER
+          */
+
+          if (
+            password !==
+            confirmPassword
+          ) {
             status.textContent =
               'Passwords do not match. Please check both password fields.';
 
@@ -323,14 +525,18 @@ const base = import.meta.env.BASE_URL;
             return;
           }
 
+
           if (password.length < 6) {
             status.textContent =
               'Password must contain at least 6 characters.';
+
             return;
           }
 
+
           status.textContent =
             'Creating account…';
+
 
           try {
             const credential =
@@ -340,12 +546,14 @@ const base = import.meta.env.BASE_URL;
                 password
               );
 
+
             await updateProfile(
               credential.user,
               {
                 displayName: name
               }
             );
+
 
             await finishEmailRegistration(
               credential.user
@@ -356,6 +564,7 @@ const base = import.meta.env.BASE_URL;
               'Registration error:',
               error
             );
+
 
             if (
               error?.code ===
@@ -387,6 +596,11 @@ const base = import.meta.env.BASE_URL;
         }
       );
 
+
+    /*
+      GOOGLE REGISTRATION
+    */
+
     document
       .querySelector('[data-google]')
       ?.addEventListener(
@@ -395,11 +609,14 @@ const base = import.meta.env.BASE_URL;
           if (!auth) {
             status.textContent =
               'Firebase Authentication is not available on this build.';
+
             return;
           }
 
+
           status.textContent =
             'Opening Google sign-in…';
+
 
           try {
             const credential =
@@ -408,9 +625,11 @@ const base = import.meta.env.BASE_URL;
                 new GoogleAuthProvider()
               );
 
+
             await ensureUserProfile(
               credential.user
             );
+
 
             location.href =
               `${base}member/`;
