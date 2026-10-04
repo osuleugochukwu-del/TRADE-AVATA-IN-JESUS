@@ -35,12 +35,192 @@ const nav = [
   .member-top-welcome small {
     color: var(--d-muted);
     font-size: 9px;
-
     max-width: 260px;
-
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+  }
+
+  .member-account {
+    position: relative;
+  }
+
+  .member-account-button {
+    min-height: 34px;
+
+    display: flex;
+    align-items: center;
+    gap: 7px;
+
+    padding: 4px 9px 4px 5px;
+
+    border: 1px solid var(--d-line);
+    border-radius: 8px;
+
+    background: var(--d-panel);
+    color: var(--d-text);
+
+    cursor: pointer;
+
+    font-size: 10px;
+    font-weight: 750;
+  }
+
+  .member-account-button:hover {
+    background: var(--d-panel2);
+  }
+
+  .member-account-avatar {
+    width: 25px;
+    height: 25px;
+
+    display: grid;
+    place-items: center;
+
+    flex: 0 0 auto;
+
+    border-radius: 50%;
+
+    background:
+      linear-gradient(
+        135deg,
+        #0784f8,
+        #32c8ff
+      );
+
+    color: #fff;
+
+    font-size: 10px;
+    font-weight: 900;
+    text-transform: uppercase;
+  }
+
+  .member-account-arrow {
+    font-size: 8px;
+    color: var(--d-muted);
+  }
+
+  .member-account-dropdown {
+    position: absolute;
+
+    top: calc(100% + 8px);
+    right: 0;
+
+    width: 235px;
+
+    padding: 9px;
+
+    background: var(--d-panel);
+    border: 1px solid var(--d-line);
+    border-radius: 11px;
+
+    box-shadow:
+      0 22px 55px
+      rgba(0, 0, 0, .34);
+
+    z-index: 100;
+  }
+
+  .member-account-dropdown[hidden] {
+    display: none !important;
+  }
+
+  .member-account-head {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+
+    padding: 7px;
+
+    border-bottom: 1px solid var(--d-line);
+    margin-bottom: 5px;
+  }
+
+  .member-account-head div {
+    min-width: 0;
+  }
+
+  .member-account-head strong {
+    display: block;
+
+    color: var(--d-text);
+    font-size: 11px;
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .member-account-head small {
+    display: block;
+
+    margin-top: 2px;
+
+    color: var(--d-muted);
+    font-size: 8px;
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .member-account-links {
+    display: grid;
+  }
+
+  .member-account-links a {
+    padding: 8px 9px;
+
+    border-radius: 7px;
+
+    color: var(--d-muted);
+    font-size: 10px;
+  }
+
+  .member-account-links a:hover {
+    background: var(--d-panel2);
+    color: var(--d-text);
+  }
+
+  .member-logout {
+    width: 100%;
+
+    margin-top: 6px;
+    padding: 8px 9px;
+
+    border: 1px solid
+      color-mix(
+        in srgb,
+        var(--d-bad) 40%,
+        var(--d-line)
+      );
+
+    border-radius: 7px;
+
+    background:
+      color-mix(
+        in srgb,
+        var(--d-bad) 8%,
+        var(--d-panel)
+      );
+
+    color: var(--d-bad);
+
+    text-align: left;
+
+    font-size: 10px;
+    font-weight: 750;
+
+    cursor: pointer;
+  }
+
+  .member-logout:hover {
+    background:
+      color-mix(
+        in srgb,
+        var(--d-bad) 14%,
+        var(--d-panel)
+      );
   }
 
   .member-profile-summary {
@@ -83,7 +263,6 @@ const nav = [
 
   .member-profile-summary strong {
     display: block;
-
     font-size: 14px;
     color: var(--d-text);
   }
@@ -107,8 +286,26 @@ const nav = [
     .member-top-welcome small {
       display: none;
     }
+
+    .member-account-name {
+      display: none;
+    }
+
+    .member-account-button {
+      padding-right: 6px;
+    }
+
+    .member-account-dropdown {
+      position: fixed;
+
+      top: 58px;
+      right: 10px;
+
+      width: min(260px, calc(100vw - 20px));
+    }
   }
 </style>
+
 
 <DashboardLayout
   title="Member Dashboard — Trade Avata"
@@ -118,6 +315,7 @@ const nav = [
 >
 
   <Fragment slot="top-left">
+
     <div class="member-top-welcome">
 
       <strong>
@@ -130,6 +328,7 @@ const nav = [
       </small>
 
     </div>
+
   </Fragment>
 
 
@@ -142,12 +341,117 @@ const nav = [
       Open Analytics
     </a>
 
+
     <a
       class="dash-control"
       href={`${base}journal/`}
     >
       Open Journal
     </a>
+
+
+    <div
+      class="member-account"
+      data-member-account
+    >
+
+      <button
+        class="member-account-button"
+        type="button"
+        data-member-account-button
+        aria-expanded="false"
+        aria-haspopup="true"
+      >
+
+        <span
+          class="member-account-avatar"
+          data-member-initial
+        >
+          M
+        </span>
+
+
+        <span
+          class="member-account-name"
+          data-member-name
+        >
+          Member
+        </span>
+
+
+        <span
+          class="member-account-arrow"
+          aria-hidden="true"
+        >
+          ▾
+        </span>
+
+      </button>
+
+
+      <div
+        class="member-account-dropdown"
+        data-member-account-dropdown
+        hidden
+      >
+
+        <div class="member-account-head">
+
+          <span
+            class="member-account-avatar"
+            data-member-initial
+          >
+            M
+          </span>
+
+
+          <div>
+
+            <strong data-member-name>
+              Member
+            </strong>
+
+            <small data-member-email>
+              Trade Avata account
+            </small>
+
+          </div>
+
+        </div>
+
+
+        <div class="member-account-links">
+
+          <a href={`${base}member/`}>
+            Member Area
+          </a>
+
+          <a href={`${base}my-trading/`}>
+            My Trading
+          </a>
+
+          <a href="#profile">
+            Profile
+          </a>
+
+          <a href="#settings">
+            Settings
+          </a>
+
+        </div>
+
+
+        <button
+          class="member-logout"
+          type="button"
+          data-member-logout
+        >
+          Log out
+        </button>
+
+      </div>
+
+    </div>
 
   </Fragment>
 
@@ -239,6 +543,7 @@ const nav = [
         <div class="dash-row">
 
           <span>
+
             <b>
               Risk Management Essentials
             </b>
@@ -246,6 +551,7 @@ const nav = [
             <small>
               Completed lesson 4
             </small>
+
           </span>
 
           <span>
@@ -258,6 +564,7 @@ const nav = [
         <div class="dash-row">
 
           <span>
+
             <b>
               Trading Plan article
             </b>
@@ -265,6 +572,7 @@ const nav = [
             <small>
               Saved to library
             </small>
+
           </span>
 
           <span>
@@ -277,6 +585,7 @@ const nav = [
         <div class="dash-row">
 
           <span>
+
             <b>
               Pro Trend
             </b>
@@ -284,6 +593,7 @@ const nav = [
             <small>
               Product update available
             </small>
+
           </span>
 
           <span>
@@ -885,7 +1195,8 @@ const nav = [
 
 <script>
   import {
-    onAuthStateChanged
+    onAuthStateChanged,
+    signOut
   } from 'firebase/auth';
 
   import {
@@ -895,6 +1206,52 @@ const nav = [
 
   const base =
     document.body.dataset.baseUrl || '/';
+
+
+  const account =
+    document.querySelector(
+      '[data-member-account]'
+    );
+
+
+  const accountButton =
+    document.querySelector(
+      '[data-member-account-button]'
+    );
+
+
+  const accountDropdown =
+    document.querySelector(
+      '[data-member-account-dropdown]'
+    );
+
+
+  const logoutButton =
+    document.querySelector(
+      '[data-member-logout]'
+    );
+
+
+  /*
+    The DashboardLayout creates its
+    own simple static profile badge.
+
+    We now have a real account menu,
+    so hide the old static badge.
+  */
+
+  const oldDashboardProfile =
+    document.querySelector(
+      '.dash-profile'
+    );
+
+
+  if (oldDashboardProfile) {
+
+    oldDashboardProfile.style.display =
+      'none';
+
+  }
 
 
   function getMemberName(user) {
@@ -1016,22 +1373,156 @@ const nav = [
         }
       );
 
-
-    const dashboardProfile =
-      document.querySelector(
-        '.dash-profile'
-      );
-
-
-    if (dashboardProfile) {
-
-      dashboardProfile.textContent =
-        name;
-
-    }
-
   }
 
+
+  /*
+    OPEN / CLOSE ACCOUNT MENU
+  */
+
+  accountButton
+    ?.addEventListener(
+      'click',
+      event => {
+
+        event.preventDefault();
+        event.stopPropagation();
+
+
+        const willOpen =
+          accountDropdown.hidden;
+
+
+        accountDropdown.hidden =
+          !willOpen;
+
+
+        accountButton.setAttribute(
+          'aria-expanded',
+          String(willOpen)
+        );
+
+      }
+    );
+
+
+  document.addEventListener(
+    'click',
+    event => {
+
+      if (
+        !accountDropdown ||
+        accountDropdown.hidden
+      ) {
+        return;
+      }
+
+
+      if (
+        account?.contains(
+          event.target
+        )
+      ) {
+        return;
+      }
+
+
+      accountDropdown.hidden =
+        true;
+
+
+      accountButton
+        ?.setAttribute(
+          'aria-expanded',
+          'false'
+        );
+
+    }
+  );
+
+
+  document.addEventListener(
+    'keydown',
+    event => {
+
+      if (
+        event.key !== 'Escape' ||
+        !accountDropdown
+      ) {
+        return;
+      }
+
+
+      accountDropdown.hidden =
+        true;
+
+
+      accountButton
+        ?.setAttribute(
+          'aria-expanded',
+          'false'
+        );
+
+    }
+  );
+
+
+  /*
+    LOG OUT
+  */
+
+  logoutButton
+    ?.addEventListener(
+      'click',
+      async () => {
+
+        if (!auth) {
+          return;
+        }
+
+
+        logoutButton.disabled =
+          true;
+
+
+        logoutButton.textContent =
+          'Logging out…';
+
+
+        try {
+
+          await signOut(auth);
+
+
+          location.replace(
+            base
+          );
+
+
+        } catch (error) {
+
+          console.error(
+            'Logout failed:',
+            error
+          );
+
+
+          logoutButton.disabled =
+            false;
+
+
+          logoutButton.textContent =
+            'Log out';
+
+        }
+
+      }
+    );
+
+
+  /*
+    MEMBER AUTHENTICATION
+  */
 
   if (!auth) {
 
