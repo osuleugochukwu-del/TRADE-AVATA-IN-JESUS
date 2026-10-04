@@ -1,4 +1,492 @@
 ---
-import BaseLayout from '../../layouts/BaseLayout.astro'; const base=import.meta.env.BASE_URL;
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+const base = import.meta.env.BASE_URL;
 ---
-<BaseLayout title="Reset password — Trade Avata"><section class="auth-shell"><div class="auth-card"><span class="eyebrow">Account recovery</span><h1>Reset your password</h1><p>Enter the email connected to your account. Firebase will send the reset link when authentication is configured.</p><form class="form-grid" data-reset><label class="field"><span>Email</span><input type="email" name="email" required></label><button class="button" type="submit">Send reset link</button><small data-status></small></form><div class="auth-links"><a href={`${base}login/`}>← Back to login</a></div></div></section><script>import {sendPasswordResetEmail} from 'firebase/auth';import {auth} from '../../lib/firebase/auth.js';const s=document.querySelector('[data-status]');document.querySelector('[data-reset]')?.addEventListener('submit',async e=>{e.preventDefault();if(!auth){s.textContent='Password recovery will activate when Firebase is configured.';return;}try{await sendPasswordResetEmail(auth,new FormData(e.currentTarget).get('email'));s.textContent='Reset email sent. Check your inbox.'}catch(err){s.textContent=err?.message||'Could not send reset email.'}})</script></BaseLayout>
+
+<BaseLayout title="Reset password — Trade Avata">
+  <section class="auth-shell">
+    <div class="auth-card reset-card">
+
+      <span class="eyebrow">
+        Account recovery
+      </span>
+
+      <h1>
+        Reset your password
+      </h1>
+
+      <p>
+        Enter the email address connected to your Trade Avata account.
+        We’ll send you a secure password reset link.
+      </p>
+
+      <form
+        class="form-grid"
+        data-reset
+      >
+
+        <label class="field">
+          <span>Email</span>
+
+          <input
+            type="email"
+            name="email"
+            autocomplete="email"
+            required
+          />
+        </label>
+
+        <button
+          class="button"
+          type="submit"
+          data-submit
+        >
+          Send reset link
+        </button>
+
+        <div
+          class="reset-status"
+          data-status
+          aria-live="polite"
+        ></div>
+
+      </form>
+
+      <div class="auth-links reset-links">
+
+        <a href={`${base}login/`}>
+          ← Back to login
+        </a>
+
+      </div>
+
+    </div>
+  </section>
+
+
+  <style>
+    .reset-card {
+      max-width: 460px;
+    }
+
+    .reset-status {
+      min-height: 20px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
+    .reset-status.success {
+      color: var(--good);
+    }
+
+    .reset-status.error {
+      color: var(--bad);
+    }
+
+    [data-submit]:disabled {
+      opacity: .6;
+      cursor: not-allowed;
+    }
+
+    .reset-links {
+      margin-top: 16px;
+    }
+  </style>
+
+
+  <script>
+    import {
+      sendPasswordResetEmail
+    } from 'firebase/auth';
+
+    import {
+      auth
+    } from '../../lib/firebase/auth.js';
+
+
+    const form =
+      document.querySelector(
+        '[data-reset]'
+      );
+
+    const submitButton =
+      document.querySelector(
+        '[data-submit]'
+      );
+
+    const status =
+      document.querySelector(
+        '[data-status]'
+      );
+
+
+    /*
+      60 SECOND COOLDOWN
+
+      Stored in localStorage so refreshing
+      the page does not immediately allow
+      another reset request.
+    */
+
+    const COOLDOWN_SECONDS =
+      60;
+
+    const COOLDOWN_KEY =
+      'ta-password-reset-cooldown';
+
+
+    let cooldownTimer =
+      null;
+
+
+    function getCooldownEnd() {
+
+      try {
+
+        return Number(
+          localStorage.getItem(
+            COOLDOWN_KEY
+          ) || 0
+        );
+
+      } catch {
+
+        return 0;
+
+      }
+
+    }
+
+
+    function saveCooldownEnd(
+      timestamp
+    ) {
+
+      try {
+
+        localStorage.setItem(
+          COOLDOWN_KEY,
+          String(timestamp)
+        );
+
+      } catch {}
+
+    }
+
+
+    function clearCooldown() {
+
+      try {
+
+        localStorage.removeItem(
+          COOLDOWN_KEY
+        );
+
+      } catch {}
+
+
+      if (cooldownTimer) {
+
+        clearInterval(
+          cooldownTimer
+        );
+
+        cooldownTimer =
+          null;
+
+      }
+
+    }
+
+
+    function startCooldown(
+      seconds = COOLDOWN_SECONDS
+    ) {
+
+      const currentEnd =
+        getCooldownEnd();
+
+
+      /*
+        If there is already an active
+        countdown, keep using it.
+      */
+
+      const end =
+        currentEnd > Date.now()
+          ? currentEnd
+          : Date.now() +
+            seconds * 1000;
+
+
+      saveCooldownEnd(
+        end
+      );
+
+
+      if (cooldownTimer) {
+
+        clearInterval(
+          cooldownTimer
+        );
+
+      }
+
+
+      function updateButton() {
+
+        const remaining =
+          Math.ceil(
+            (
+              getCooldownEnd() -
+              Date.now()
+            ) / 1000
+          );
+
+
+        if (
+          remaining > 0
+        ) {
+
+          submitButton.disabled =
+            true;
+
+
+          submitButton.textContent =
+            `Send again in ${remaining}s`;
+
+
+        } else {
+
+          clearCooldown();
+
+
+          submitButton.disabled =
+            false;
+
+
+          submitButton.textContent =
+            'Send reset link';
+
+        }
+
+      }
+
+
+      updateButton();
+
+
+      cooldownTimer =
+        setInterval(
+          updateButton,
+          1000
+        );
+
+    }
+
+
+    /*
+      RESTORE COOLDOWN AFTER REFRESH
+    */
+
+    if (
+      getCooldownEnd() >
+      Date.now()
+    ) {
+
+      startCooldown();
+
+    }
+
+
+    /*
+      PASSWORD RESET REQUEST
+    */
+
+    form?.addEventListener(
+      'submit',
+      async event => {
+
+        event.preventDefault();
+
+
+        if (!auth) {
+
+          status.textContent =
+            'Account recovery is temporarily unavailable. Please try again later.';
+
+          status.className =
+            'reset-status error';
+
+          return;
+
+        }
+
+
+        /*
+          Prevent another request while
+          the countdown is still active.
+        */
+
+        if (
+          getCooldownEnd() >
+          Date.now()
+        ) {
+
+          startCooldown();
+
+          return;
+
+        }
+
+
+        const formData =
+          new FormData(
+            event.currentTarget
+          );
+
+
+        const email =
+          String(
+            formData.get('email') || ''
+          )
+            .trim()
+            .toLowerCase();
+
+
+        if (!email) {
+
+          status.textContent =
+            'Please enter your email address.';
+
+          status.className =
+            'reset-status error';
+
+          return;
+
+        }
+
+
+        submitButton.disabled =
+          true;
+
+
+        submitButton.textContent =
+          'Sending…';
+
+
+        status.textContent =
+          'Preparing your password reset email…';
+
+
+        status.className =
+          'reset-status';
+
+
+        try {
+
+          await sendPasswordResetEmail(
+            auth,
+            email
+          );
+
+
+          /*
+            Start the 60-second protection
+            immediately after the request.
+          */
+
+          startCooldown(
+            COOLDOWN_SECONDS
+          );
+
+
+          /*
+            Generic wording protects account
+            privacy and avoids telling strangers
+            whether an email is registered.
+          */
+
+          status.textContent =
+            'If an account is connected to that email address, a password reset link has been sent. Check your Inbox, Spam/Junk and Promotions.';
+
+
+          status.className =
+            'reset-status success';
+
+
+        } catch (error) {
+
+          console.error(
+            'Password reset error:',
+            error
+          );
+
+
+          if (
+            error?.code ===
+            'auth/too-many-requests'
+          ) {
+
+            startCooldown(
+              COOLDOWN_SECONDS
+            );
+
+
+            status.textContent =
+              'Too many reset requests were made. Please wait before trying again.';
+
+
+            status.className =
+              'reset-status error';
+
+
+          } else if (
+            error?.code ===
+            'auth/invalid-email'
+          ) {
+
+            submitButton.disabled =
+              false;
+
+
+            submitButton.textContent =
+              'Send reset link';
+
+
+            status.textContent =
+              'Please enter a valid email address.';
+
+
+            status.className =
+              'reset-status error';
+
+
+          } else {
+
+            submitButton.disabled =
+              false;
+
+
+            submitButton.textContent =
+              'Send reset link';
+
+
+            status.textContent =
+              'We could not send the reset email right now. Please try again.';
+
+
+            status.className =
+              'reset-status error';
+
+          }
+
+        }
+
+      }
+    );
+  </script>
+
+</BaseLayout>
