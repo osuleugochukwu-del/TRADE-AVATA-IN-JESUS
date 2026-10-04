@@ -18,6 +18,86 @@ const nav = [
 ];
 ---
 
+<style>
+  .member-profile-summary {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    margin: 14px 0 16px;
+    padding: 13px;
+
+    background: var(--d-panel2);
+    border: 1px solid rgba(120, 160, 195, .18);
+    border-radius: 12px;
+  }
+
+  .member-avatar {
+    width: 46px;
+    height: 46px;
+
+    display: grid;
+    place-items: center;
+
+    flex: 0 0 auto;
+
+    border-radius: 50%;
+
+    background:
+      linear-gradient(
+        135deg,
+        #0784f8,
+        #32c8ff
+      );
+
+    color: #fff;
+
+    font-size: 17px;
+    font-weight: 900;
+    text-transform: uppercase;
+  }
+
+  .member-profile-summary strong {
+    display: block;
+
+    font-size: 14px;
+    color: var(--d-text);
+  }
+
+  .member-profile-summary small {
+    display: block;
+
+    margin-top: 3px;
+
+    font-size: 10px;
+    color: var(--d-muted);
+
+    overflow-wrap: anywhere;
+  }
+
+  .member-signed-in {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+
+    margin-top: 8px;
+
+    color: var(--d-muted);
+    font-size: 10px;
+  }
+
+  .member-signed-in i {
+    width: 6px;
+    height: 6px;
+
+    display: block;
+
+    border-radius: 50%;
+
+    background: #21d0a1;
+  }
+</style>
+
 <DashboardLayout
   title="Member Dashboard — Trade Avata"
   section="Member Area"
@@ -42,32 +122,63 @@ const nav = [
 
   <div class="dash-head" id="home">
     <div>
-      <span class="dash-eyebrow">MEMBER AREA</span>
-      <h1>Continue where you left off.</h1>
+      <span class="dash-eyebrow">
+        MEMBER AREA
+      </span>
+
+      <h1>
+        Welcome back,
+        <span data-member-name>Member</span>.
+      </h1>
+
       <p>
-        Your learning, purchases and saved resources in one simple place.
+        Here’s what’s happening in your Trade Avata account.
       </p>
+
+      <span class="member-signed-in">
+        <i></i>
+        Signed in as
+        <span data-member-email>Your account</span>
+      </span>
     </div>
   </div>
 
+
   <div class="dash-grid two">
+
     <article class="dash-card">
+
       <div class="card-head">
+
         <div>
-          <span class="dash-eyebrow">CONTINUE LEARNING</span>
-          <h2 style="font-size:20px;margin-top:4px">
+
+          <span class="dash-eyebrow">
+            CONTINUE LEARNING
+          </span>
+
+          <h2
+            style="
+              font-size:20px;
+              margin-top:4px
+            "
+          >
             Technical Analysis Mastery
           </h2>
+
         </div>
+
 
         <span class="status-pill">
           42% complete
         </span>
+
       </div>
+
 
       <p>
         Module 3 · Market structure and confirmation
       </p>
+
 
       <div
         style="
@@ -78,15 +189,22 @@ const nav = [
           margin:12px 0;
         "
       >
+
         <i
           style="
             display:block;
             width:42%;
             height:100%;
-            background:linear-gradient(90deg,#21d0a1,#1488ff);
+            background:linear-gradient(
+              90deg,
+              #21d0a1,
+              #1488ff
+            );
           "
         ></i>
+
       </div>
+
 
       <a
         class="dash-control primary"
@@ -94,258 +212,530 @@ const nav = [
       >
         Resume Lesson →
       </a>
+
     </article>
+
 
     <article class="dash-card">
-      <h2>Recent activity</h2>
+
+      <h2>
+        Recent activity
+      </h2>
+
 
       <div class="dash-list">
-        <div class="dash-row">
-          <span>
-            <b>Risk Management Essentials</b>
-            <small>Completed lesson 4</small>
-          </span>
-          <span>Today</span>
-        </div>
 
         <div class="dash-row">
+
           <span>
-            <b>Trading Plan article</b>
-            <small>Saved to library</small>
+            <b>
+              Risk Management Essentials
+            </b>
+
+            <small>
+              Completed lesson 4
+            </small>
           </span>
-          <span>Yesterday</span>
+
+          <span>
+            Today
+          </span>
+
         </div>
 
+
         <div class="dash-row">
+
           <span>
-            <b>Pro Trend</b>
-            <small>Product update available</small>
+            <b>
+              Trading Plan article
+            </b>
+
+            <small>
+              Saved to library
+            </small>
           </span>
-          <span>2d</span>
+
+          <span>
+            Yesterday
+          </span>
+
         </div>
+
+
+        <div class="dash-row">
+
+          <span>
+            <b>
+              Pro Trend
+            </b>
+
+            <small>
+              Product update available
+            </small>
+          </span>
+
+          <span>
+            2d
+          </span>
+
+        </div>
+
       </div>
+
     </article>
+
   </div>
+
 
   <div
     class="dash-grid three"
     style="margin-top:10px"
   >
+
     <article class="dash-card">
+
       <div class="card-head">
-        <h2>My Courses</h2>
+
+        <h2>
+          My Courses
+        </h2>
+
 
         <a
           href={`${base}courses/`}
-          style="font-size:9px;color:#63b3ff"
+          style="
+            font-size:9px;
+            color:#63b3ff
+          "
         >
           View all →
         </a>
+
       </div>
+
 
       <div class="dash-list">
-        <div class="dash-row">
-          <span>
-            <b>Technical Analysis</b>
-            <small>42% complete</small>
-          </span>
-          <span>→</span>
-        </div>
 
         <div class="dash-row">
+
           <span>
-            <b>Trading Psychology</b>
-            <small>18% complete</small>
+            <b>
+              Technical Analysis
+            </b>
+
+            <small>
+              42% complete
+            </small>
           </span>
-          <span>→</span>
+
+          <span>
+            →
+          </span>
+
         </div>
+
+
+        <div class="dash-row">
+
+          <span>
+            <b>
+              Trading Psychology
+            </b>
+
+            <small>
+              18% complete
+            </small>
+          </span>
+
+          <span>
+            →
+          </span>
+
+        </div>
+
       </div>
+
     </article>
+
 
     <article
       class="dash-card"
       id="purchases"
     >
+
       <div class="card-head">
-        <h2>My Purchases</h2>
+
+        <h2>
+          My Purchases
+        </h2>
+
 
         <a
           href={`${base}products/`}
-          style="font-size:9px;color:#63b3ff"
+          style="
+            font-size:9px;
+            color:#63b3ff
+          "
         >
           Browse →
         </a>
+
       </div>
 
+
       <div class="dash-list">
+
         <div class="dash-row">
+
           <span>
-            <b>Trade Avata Pro Trend</b>
-            <small>MT5 · TradingView</small>
+
+            <b>
+              Trade Avata Pro Trend
+            </b>
+
+            <small>
+              MT5 · TradingView
+            </small>
+
           </span>
+
 
           <span class="good">
             Active
           </span>
+
         </div>
 
+
         <div class="dash-row">
+
           <span>
-            <b>AI Scalper</b>
-            <small>cTrader</small>
+
+            <b>
+              AI Scalper
+            </b>
+
+            <small>
+              cTrader
+            </small>
+
           </span>
+
 
           <span>
             Download
           </span>
+
         </div>
+
       </div>
+
     </article>
+
 
     <article
       class="dash-card"
       id="library"
     >
-      <h2>Saved & Library</h2>
+
+      <h2>
+        Saved & Library
+      </h2>
+
 
       <div class="dash-list">
-        <div class="dash-row">
-          <span>
-            <b>3 saved articles</b>
-            <small>Continue reading anytime</small>
-          </span>
-          <span>→</span>
-        </div>
 
         <div class="dash-row">
+
           <span>
-            <b>2 downloads</b>
-            <small>Product files and resources</small>
+
+            <b>
+              3 saved articles
+            </b>
+
+            <small>
+              Continue reading anytime
+            </small>
+
           </span>
-          <span>→</span>
+
+          <span>
+            →
+          </span>
+
         </div>
 
+
         <div class="dash-row">
+
           <span>
-            <b>1 certificate</b>
-            <small>Available to view</small>
+
+            <b>
+              2 downloads
+            </b>
+
+            <small>
+              Product files and resources
+            </small>
+
           </span>
-          <span>→</span>
+
+          <span>
+            →
+          </span>
+
         </div>
+
+
+        <div class="dash-row">
+
+          <span>
+
+            <b>
+              1 certificate
+            </b>
+
+            <small>
+              Available to view
+            </small>
+
+          </span>
+
+          <span>
+            →
+          </span>
+
+        </div>
+
       </div>
+
     </article>
+
   </div>
+
 
   <div
     class="dash-grid three"
     style="margin-top:10px"
   >
+
     <article
       class="dash-card"
       id="saved"
     >
+
       <div class="card-head">
-        <h2>Saved Content</h2>
+
+        <h2>
+          Saved Content
+        </h2>
+
 
         <a
           href={`${base}articles/`}
-          style="font-size:9px;color:#63b3ff"
+          style="
+            font-size:9px;
+            color:#63b3ff
+          "
         >
           Browse articles →
         </a>
+
       </div>
+
 
       <div class="dash-row">
+
         <span>
-          <b>Trading Plan</b>
-          <small>Saved article · Continue reading</small>
+
+          <b>
+            Trading Plan
+          </b>
+
+          <small>
+            Saved article · Continue reading
+          </small>
+
         </span>
 
-        <a href={`${base}articles/build-a-trading-plan/`}>
+
+        <a
+          href={`${base}articles/build-a-trading-plan/`}
+        >
           Open →
         </a>
+
       </div>
+
 
       <div class="dash-row">
+
         <span>
-          <b>Risk Per Trade</b>
-          <small>Saved article</small>
+
+          <b>
+            Risk Per Trade
+          </b>
+
+          <small>
+            Saved article
+          </small>
+
         </span>
 
-        <a href={`${base}articles/risk-per-trade/`}>
+
+        <a
+          href={`${base}articles/risk-per-trade/`}
+        >
           Open →
         </a>
+
       </div>
+
     </article>
+
 
     <article
       class="dash-card"
       id="downloads"
     >
-      <h2>Downloads</h2>
+
+      <h2>
+        Downloads
+      </h2>
+
 
       <div class="dash-row">
+
         <span>
-          <b>Product files</b>
+
+          <b>
+            Product files
+          </b>
+
           <small>
             Available downloads appear here after purchase access is connected.
           </small>
+
         </span>
+
 
         <a href={`${base}products/`}>
           Products →
         </a>
+
       </div>
 
+
       <div class="dash-row">
+
         <span>
-          <b>Course resources</b>
+
+          <b>
+            Course resources
+          </b>
+
           <small>
             Lesson resources appear with enrolled courses.
           </small>
+
         </span>
+
 
         <a href={`${base}courses/`}>
           Courses →
         </a>
+
       </div>
+
     </article>
+
 
     <article
       class="dash-card"
       id="certificates"
     >
-      <h2>Certificates</h2>
+
+      <h2>
+        Certificates
+      </h2>
+
 
       <div class="dash-row">
+
         <span>
-          <b>Completed learning</b>
+
+          <b>
+            Completed learning
+          </b>
+
           <small>
             Certificates appear here when completion rules are connected.
           </small>
+
         </span>
+
 
         <a href={`${base}courses/`}>
           Learning →
         </a>
+
       </div>
+
     </article>
+
   </div>
+
 
   <div
     class="dash-grid two"
     style="margin-top:10px"
   >
+
     <article
       class="dash-card"
       id="profile"
     >
-      <h2>Profile</h2>
+
+      <span class="dash-eyebrow">
+        YOUR PROFILE
+      </span>
+
+      <h2>
+        Account identity
+      </h2>
+
+
+      <div class="member-profile-summary">
+
+        <span
+          class="member-avatar"
+          data-member-initial
+        >
+          M
+        </span>
+
+
+        <div>
+
+          <strong data-member-name>
+            Member
+          </strong>
+
+          <small data-member-email>
+            Your Trade Avata account
+          </small>
+
+        </div>
+
+      </div>
+
 
       <p>
-        Your account identity, display name and sign-in details will sync
-        from Firebase Auth and your member profile.
+        Your name and sign-in details are connected
+        to your Trade Avata account.
       </p>
+
 
       <a
         class="dash-control"
@@ -353,18 +743,26 @@ const nav = [
       >
         Open account workspace →
       </a>
+
     </article>
+
 
     <article
       class="dash-card"
       id="settings"
     >
-      <h2>Member Settings</h2>
+
+      <h2>
+        Member Settings
+      </h2>
+
 
       <p>
-        Use Customize for workspace appearance. Account, notification
-        and privacy preferences will sync here when Firebase is connected.
+        Use Customize for workspace appearance.
+        Account, notification and privacy preferences
+        will be connected here as we complete the backend.
       </p>
+
 
       <button
         class="dash-control"
@@ -372,47 +770,93 @@ const nav = [
       >
         Customize appearance
       </button>
+
     </article>
+
   </div>
+
 
   <div
     class="dash-grid two"
     style="margin-top:10px"
   >
+
     <article
       class="dash-card"
       id="notifications"
     >
+
       <div class="card-head">
-        <h2>Notifications</h2>
-        <span class="status-pill">2 new</span>
-      </div>
 
-      <div class="dash-row">
-        <span>
-          <b>Course progress saved</b>
-          <small>Your latest lesson is ready to resume.</small>
+        <h2>
+          Notifications
+        </h2>
+
+        <span class="status-pill">
+          2 new
         </span>
 
-        <span>Now</span>
       </div>
+
 
       <div class="dash-row">
+
         <span>
-          <b>Indicator update</b>
-          <small>A new Pro Trend build is available.</small>
+
+          <b>
+            Course progress saved
+          </b>
+
+          <small>
+            Your latest lesson is ready to resume.
+          </small>
+
         </span>
 
-        <span>1d</span>
+
+        <span>
+          Now
+        </span>
+
       </div>
+
+
+      <div class="dash-row">
+
+        <span>
+
+          <b>
+            Indicator update
+          </b>
+
+          <small>
+            A new Pro Trend build is available.
+          </small>
+
+        </span>
+
+
+        <span>
+          1d
+        </span>
+
+      </div>
+
     </article>
 
+
     <article class="dash-card">
-      <h2>Need help?</h2>
+
+      <h2>
+        Need help?
+      </h2>
+
 
       <p>
-        Use Trade Avata Support for account, course, product or platform questions.
+        Use Trade Avata Support for account,
+        course, product or platform questions.
       </p>
+
 
       <a
         class="dash-control"
@@ -420,36 +864,253 @@ const nav = [
       >
         Open Support →
       </a>
+
     </article>
+
   </div>
+
 </DashboardLayout>
 
-<script>
-  import { onAuthStateChanged } from 'firebase/auth';
-  import { auth } from '../../lib/firebase/auth.js';
 
-  const base = document.body.dataset.baseUrl || '/';
+<script>
+  import {
+    onAuthStateChanged
+  } from 'firebase/auth';
+
+  import {
+    auth
+  } from '../../lib/firebase/auth.js';
+
+
+  const base =
+    document.body.dataset.baseUrl || '/';
+
+
+  function getMemberName(
+    user
+  ) {
+
+    const displayName =
+      String(
+        user?.displayName || ''
+      ).trim();
+
+
+    if (displayName) {
+      return displayName;
+    }
+
+
+    const email =
+      String(
+        user?.email || ''
+      ).trim();
+
+
+    if (
+      email.includes('@')
+    ) {
+
+      const emailName =
+        email
+          .split('@')[0]
+          .trim();
+
+
+      if (emailName) {
+
+        return emailName
+          .charAt(0)
+          .toUpperCase() +
+          emailName.slice(1);
+
+      }
+
+    }
+
+
+    return 'Member';
+  }
+
+
+  function getMemberInitial(
+    name
+  ) {
+
+    const cleanName =
+      String(
+        name || ''
+      ).trim();
+
+
+    if (!cleanName) {
+      return 'M';
+    }
+
+
+    return cleanName
+      .charAt(0)
+      .toUpperCase();
+  }
+
+
+  function showMemberIdentity(
+    user
+  ) {
+
+    const name =
+      getMemberName(
+        user
+      );
+
+
+    const email =
+      String(
+        user?.email || ''
+      ).trim();
+
+
+    const initial =
+      getMemberInitial(
+        name
+      );
+
+
+    document
+      .querySelectorAll(
+        '[data-member-name]'
+      )
+      .forEach(
+        element => {
+
+          element.textContent =
+            name;
+
+        }
+      );
+
+
+    document
+      .querySelectorAll(
+        '[data-member-email]'
+      )
+      .forEach(
+        element => {
+
+          element.textContent =
+            email ||
+            'Trade Avata member';
+
+        }
+      );
+
+
+    document
+      .querySelectorAll(
+        '[data-member-initial]'
+      )
+      .forEach(
+        element => {
+
+          element.textContent =
+            initial;
+
+        }
+      );
+
+
+    /*
+      Update the small profile name
+      in the dashboard top-right corner.
+    */
+
+    const dashboardProfile =
+      document.querySelector(
+        '.dash-profile'
+      );
+
+
+    if (dashboardProfile) {
+
+      dashboardProfile.textContent =
+        name;
+
+    }
+
+  }
+
+
+  /*
+    MEMBER AUTHENTICATION GATE
+  */
 
   if (!auth) {
-    location.replace(`${base}login/`);
+
+    location.replace(
+      `${base}login/`
+    );
+
   } else {
-    onAuthStateChanged(auth, async (user) => {
-      if (!user) {
-        location.replace(`${base}login/`);
-        return;
-      }
 
-      try {
-        await user.reload();
+    onAuthStateChanged(
+      auth,
+      async user => {
 
-        if (!user.emailVerified) {
-          location.replace(`${base}verify-email/?required=1`);
+        if (!user) {
+
+          location.replace(
+            `${base}login/`
+          );
+
           return;
+
         }
-      } catch (error) {
-        console.error('Member authentication check failed:', error);
-        location.replace(`${base}login/`);
+
+
+        try {
+
+          await user.reload();
+
+
+          if (
+            !user.emailVerified
+          ) {
+
+            location.replace(
+              `${base}verify-email/?required=1`
+            );
+
+            return;
+
+          }
+
+
+          /*
+            User is authenticated and verified.
+            Personalize the dashboard.
+          */
+
+          showMemberIdentity(
+            user
+          );
+
+
+        } catch (error) {
+
+          console.error(
+            'Member authentication check failed:',
+            error
+          );
+
+
+          location.replace(
+            `${base}login/`
+          );
+
+        }
+
       }
-    });
+    );
+
   }
 </script>
