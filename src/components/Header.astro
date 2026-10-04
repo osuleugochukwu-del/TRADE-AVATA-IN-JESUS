@@ -1,29 +1,1075 @@
 ---
 import BrandLockup from './BrandLockup.astro';
+
 const base = import.meta.env.BASE_URL;
 ---
+
 <header class="site-header">
   <div class="shell header-inner">
-    <BrandLockup href={base} theme="dark" />
-    <nav class="desktop-nav" aria-label="Primary navigation">
+
+    <BrandLockup
+      href={base}
+      theme="dark"
+    />
+
+    <nav
+      class="desktop-nav"
+      aria-label="Primary navigation"
+    >
       <a href={base}>Home</a>
-      <a href={`${base}products/`}>Indicators</a>
-      <div class="nav-drop"><button type="button">AI Tools <span>⌄</span></button><div class="nav-drop-menu"><a href={`${base}analytics/`}>AI Analytics</a><a href={`${base}journal/`}>Trading Journal</a></div></div>
-      <div class="nav-drop"><button type="button">Learn <span>⌄</span></button><div class="nav-drop-menu"><a href={`${base}courses/`}>Courses</a><a href={`${base}articles/`}>Articles</a><a href={`${base}learn/`}>Learning Hub</a></div></div>
-      <a href={`${base}market/`}>Market</a>
-      <a href={`${base}contact/`}>Support</a>
+
+      <a href={`${base}products/`}>
+        Indicators
+      </a>
+
+      <div class="nav-drop">
+        <button type="button">
+          AI Tools <span>⌄</span>
+        </button>
+
+        <div class="nav-drop-menu">
+          <a href={`${base}analytics/`}>
+            AI Analytics
+          </a>
+
+          <a href={`${base}journal/`}>
+            Trading Journal
+          </a>
+        </div>
+      </div>
+
+      <div class="nav-drop">
+        <button type="button">
+          Learn <span>⌄</span>
+        </button>
+
+        <div class="nav-drop-menu">
+          <a href={`${base}courses/`}>
+            Courses
+          </a>
+
+          <a href={`${base}articles/`}>
+            Articles
+          </a>
+
+          <a href={`${base}learn/`}>
+            Learning Hub
+          </a>
+        </div>
+      </div>
+
+      <a href={`${base}market/`}>
+        Market
+      </a>
+
+      <a href={`${base}contact/`}>
+        Support
+      </a>
     </nav>
+
+
     <div class="header-actions">
-      <button class="theme-button" type="button" data-theme-toggle aria-label="Switch theme"><span aria-hidden="true">◐</span></button>
-      <a class="login-link" href={`${base}login/`}>Log in</a>
-      <a class="button button-small" href={`${base}register/`}>Sign Up</a>
-      <button class="menu-button" type="button" data-menu-toggle aria-expanded="false" aria-controls="mobile-nav" aria-label="Open menu">☰</button>
+
+      <button
+        class="theme-button"
+        type="button"
+        data-theme-toggle
+        aria-label="Switch theme"
+      >
+        <span aria-hidden="true">
+          ◐
+        </span>
+      </button>
+
+
+      <!--
+        GUEST DESKTOP CONTROLS
+
+        Hidden until Firebase confirms
+        that there is no signed-in user.
+      -->
+
+      <div
+        class="desktop-auth guest-auth"
+        data-auth-guest-desktop
+        hidden
+      >
+        <a
+          class="login-link"
+          href={`${base}login/`}
+        >
+          Log in
+        </a>
+
+        <a
+          class="button button-small"
+          href={`${base}register/`}
+        >
+          Sign Up
+        </a>
+      </div>
+
+
+      <!--
+        LOGGED-IN DESKTOP PROFILE
+      -->
+
+      <div
+        class="user-menu"
+        data-auth-user-desktop
+        hidden
+      >
+
+        <button
+          class="user-menu-button"
+          type="button"
+          data-user-menu-button
+          aria-expanded="false"
+          aria-haspopup="true"
+        >
+          <span
+            class="user-avatar"
+            data-user-initial
+          >
+            U
+          </span>
+
+          <span
+            class="user-name"
+            data-user-name
+          >
+            Account
+          </span>
+
+          <span
+            class="user-chevron"
+            aria-hidden="true"
+          >
+            ▾
+          </span>
+        </button>
+
+
+        <div
+          class="user-dropdown"
+          data-user-dropdown
+          hidden
+        >
+
+          <div class="user-dropdown-head">
+
+            <span
+              class="user-avatar large"
+              data-user-initial
+            >
+              U
+            </span>
+
+            <div>
+              <strong data-user-name>
+                Account
+              </strong>
+
+              <small data-user-email>
+              </small>
+            </div>
+
+          </div>
+
+
+          <div class="user-dropdown-links">
+
+            <a href={`${base}member/`}>
+              Member Area
+            </a>
+
+            <a href={`${base}my-trading/`}>
+              My Trading
+            </a>
+
+            <a href={`${base}member/#profile`}>
+              Profile
+            </a>
+
+            <a href={`${base}member/#settings`}>
+              Settings
+            </a>
+
+          </div>
+
+
+          <button
+            class="logout-button"
+            type="button"
+            data-logout
+          >
+            Log out
+          </button>
+
+        </div>
+
+      </div>
+
+
+      <button
+        class="menu-button"
+        type="button"
+        data-menu-toggle
+        aria-expanded="false"
+        aria-controls="mobile-nav"
+        aria-label="Open menu"
+      >
+        ☰
+      </button>
+
     </div>
+
   </div>
-  <div id="mobile-nav" class="mobile-nav" data-mobile-menu>
+
+
+  <!-- MOBILE MENU -->
+
+  <div
+    id="mobile-nav"
+    class="mobile-nav"
+    data-mobile-menu
+  >
+
     <div class="shell mobile-nav-inner">
-      <a href={base}>Home</a><a href={`${base}products/`}>Indicators</a><a href={`${base}analytics/`}>AI Analytics</a><a href={`${base}journal/`}>Trading Journal</a><a href={`${base}courses/`}>Courses</a><a href={`${base}articles/`}>Articles</a><a href={`${base}learn/`}>Learning Hub</a><a href={`${base}market/`}>Market</a><a href={`${base}contact/`}>Support</a>
-      <div class="mobile-actions"><a href={`${base}login/`}>Log in</a><a class="button" href={`${base}register/`}>Create account</a></div>
+
+      <a href={base}>
+        Home
+      </a>
+
+      <a href={`${base}products/`}>
+        Indicators
+      </a>
+
+      <a href={`${base}analytics/`}>
+        AI Analytics
+      </a>
+
+      <a href={`${base}journal/`}>
+        Trading Journal
+      </a>
+
+      <a href={`${base}courses/`}>
+        Courses
+      </a>
+
+      <a href={`${base}articles/`}>
+        Articles
+      </a>
+
+      <a href={`${base}learn/`}>
+        Learning Hub
+      </a>
+
+      <a href={`${base}market/`}>
+        Market
+      </a>
+
+      <a href={`${base}contact/`}>
+        Support
+      </a>
+
+
+      <!-- MOBILE GUEST -->
+
+      <div
+        class="mobile-auth guest-auth"
+        data-auth-guest-mobile
+        hidden
+      >
+
+        <a href={`${base}login/`}>
+          Log in
+        </a>
+
+        <a
+          class="button"
+          href={`${base}register/`}
+        >
+          Create account
+        </a>
+
+      </div>
+
+
+      <!-- MOBILE LOGGED-IN USER -->
+
+      <div
+        class="mobile-user"
+        data-auth-user-mobile
+        hidden
+      >
+
+        <div class="mobile-user-head">
+
+          <span
+            class="user-avatar"
+            data-user-initial
+          >
+            U
+          </span>
+
+          <div>
+            <strong data-user-name>
+              Account
+            </strong>
+
+            <small data-user-email>
+            </small>
+          </div>
+
+        </div>
+
+
+        <div class="mobile-user-links">
+
+          <a href={`${base}member/`}>
+            Member Area
+          </a>
+
+          <a href={`${base}my-trading/`}>
+            My Trading
+          </a>
+
+          <a href={`${base}member/#profile`}>
+            Profile
+          </a>
+
+          <a href={`${base}member/#settings`}>
+            Settings
+          </a>
+
+        </div>
+
+
+        <button
+          class="mobile-logout"
+          type="button"
+          data-logout
+        >
+          Log out
+        </button>
+
+      </div>
+
     </div>
   </div>
 </header>
+
+
+<style>
+  /*
+    AUTH HEADER
+  */
+
+  .desktop-auth {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+
+  /*
+    PROFILE BUTTON
+  */
+
+  .user-menu {
+    position: relative;
+  }
+
+  .user-menu-button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    min-height: 36px;
+
+    padding: 4px 9px 4px 5px;
+
+    border: 1px solid #294861;
+    border-radius: 10px;
+
+    background: #0a2034;
+    color: #fff;
+
+    font-size: 11px;
+    font-weight: 750;
+  }
+
+  .user-menu-button:hover {
+    border-color: #46799d;
+    background: #0d2942;
+  }
+
+  .user-avatar {
+    width: 27px;
+    height: 27px;
+
+    display: grid;
+    place-items: center;
+
+    flex: 0 0 auto;
+
+    border-radius: 50%;
+
+    background:
+      linear-gradient(
+        135deg,
+        #0784f8,
+        #32c8ff
+      );
+
+    color: #fff;
+
+    font-size: 11px;
+    font-weight: 900;
+    text-transform: uppercase;
+  }
+
+  .user-avatar.large {
+    width: 38px;
+    height: 38px;
+
+    font-size: 15px;
+  }
+
+  .user-name {
+    max-width: 120px;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .user-chevron {
+    color: #89a8bf;
+    font-size: 9px;
+  }
+
+
+  /*
+    DESKTOP PROFILE DROPDOWN
+  */
+
+  .user-dropdown {
+    position: absolute;
+
+    top: calc(100% + 10px);
+    right: 0;
+
+    width: 245px;
+
+    padding: 10px;
+
+    background: #071625;
+
+    border: 1px solid #203b53;
+    border-radius: 13px;
+
+    box-shadow:
+      0 22px 60px
+      rgba(0, 0, 0, .38);
+
+    z-index: 100;
+  }
+
+  .user-dropdown[hidden] {
+    display: none !important;
+  }
+
+  .user-dropdown-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    padding: 8px;
+
+    border-bottom:
+      1px solid #19354d;
+
+    margin-bottom: 6px;
+  }
+
+  .user-dropdown-head div {
+    min-width: 0;
+  }
+
+  .user-dropdown-head strong {
+    display: block;
+
+    color: #fff;
+
+    font-size: 12px;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .user-dropdown-head small {
+    display: block;
+
+    margin-top: 2px;
+
+    color: #83a1b9;
+    font-size: 9px;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .user-dropdown-links {
+    display: grid;
+    gap: 2px;
+  }
+
+  .user-dropdown-links a {
+    display: block;
+
+    padding: 9px 10px;
+
+    border-radius: 8px;
+
+    color: #c7d6e4;
+
+    font-size: 11px;
+  }
+
+  .user-dropdown-links a:hover {
+    background: #0f2a42;
+    color: #fff;
+  }
+
+  .logout-button {
+    width: 100%;
+
+    margin-top: 7px;
+    padding: 9px 10px;
+
+    border: 1px solid #633541;
+    border-radius: 8px;
+
+    background: #24131a;
+
+    color: #ffadb8;
+
+    text-align: left;
+
+    font-size: 11px;
+    font-weight: 750;
+  }
+
+  .logout-button:hover {
+    background: #321820;
+  }
+
+
+  /*
+    MOBILE AUTH
+  */
+
+  .mobile-auth {
+    display: flex;
+    gap: 8px;
+
+    padding-top: 12px;
+    margin-top: 8px;
+
+    border-top:
+      1px solid #193249;
+  }
+
+  .mobile-auth > a:first-child {
+    display: flex;
+    align-items: center;
+
+    padding: 8px;
+
+    color: #fff;
+  }
+
+  .mobile-user {
+    margin-top: 10px;
+
+    padding-top: 12px;
+
+    border-top:
+      1px solid #193249;
+  }
+
+  .mobile-user-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    padding: 4px 2px 12px;
+  }
+
+  .mobile-user-head strong {
+    display: block;
+
+    color: #fff;
+
+    font-size: 12px;
+  }
+
+  .mobile-user-head small {
+    display: block;
+
+    margin-top: 2px;
+
+    color: #82a0b8;
+
+    font-size: 9px;
+  }
+
+  .mobile-user-links {
+    display: grid;
+  }
+
+  .mobile-user-links a {
+    padding: 10px 2px;
+
+    color: #c7d4e0;
+
+    font-size: 12px;
+  }
+
+  .mobile-logout {
+    width: 100%;
+
+    margin-top: 8px;
+    padding: 11px;
+
+    border: 1px solid #633541;
+    border-radius: 9px;
+
+    background: #24131a;
+
+    color: #ffadb8;
+
+    text-align: left;
+
+    font-size: 11px;
+    font-weight: 750;
+  }
+
+
+  /*
+    IMPORTANT:
+    Prevent hidden authentication
+    elements from being displayed.
+  */
+
+  [hidden] {
+    display: none !important;
+  }
+
+
+  @media (max-width: 640px) {
+
+    .user-menu {
+      display: none !important;
+    }
+
+    .desktop-auth {
+      display: none !important;
+    }
+
+  }
+</style>
+
+
+<script>
+  import {
+    onAuthStateChanged,
+    signOut
+  } from 'firebase/auth';
+
+  import {
+    auth
+  } from '../lib/firebase/auth.js';
+
+
+  const base =
+    document.body.dataset.baseUrl || '/';
+
+
+  const guestDesktop =
+    document.querySelector(
+      '[data-auth-guest-desktop]'
+    );
+
+  const guestMobile =
+    document.querySelector(
+      '[data-auth-guest-mobile]'
+    );
+
+  const userDesktop =
+    document.querySelector(
+      '[data-auth-user-desktop]'
+    );
+
+  const userMobile =
+    document.querySelector(
+      '[data-auth-user-mobile]'
+    );
+
+  const userMenuButton =
+    document.querySelector(
+      '[data-user-menu-button]'
+    );
+
+  const userDropdown =
+    document.querySelector(
+      '[data-user-dropdown]'
+    );
+
+
+  /*
+    USER DISPLAY HELPERS
+  */
+
+  function getDisplayName(user) {
+
+    const displayName =
+      String(
+        user?.displayName || ''
+      ).trim();
+
+
+    if (displayName) {
+      return displayName;
+    }
+
+
+    const email =
+      String(
+        user?.email || ''
+      ).trim();
+
+
+    if (email.includes('@')) {
+
+      const local =
+        email.split('@')[0];
+
+      if (local) {
+        return local;
+      }
+
+    }
+
+
+    return 'Account';
+  }
+
+
+  function getInitial(name) {
+
+    const clean =
+      String(name || '')
+        .trim();
+
+
+    if (!clean) {
+      return 'U';
+    }
+
+
+    return clean
+      .charAt(0)
+      .toUpperCase();
+  }
+
+
+  function updateUserDetails(
+    user
+  ) {
+
+    const name =
+      getDisplayName(user);
+
+    const email =
+      String(
+        user?.email || ''
+      );
+
+    const initial =
+      getInitial(name);
+
+
+    document
+      .querySelectorAll(
+        '[data-user-name]'
+      )
+      .forEach(
+        element => {
+          element.textContent =
+            name;
+        }
+      );
+
+
+    document
+      .querySelectorAll(
+        '[data-user-email]'
+      )
+      .forEach(
+        element => {
+          element.textContent =
+            email;
+        }
+      );
+
+
+    document
+      .querySelectorAll(
+        '[data-user-initial]'
+      )
+      .forEach(
+        element => {
+          element.textContent =
+            initial;
+        }
+      );
+  }
+
+
+  /*
+    GUEST MODE
+  */
+
+  function showGuest() {
+
+    guestDesktop.hidden =
+      false;
+
+    guestMobile.hidden =
+      false;
+
+    userDesktop.hidden =
+      true;
+
+    userMobile.hidden =
+      true;
+
+
+    if (userDropdown) {
+      userDropdown.hidden =
+        true;
+    }
+
+
+    if (userMenuButton) {
+      userMenuButton.setAttribute(
+        'aria-expanded',
+        'false'
+      );
+    }
+  }
+
+
+  /*
+    SIGNED-IN MODE
+  */
+
+  function showUser(
+    user
+  ) {
+
+    updateUserDetails(
+      user
+    );
+
+
+    guestDesktop.hidden =
+      true;
+
+    guestMobile.hidden =
+      true;
+
+    userDesktop.hidden =
+      false;
+
+    userMobile.hidden =
+      false;
+  }
+
+
+  /*
+    FIREBASE AUTH STATE
+
+    Firebase remembers the session,
+    so returning users should appear
+    as signed in automatically.
+  */
+
+  if (!auth) {
+
+    showGuest();
+
+  } else {
+
+    onAuthStateChanged(
+      auth,
+      user => {
+
+        if (user) {
+
+          showUser(
+            user
+          );
+
+        } else {
+
+          showGuest();
+
+        }
+
+      }
+    );
+
+  }
+
+
+  /*
+    DESKTOP PROFILE DROPDOWN
+  */
+
+  userMenuButton
+    ?.addEventListener(
+      'click',
+      event => {
+
+        event.preventDefault();
+
+        event.stopPropagation();
+
+
+        const willOpen =
+          userDropdown.hidden;
+
+
+        userDropdown.hidden =
+          !willOpen;
+
+
+        userMenuButton.setAttribute(
+          'aria-expanded',
+          String(willOpen)
+        );
+
+      }
+    );
+
+
+  document.addEventListener(
+    'click',
+    event => {
+
+      if (
+        !userDropdown ||
+        userDropdown.hidden
+      ) {
+        return;
+      }
+
+
+      if (
+        userDesktop
+          ?.contains(
+            event.target
+          )
+      ) {
+        return;
+      }
+
+
+      userDropdown.hidden =
+        true;
+
+
+      userMenuButton
+        ?.setAttribute(
+          'aria-expanded',
+          'false'
+        );
+
+    }
+  );
+
+
+  /*
+    LOG OUT
+
+    Both desktop and mobile logout
+    buttons use the same behaviour.
+  */
+
+  document
+    .querySelectorAll(
+      '[data-logout]'
+    )
+    .forEach(
+      button => {
+
+        button.addEventListener(
+          'click',
+          async () => {
+
+            if (!auth) {
+              return;
+            }
+
+
+            button.disabled =
+              true;
+
+            button.textContent =
+              'Logging out…';
+
+
+            try {
+
+              await signOut(
+                auth
+              );
+
+
+              /*
+                After logout, return to
+                the public homepage.
+              */
+
+              location.href =
+                base;
+
+
+            } catch (error) {
+
+              console.error(
+                'Logout error:',
+                error
+              );
+
+
+              button.disabled =
+                false;
+
+              button.textContent =
+                'Log out';
+
+            }
+
+          }
+        );
+
+      }
+    );
+</script>
