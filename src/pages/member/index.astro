@@ -18,6 +18,46 @@ const nav = [
 ];
 ---
 
+<style is:global>
+  /*
+    Keep the entire protected dashboard hidden
+    until Firebase confirms the user is signed in.
+  */
+
+  .dash-shell {
+    visibility: hidden;
+    opacity: 0;
+  }
+
+  html.member-auth-ready .dash-shell {
+    visibility: visible;
+    opacity: 1;
+    transition: opacity .12s ease;
+  }
+
+  html:not(.member-auth-ready) body::after {
+    content: 'Checking your Trade Avata account…';
+
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+
+    display: grid;
+    place-items: center;
+
+    background: #06101d;
+    color: #a9c5df;
+
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  html.member-auth-ready body::after {
+    display: none;
+  }
+</style>
+
+
 <style>
   .member-top-welcome {
     display: grid;
@@ -1233,11 +1273,11 @@ const nav = [
 
 
   /*
-    The DashboardLayout creates its
-    own simple static profile badge.
+    DashboardLayout still creates an old
+    simple static profile badge.
 
-    We now have a real account menu,
-    so hide the old static badge.
+    Hide it because the Member Area now
+    has the real account dropdown.
   */
 
   const oldDashboardProfile =
@@ -1522,6 +1562,9 @@ const nav = [
 
   /*
     MEMBER AUTHENTICATION
+
+    The protected dashboard remains hidden
+    until this check succeeds.
   */
 
   if (!auth) {
@@ -1566,6 +1609,19 @@ const nav = [
           showMemberIdentity(
             user
           );
+
+
+          /*
+            Firebase has now confirmed:
+            signed in + email verified.
+
+            Only now reveal the dashboard.
+          */
+
+          document.documentElement
+            .classList.add(
+              'member-auth-ready'
+            );
 
 
         } catch (error) {
