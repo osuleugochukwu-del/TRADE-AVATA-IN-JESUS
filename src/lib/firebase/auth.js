@@ -1,4 +1,9 @@
-import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import {
+  getAuth,
+  onAuthStateChanged,
+  signOut
+} from 'firebase/auth';
+
 import { firebaseApp } from './config.js';
 
 export const auth = firebaseApp ? getAuth(firebaseApp) : null;
@@ -8,7 +13,11 @@ export function watchAuth(callback) {
     callback(null);
     return () => {};
   }
+
   return onAuthStateChanged(auth, callback);
 }
 
-export { onAuthStateChanged };
+export {
+  onAuthStateChanged,
+  signOut
+};
